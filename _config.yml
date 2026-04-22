@@ -1,4 +1,5 @@
 name: DESSERT Research Group
+title: DESSERT Research Group
 url: http://dessert.unina.it
 
 exclude: [bibble, README.md, Makefile, Dockerfile]
