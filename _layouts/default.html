@@ -4,7 +4,7 @@
         <title>{{ site.name }}: {{ page.title }}</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="icon" type="image/x-icon" href="{{ site.base }}/img/dessert_logo_no_text.png">
+        <link rel="icon" type="image/x-icon" href="{{ "/img/dessert_logo_no_text.png" | relative_url }}">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet"
               href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -14,7 +14,7 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
 
-        <link rel="stylesheet" href="{{ site.base }}/css/group.css">
+        <link rel="stylesheet" href="{{ "/css/group.css" | relative_url }}">
         <style>
            .table td {
     		vertical-align: middle;
@@ -33,32 +33,32 @@
 				<div id="sp-widgets1"><div class="sp-column mod_search"><div class="sp-module "><div class="sp-module-content">
 
 				<div class="custom">
-				<p><a href="https://www.dieti.unina.it"><img class="img-responsive" src="{{ site.base }}/img/dieti_logo.png" alt="DIETI" width=180></a></p>
+				<p><a href="https://www.dieti.unina.it"><img class="img-responsive" src="{{ "/img/dieti_logo.png" | relative_url }}" alt="DIETI" width=180></a></p>
 				</div></div></div></div></div>
 
 				<div id="sp-widgets2"><div class="sp-column widgets2"><div class="sp-module "><div class="sp-module-content">
 
 				<div class="custom">
-				<p><a title="Dipartimento di Eccellenza" href="https://www.dieti.unina.it/index.php/it/dieti-dipartimento-di-eccellenza-2018-2022"><img class="img-responsive" src="{{ site.base }}/img/dipecc_dieti_2018_2022_logo.png" alt=""></a></p>
+				<p><a title="Dipartimento di Eccellenza" href="https://www.dieti.unina.it/index.php/it/dieti-dipartimento-di-eccellenza-2018-2022"><img class="img-responsive" src="{{ "/img/dipecc_dieti_2018_2022_logo.png" | relative_url }}" alt=""></a></p>
 				</div></div></div></div></div>
 	
 				<div id="sp-widgets3"><div class="sp-column "><div class="sp-module "><div class="sp-module-content">
 
 				<div class="custom">
-				<p><a href="https://www.dieti.unina.it/index.php/it/dieti-dipartimento-di-eccellenza-2023-2027"><img src="{{ site.base }}/img/dipecc_dieti_2023_2027_logo.png" alt=""></a></p>
+				<p><a href="https://www.dieti.unina.it/index.php/it/dieti-dipartimento-di-eccellenza-2023-2027"><img src="{{ "/img/dipecc_dieti_2023_2027_logo.png" | relative_url }}" alt=""></a></p>
 				<p>&nbsp;</p>
 				</div></div></div></div></div>
 
 				<div id="sp-widgets4"><div class="sp-column "><div class="sp-module "><div class="sp-module-content">
 
 				<div class="custom">
-				<p><a href="http://www.scuolapsb.unina.it/" target="_blank" rel="noopener noreferrer"><img src="{{ site.base }}/img/spsb_logo.png" alt="" width="137" height="46"></a></p>
+				<p><a href="http://www.scuolapsb.unina.it/" target="_blank" rel="noopener noreferrer"><img src="{{ "/img/spsb_logo.png" | relative_url }}" alt="" width="137" height="46"></a></p>
 				</div></div></div></div></div>
 
 				<div id="sp-widgets5"><div class="sp-column "><div class="sp-module "><div class="sp-module-content">
 
 				<div class="custom">
-				<p><a href="http://www.unina.it" target="_blank" rel="noopener noreferrer"><img src="{{ site.base }}/img/unina_logo.png" alt="" width="182" height="56"></a></p>
+				<p><a href="http://www.unina.it" target="_blank" rel="noopener noreferrer"><img src="{{ "/img/unina_logo.png" | relative_url }}" alt="" width="182" height="56"></a></p>
 				</div></div></div></div></div>
 			</div>
 	    </div>
@@ -67,8 +67,8 @@
             <div class="header d-flex
                         flex-column
                         flex-md-row justify-content-md-between" id="myHeader">
-                <a href="{{ site.base }}/" class="">
-                    <img src="{{ site.base }}/img/dessert_logo.png"
+                <a href="{{ "/" | relative_url }}" class="">
+                    <img src="{{ "/img/dessert_logo.png" | relative_url }}"
                          alt="DESSERT" id="logo">
                 </a>
                 <ul id="topbar" class="nav nav-pills justify-content-center">
@@ -88,7 +88,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link {{ maybe-active }}"
-                               href="{{ site.base }}{{ item.link }}">
+                               href="{{ item.link | relative_url }}">
                                 {{ item.title }}
                             </a>
                         </li>
@@ -128,7 +128,7 @@
 
         <!-- Support retina images. -->
         <script type="text/javascript"
-                src="{{ site.base }}/js/srcset-polyfill.js"></script>
+                src="{{ "/js/srcset-polyfill.js" | relative_url }}"></script>
 	
 	<script defer src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.js"></script>
 

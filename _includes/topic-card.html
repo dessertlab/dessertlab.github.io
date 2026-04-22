@@ -4,7 +4,7 @@
 {% if topic.link %}
     {% assign proj-url = topic.link %}
 {% else %}
-    {% capture proj-url %}{{site.base}}{{topic.url}}.html{% endcapture %}
+    {% capture proj-url %}{{ topic.url | append: ".html" | relative_url }}{% endcapture %}
 {% endif %}
 
 <div class="card">
@@ -13,7 +13,7 @@
             {% assign imgurl = topic.image %}
             {% capture init %}{{ topic.image | slice: 0,1 }}{% endcapture %}
             {% if init == "/" %}
-                {% capture imgurl %}{{site.base}}{{topic.image}}{% endcapture %}
+                {% capture imgurl %}{{ topic.image | relative_url }}{% endcapture %}
             {% endif %}
             <a href="{{ proj-url }}">
                 <img class="img-fluid" src="{{imgurl}}" alt="{{project.title}}"/>

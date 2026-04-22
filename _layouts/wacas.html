@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <title>WACAS: {{ page.title }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="{{ site.base }}/css/bootstrap.min.css" rel="stylesheet">
-        <link href="{{ site.base }}/css/sampa.css" rel="stylesheet">
-        <link href="{{ site.base }}/css/print.css" rel="stylesheet"
+        <link href="{{ "/css/bootstrap.min.css" | relative_url }}" rel="stylesheet">
+        <link href="{{ "/css/sampa.css" | relative_url }}" rel="stylesheet">
+        <link href="{{ "/css/print.css" | relative_url }}" rel="stylesheet"
             media="print">
     </head>
     <body>
@@ -16,14 +16,14 @@
               {% assign shorturl = page.url | replace:'index.html','' %}
               {% for item in site.nav_wacas %}
                 <li {% if item.link == shorturl %}class="active"{% endif %}>
-                  <a href="{{ site.base }}{{ item.link }}">
+                  <a href="{{ item.link | relative_url }}">
                     {{ item.title }}
                   </a>
                 </li>
               {% endfor %}
             </ul>
             <a href="./"><img style="float: left; margin-right: 1em"
-                              src="{{ site.base }}/img/wacas-small.jpg"
+                              src="{{ "/img/wacas-small.jpg" | relative_url }}"
                               width="56" height="56" alt="logo" /></a>
             <a href="./"><h1>WACAS 2014</h1></a>
             </a>
@@ -41,6 +41,6 @@
 
         <!-- Support retina images. -->
         <script type="text/javascript"
-            src="{{ site.base }}/js/srcset-polyfill.js"></script>
+            src="{{ "/js/srcset-polyfill.js" | relative_url }}"></script>
     </body>
 </html>

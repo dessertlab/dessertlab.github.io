@@ -41,7 +41,7 @@ role-tables:
     {% if numposts >= 1 %}
         <p>
             <span class="fa fa-fw fa-history"></span>
-            <a href="{{ site.base }}/blog.html">Older posts&hellip;</a>
+            <a href="{{ "/blog.html" | relative_url }}">Older posts&hellip;</a>
         </p>
     {% endif %}
 </section>
