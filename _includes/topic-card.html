@@ -1,0 +1,50 @@
+
+{% assign topic = include.topic %}
+
+{% if topic.link %}
+    {% assign proj-url = topic.link %}
+{% else %}
+    {% capture proj-url %}{{site.base}}{{topic.url}}.html{% endcapture %}
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        {% if topic.image %}
+            {% assign imgurl = topic.image %}
+            {% capture init %}{{ topic.image | slice: 0,1 }}{% endcapture %}
+            {% if init == "/" %}
+                {% capture imgurl %}{{site.base}}{{topic.image}}{% endcapture %}
+            {% endif %}
+            <a href="{{ proj-url }}">
+                <img class="img-fluid" src="{{imgurl}}" alt="{{project.title}}"/>
+            </a>
+        {% endif %}
+        {% if topic.notitle != true %}
+            <h4 class="card-title">
+                {{  topic.title }}
+            </h4>
+        {% endif %}
+        {% if topic.subtitle != null and topic.subtitle != "" %}
+            <h6 class="card-subtitle mb-2 text-muted">
+                {{  topic.subtitle }}
+            </h6>
+        {% endif %}
+        <div class="card-text">
+            {{ topic.description | markdownify }}
+        </div>
+        {% if topic.no-link != true or topic.link %}
+            <a href="{{ proj-url }}"> Read more &raquo;</a>
+        {% endif %}
+    </div>
+    {% if topic.people %}
+        <div class="card-footer d-flex flex-row flex-wrap justify-content-center">
+            {% for uname in topic.people %}
+                <div>
+                    {% assign person = site.data.people[uname]  %}
+                    {% include person-image.html person=person %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>

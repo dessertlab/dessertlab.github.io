@@ -1,0 +1,23 @@
+---
+layout: default
+---
+
+{% assign project = include.project %}
+
+{{ content }}
+
+<h2> People </h2>
+<section class="people project-people">
+    
+    {% assign index = 0 %}
+    {% for uname in page.people %}
+	{% assign prole = page.proj-roles[index] %}
+	{% assign index = index | plus: 1 %}
+    	{% assign person = site.data.people[uname] %}
+	{% include person.html person=person prole=prole image=true %}
+    {% endfor %}
+
+</section>
+
+
+

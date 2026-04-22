@@ -1,0 +1,37 @@
+
+{% assign person = include.person %}
+{% assign prole = include.prole %}
+
+{% if person.webpage %}
+    {% capture name %}
+        <a href="{{ person.webpage | escape }}"> {{ person.display_name }} </a>
+    {% endcapture %}
+{% else %}
+    {% assign name = person.display_name %}
+{% endif %}
+
+{% if include.image %}
+    <div class="person person-with-image row align-items-center">
+        <div class="col-auto">
+            {% include person-image.html person=person %}
+        </div>
+        <div class="col pl-0">
+            <h6 class="person-name"> {{ name }} </h6>
+	    {% if prole %}
+		<div class="bio">{{prole}}</div>		
+	    {% elsif person.bio %}
+                <div class="bio">{{person.bio}}</div>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="person person-without-image">
+        {{ name }}
+	{% if prole %%}
+           	<span class="bio">{{prole}}</span>
+	{% elsif person.bio %}
+		<span class="bio">{{person.bio}}</span>
+        {% endif %}
+    </div>
+
+{% endif %}

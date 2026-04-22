@@ -1,9 +1,82 @@
-<!doctype html>
-<html>
-  <head>
-    <title>This is the title of the webpage!</title>
-  </head>
-  	<body>
-		<h2>DESSERT group web site under construction...</h2>  
-	</body>
-</html>
+---
+layout: default
+title: DESSERT's Home Page
+notitle: true
+
+# groups of columns of {roles: list, width: num, image: bool}
+role-tables:
+- - roles: [faculty]
+    width: 12
+    image: true
+- - roles: [postdoc]
+    width: 12
+    image: true
+- - roles: [phd_student]
+    width: 12
+    image: true
+- - roles: [visiting_researchers]
+    width: 12
+    image: true
+- - roles: [former_researchers]
+    width: 12
+    image: true
+---
+
+<div class="jumbotron">
+    	<p>
+	The <b>DESSERT</b> (<b>DE</b>pendable and <b>S</b>ecure <b>S</b>oftware <b>E</b>ngineering and <b>R</b>eal-<b>T</b>ime Systems) research group at the <a href="https://www.unina.it/home">Università degli Studi di Napoli Federico II</a> conducts research in the design, the assessment, and the verification of dependable, secure, and real-time systems. Such systems often have requirements for dependability, security, and temporal behaviors. These requirements may contradict one another. By providing unified software engineering methodologies and techniques to assess system response times, dependability, and security during the entire design process, the research group defines and applies new engineering principles to the design and the verification of critical systems.
+	</p>
+</div>
+
+<section>
+    <pre>
+        <h2>News</h2>
+    </pre>
+    <ul class="news list-unstyled">
+        {% for post in site.posts limit: site.front_page_news %}
+            {% include news-item.html item=post %}
+        {% endfor %}
+    </ul>
+    {% assign numposts = site.posts | size %}
+    {% if numposts >= 1 %}
+        <p>
+            <span class="fa fa-fw fa-history"></span>
+            <a href="{{ site.base }}/blog.html">Older posts&hellip;</a>
+        </p>
+    {% endif %}
+</section>
+
+<div id="people">
+    <pre>
+        <h2>People</h2>
+    </pre>
+    {% for role-table in page.role-tables %}
+        <section class="people row justify-content-between">
+            {% for role-column in role-table %}
+                <div class="col-md-{{ role-column.width }}">
+                    {% for role in role-column.roles %}
+                        {% include role-people.html role=role image=role-column.image %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </section>
+    {% endfor %}
+</div>
+
+<section>
+    <pre>
+        <h2>Research Projects</h2>
+    </pre>
+    <div class="card-columns">
+        {% comment %}
+        Sort the projects by date, putting those without dates last
+        {% endcomment %}
+        {% assign projects_by_date = site.projects_current | sort: 'last-updated', 'first' %}
+        {% assign projects_by_date = projects_by_date | reverse %}
+        {% for p in projects_by_date %}
+            {% if p.status != "inactive" %}
+                {% include project-card.html project=p %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>

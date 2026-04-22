@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "Seminar Announcement"
+date:   2025-10-13 08:30:00 +0000
+shortnews: false
+categories: jekyll update
+icon: newspaper-o
+---
+
+## 🌴🚀 CaPriC 2025 Begins!
+
+We’re live from Anacapri, Italy for the 1st CaPriC PhD School on Cyber-Physical Cloud 🌤️
+
+Top researchers + industry leaders unite to explore:
+
+- ⚙️ Real-Time Systems
+- ☁️ Cloud Orchestration
+- 🤖 Cyber-Physical Integration
+
+
+📍 Villa Orlandi, Capri Island
+
+🗓️ October 13–17, 2025
+
+🎓 4 ECTS for participants
+
+Follow the journey 👉 [https://capric-school.github.io](https://capric-school.github.io)
+
+\#CaPriC2025 \#CyberPhysicalSystems \#PhDSchool \#CloudComputing \#RealTimeSystems \#Capri

@@ -1,0 +1,455 @@
+stefano-russo:
+   display_name: "Stefano Russo"
+   webpage: "https://scholar.google.it/citations?user=KsHVzwMAAAAJ"
+   role: faculty
+   bio: Professor
+   image: /img/people/foto_russo.jpeg
+
+domenico-cotroneo:
+   display_name: "Domenico Cotroneo"
+   webpage: "https://wpage.unina.it/cotroneo"
+   role: faculty
+   bio: Professor
+   image: /img/people/foto_domenico_cotroneo.jpeg
+
+marcello-cinque:
+   display_name: "Marcello Cinque"
+   webpage: "http://wpage.unina.it/macinque/"
+   role: faculty
+   bio: Associate Professor
+   image: /img/people/foto_cinque.jpeg
+
+roberto-pietrantuono:
+   display_name: "Roberto Pietrantuono"
+   webpage: "http://wpage.unina.it/roberto.pietrantuono/"
+   role: faculty
+   bio: Associate Professor
+   image: /img/people/foto_roberto_pietrantuono.jpeg
+
+luigi-de-simone:
+   display_name: "Luigi De Simone"
+   webpage: "http://wpage.unina.it/luigi.desimone"
+   role: faculty
+   image: /img/people/foto_luigi_de_simone.jpeg
+   bio: Assistant Professor
+
+raffaele-della-corte:
+   display_name: "Raffaele Della Corte"
+   webpage: "https://it.linkedin.com/in/raffaele-della-corte-49b95445"
+   role: faculty
+   image: /img/people/foto_raffaele_della_corte.jpeg
+   bio: Assistant Professor
+
+pietro-liguori:
+   display_name: "Pietro Liguori"
+   webpage: "http://wpage.unina.it/pietro.liguori"
+   role: faculty
+   image: /img/people/foto_pietro_liguori.jpeg
+   bio: Assistant Professor
+
+vittorio-orbinato:
+   display_name: "Vittorio Orbinato"
+   webpage: "http://wpage.unina.it/vittorio.orbinato"
+   role: faculty
+   image: /img/people/foto_vittorio_orbinato.jpeg
+   bio: Assistant Professor
+
+cristina-improta:
+   display_name: "Cristina Improta"
+   webpage: "http://wpage.unina.it/cristina.improta"
+   role: postdoc
+   image: /img/people/foto_cristina_improta.jpeg
+   bio: Postdoc
+
+luca-giamattei:
+   display_name: "Luca Giamattei"
+   webpage: "http://wpage.unina.it/luca.giamattei"
+   role: faculty
+   image: /img/people/foto_luca_giamattei.jpeg
+   bio: Assistant Professor
+
+andrea-marchetta:
+   display_name: "Andrea Marchetta"
+   webpage: "https://scholar.google.com/citations?user=kAmve_UAAAAJ"
+   role: phd_student
+   image: /img/people/foto_andrea_marchetta.jpeg
+   bio: PhD Student
+
+giuseppe-derosa:
+   display_name: "Giuseppe De Rosa"
+   webpage: "http://wpage.unina.it/giuseppe.derosa"
+   role: phd_student
+   image: /img/people/foto_giuseppe_derosa.jpeg
+   bio: PhD Student
+
+roberta-deluca:
+   display_name: "Roberta De Luca"
+   webpage: "http://wpage.unina.it/roberta.deluca2"
+   role: phd_student
+   image: /img/people/foto_roberta_deluca.jpeg
+   bio: PhD Student
+
+luciano-pianese:
+   display_name: "Luciano Pianese"
+   webpage: "http://wpage.unina.it/luciano.pianese"
+   role: phd_student
+   image: /img/people/foto_luciano_pianese.jpeg
+   bio: PhD Student
+
+francesco-grasso:
+   display_name: "Francesco Crescenzo Grasso"
+   webpage: "http://wpage.unina.it/francesco.grasso"
+   role: phd_student
+   image: /img/people/foto_francesco_grasso.jpeg
+   bio: PhD Student
+
+cristian-mascia:
+   display_name: "Cristian Mascia"
+   webpage: "http://wpage.unina.it/cristian.mascia"
+   role: phd_student
+   image: /img/people/foto_cristian_mascia.jpeg
+   bio: PhD Student
+
+sofia-della-penna:
+   display_name: "Sofia Della Penna"
+   webpage: "http://wpage.unina.it/sofia.dellapenna"
+   role: phd_student
+   image: /img/people/foto_sofia_della_penna.jpg
+   bio: PhD Student
+
+lorenzo-parracino:
+   display_name: "Lorenzo Parracino"
+   webpage: "http://wpage.unina.it/lorenzo.parracino"
+   role: phd_student
+   image: /img/people/foto_lorenzo_parracino.jpg
+   bio: PhD Student
+
+francesco-boccola:
+   display_name: "Francesco Boccola"
+   webpage: "http://wpage.unina.it/francesco.boccola"
+   role: phd_student
+   image: /img/people/foto_francesco_boccola.jpg
+   bio: PhD Student
+
+nike-digiacomo:
+   display_name: "Nike Di Giacomo"
+   webpage: "http://wpage.unina.it/nike.digiacomo"
+   role: phd_student
+   image: /img/people/foto_nike_digiacomo.jpg
+   bio: PhD Student
+
+benedetta-varriale:
+   display_name: "Benedetta Gaia Varriale"
+   webpage: "http://wpage.unina.it/benedettagaia.varriale"
+   role: phd_student
+   image: /img/people/foto_benedetta_varriale.jpg
+   bio: PhD Student
+
+saverio-dellaversana:
+   display_name: "Saverio Dell'Aversana"
+   webpage: "http://wpage.unina.it/saverio.dellaversana"
+   role: phd_student
+   image: /img/people/foto_saverio_dellaversana.jpg
+   bio: PhD Student
+
+chiara-peruzzi:
+   display_name: "Chiara Peruzzi"
+   webpage: "http://wpage.unina.it/chiara.peruzzi"
+   role: phd_student
+   image: /img/people/foto_chiara_peruzzi.jpg
+   bio: PhD Student
+
+stefano-toscano:
+   display_name: "Stefano Toscano"
+   webpage: "http://wpage.unina.it/stefano.toscano"
+   role: phd_student
+   image: /img/people/foto_stefano_toscano.jpeg
+   bio: PhD Student
+
+francesco-pizzo:
+   display_name: "Francesco Pizzo"
+   webpage: "http://wpage.unina.it/francesco.pizzo"
+   role: phd_student
+   image: /img/people/foto_francesco_pizzo.jpg
+   bio: PhD Student
+
+francesco-altiero:
+   display_name: "Francesco Altiero"
+   webpage: "http://wpage.unina.it/francesco.altiero"
+   role: phd_student
+   image: /img/people/foto_francesco_altiero.jpg
+   bio: PhD Student
+
+peter-popov: 
+   display_name: "Prof. Peter Popov"
+   webpage: "https://www.citystgeorges.ac.uk/about/people/academics/peter-popov"
+   role: visiting_researchers
+   image: /img/people/foto_visiting_peter_popov.jpeg
+   bio: City University London; October 25 - November 25, 2016
+
+nuno-silva: 
+   display_name: "Dr. Nuno Silva"
+   webpage: "https://www.linkedin.com/in/nunopedrojesussilva/"
+   role: visiting_researchers
+   image: /img/people/foto_visiting_nuno_silva.jpeg
+   bio: Critical Software, Coimbra - Portugal; January 2011
+
+ricardo-barbosa: 
+   display_name: "Dr. Ricardo Barbosa"
+   webpage: "https://www.linkedin.com/in/ricardoambarbosa"
+   role: visiting_researchers
+   image: /img/people/foto_visiting_ricardo_barbosa.jpeg
+   bio: Critical Software, Oporto - Portugal; July 2010
+
+archit-gupta: 
+   display_name: "Dr. Archit Gupta"
+   webpage: "https://www.linkedin.com/in/architgupta22"
+   role: visiting_researchers
+   image: /img/people/foto_visiting_archit_gupta.jpeg
+   bio: Indian Institute of Technology, Guwahati; May-July 2005
+
+roberto-natella:
+   display_name: "Roberto Natella"
+   webpage: "http://wpage.unina.it/roberto.natella/"
+   role: former_researchers
+   bio: Now at Gran Sasso Science Institute (Professor)
+   image: /img/people/foto_roberto_natella.jpeg
+
+patrizia-quaranta:
+   display_name: "Patrizia Quaranta"
+   webpage: "http://wpage.unina.it/patrizia.quaranta"
+   role: former_researchers
+   image: /img/people/foto_patrizia_quaranta.jpeg
+   bio: 
+
+davide-de-vita:
+   display_name: "Davide De Vita"
+   webpage: "https://sites.google.com/view/davide-de-vita"
+   role: former_researchers
+   image: /img/people/foto_davide_de_vita.jpeg
+   bio: 
+
+simona-de-vivo:
+   display_name: "Simona De Vivo"
+   webpage: "http://wpage.unina.it/simona.devivo"
+   role: former_researchers
+   image: /img/people/foto_simona_devivo.jpeg
+   bio: Now at RFI Lab, DIETI
+
+carmine-cesarano:
+   display_name: "Carmine Cesarano"
+   webpage: "http://wpage.unina.it/carmine.cesarano2"
+   role: former_researchers
+   image: /img/people/foto_carmine_cesarano.jpeg
+   bio: Now at KTH Royal Institute of Technology (Postdoctoral Researcher)
+
+alessio-foggia:
+   display_name: "Alessio Foggia"
+   webpage: "http://wpage.unina.it/alessio.foggia"
+   role: former_researchers
+   image: /img/people/foto_alessio_foggia.jpeg
+   bio: Now at Clanto Services s.r.l.
+
+giorgio-farina:
+   display_name: "Giorgio Farina"
+   webpage: "http://wpage.unina.it/giorgio.farina"
+   role: former_researchers
+   image: /img/people/foto_giorgio_farina.jpeg
+   bio: Now at Télécom Paris, France
+
+daniele-ottaviano:
+   display_name: "Daniele Ottaviano"
+   webpage: "http://wpage.unina.it/daniele.ottaviano"
+   role: former_researchers
+   image: /img/people/foto_daniele_ottaviano.jpeg
+   bio: Now at TU Munich (Postdoctoral Researcher)
+
+marco-barletta:
+   display_name: "Marco Barletta"
+   webpage: "http://wpage.unina.it/marco.barletta"
+   role: former_researchers
+   image: /img/people/foto_marco_barletta.jpeg
+   bio: Now at Huawei
+
+antonio-guerriero:
+   display_name: "Antonio Guerriero"
+   webpage: "http://wpage.unina.it/antonio.guerriero"
+   role: former_researchers
+   image: /img/people/foto_antonio_guerriero.jpeg
+   bio: Now at UNISA (Assistant Professor)
+
+stefano-rosiello:
+   display_name: "Stefano Rosiello"
+   webpage: "http://wpage.unina.it/stefano.rosiello/"
+   role: former_researchers
+   image: /img/people/foto_former_stefano_rosiello.jpeg
+   bio: Now at Critiware s.r.l.
+
+antonio-pecchia:
+   display_name: "Antonio Pecchia"
+   webpage: "https://www.unisannio.it/it/users/apecchia"
+   role: former_researchers
+   image: /img/people/foto_former_antonio_pecchia.jpeg
+   bio: Now at UNISANNIO (Associate Professor)
+
+christian-esposito:
+   display_name: "Christian Esposito"
+   webpage: "https://docenti.unisa.it/030400/home"
+   role: former_researchers
+   image: /img/people/foto_former_christian_esposito.jpeg
+   bio: Now at UNISA (Associate Professor)
+
+antonio-ken-iannillo:
+   display_name: "Antonio Ken Iannillo"
+   webpage: "https://akiannillo.github.io/"
+   role: former_researchers
+   image: /img/people/foto_former_antonio_ken_iannillo.jpeg
+   bio: Now at SnT, University of Luxembourg (Research Scientist)
+
+francesco-fucci:
+   display_name: "Francesco Fucci"
+   webpage: "https://www.linkedin.com/in/frfucci/"
+   role: former_researchers
+   image: /img/people/foto_former_francesco_fucci.jpeg
+   bio: Now at Lighthouse Financial Technologies, Netherlands
+
+anna-lanzaro:
+   display_name: "Anna Lanzaro"
+   webpage: "https://it.linkedin.com/in/anna-lanzaro-a94b8719"
+   role: former_researchers
+   image: /img/people/foto_former_anna_lanzaro.jpeg
+   bio: Now at NIER Ingegneria SpA, Italy
+
+ugo-giordano:
+   display_name: "Ugo Giordano"
+   webpage: "https://www.linkedin.com/in/ugogiordano/"
+   role: former_researchers
+   image: /img/people/foto_former_ugo_giordano.jpeg
+   bio: Now at Red Hat, Inc., Italy
+
+fabio-scippacercola:
+   display_name: "Fabio Scippacercola"
+   webpage: "https://it.linkedin.com/in/fabio-scippacercola-471133153"
+   role: former_researchers
+   image: /img/people/foto_former_fabio_scippacercola.jpeg
+   bio: Now at Fervento (Co-Founder), Italy
+
+flavio-frattini:
+   display_name: "Flavio Frattini"
+   webpage: "https://it.linkedin.com/in/flaviofrattini"
+   role: former_researchers
+   image: /img/people/foto_former_flavio_frattini.jpeg
+   bio: Now at Cosmopol S.p.A., Italy
+
+alessandro-testa:
+   display_name: "Alessandro Testa"
+   webpage: "https://it.linkedin.com/in/alessandro-testa-00791a15"
+   role: former_researchers
+   image: /img/people/foto_former_alessandro_testa.jpeg
+   bio: Now at Azienda Sanitaria Locale Napoli 3, Italy
+
+antonio-bovenzi:
+   display_name: "Antonio Bovenzi"
+   webpage: "https://it.linkedin.com/in/antonio-bovenzi-b6a8a526"
+   role: former_researchers
+   image: /img/people/foto_former_antonio_bovenzi.jpeg
+   bio: Now at Banca d'Italia, Italy
+
+massimo-ficco:
+   display_name: "Massimo Ficco"
+   webpage: "https://docenti.unisa.it/058291/home"
+   role: former_researchers
+   image: /img/people/foto_former_massimo_ficco.jpeg
+   bio: Now at UNISA (Professor)
+
+vincenzo-vecchio:
+   display_name: "Vincenzo Vecchio"
+   webpage: "https://www.dieti.unina.it/index.php/en/tit-amministrazione/uffici/86-ufficio-dipartimentale-contabilita"
+   role: former_researchers
+   image: /img/people/foto_former_vincenzo_vecchio.jpeg
+   bio: Now at DIETI, UNINA, Italy
+
+catello-di-martino:
+   display_name: "Catello Di Martino"
+   webpage: "https://br.linkedin.com/in/catellod"
+   role: former_researchers
+   image: /img/people/foto_former_catello_di_martino.jpeg
+   bio: Now at Nokia Bell Labs, São Paulo - Brasil
+
+domenico-di-leo:
+   display_name: "Domenico Di Leo"
+   webpage: "https://it.linkedin.com/in/domenico-di-leo-ph-d-33495713"
+   role: former_researchers
+   image: /img/people/foto_former_domenico_di_leo.jpeg
+   bio: Now at Hitachi Rail, Italy
+
+generoso-paolillo:
+   display_name: "Generoso Paolillo"
+   webpage: "https://it.linkedin.com/in/generoso-paolillo-942b6117"
+   role: former_researchers
+   image: /img/people/foto_former_generoso_paolillo.jpeg
+   bio: Now at Leonardo, Italy
+
+gabriella-carrozza:
+   display_name: "Gabriella Carrozza"
+   webpage: "https://it.linkedin.com/in/gabriellacarrozza"
+   role: former_researchers
+   image: /img/people/foto_former_gabriella_carrozza.jpeg
+   bio: Now at Accenture, Italy
+
+antonio-strano:
+   display_name: "Antonio Strano"
+   webpage: "https://www.linkedin.com/in/antonio-strano-65a78730/"
+   role: former_researchers
+   image: /img/people/foto_former_antonio_strano.jpeg
+   bio: Now at Leonardo, Italy
+
+salvatore-orlando:
+   display_name: "Salvatore Orlando"
+   webpage: "https://www.linkedin.com/in/taturiello/"
+   role: former_researchers
+   image: /img/people/foto_former_salvatore_orlando.jpeg
+   bio: Now at VMware, USA
+
+paolo-ascione:
+   display_name: "Paolo Ascione"
+   webpage: "https://www.linkedin.com/in/paolo-ascione-6a0aa99"
+   role: former_researchers
+   image: /img/people/foto_former_paolo_ascione.jpeg
+   bio: Now at Borsa Italiana, Italy
+
+armando-migliaccio:
+   display_name: "Armando Migliaccio"
+   webpage: "https://www.linkedin.com/in/armax/it"
+   role: former_researchers
+   image: /img/people/foto_former_armando_migliaccio.jpeg
+   bio: Now at DigitalOcean, USA
+
+carmine-pirro:
+   display_name: "Carmine Pirro"
+   webpage: "https://it.linkedin.com/in/cpirro"
+   role: former_researchers
+   image: /img/people/foto_former_carmine_pirro.jpeg
+   bio: Now at Accenture, Italy
+
+almerindo-graziano:
+   display_name: "Dr. Almerindo Graziano"
+   webpage: "https://cy.linkedin.com/in/almerindograziano"
+   role: former_researchers
+   image: /img/people/foto_former_almerindo_graziano.jpeg
+   bio: Now at HLB Digital, Cyprus, Uk
+
+fabio-cornevilli:
+   display_name: "Fabio Cornevilli"
+   webpage: "https://it.linkedin.com/in/fabiocornevilli"
+   role: former_researchers
+   image: /img/people/foto_former_fabio_cornevilli.jpeg
+   bio: Now at System Management S.p.A., Italy
+
+cristiano-di-flora:
+   display_name: "Dr. Cristiano Di Flora"
+   webpage: "https://www.linkedin.com/in/cristianodiflora"
+   role: former_researchers
+   image: /img/people/foto_former_cristiano_di_flora.jpeg
+   bio: Now at Weir Minerals, Finland
+

@@ -1,0 +1,20 @@
+---
+layout: default
+---
+
+<pre style="padding-top: 5px; height: auto;"><h2>Repositories</h2></pre>
+
+<div style="
+    padding-top: 10px;
+    padding-bottom: 10px;">
+In the following, the list of tools, artifacts, datasets, etc., developed by DESSERT people. 
+Please, refer also to the <a href="https://github.com/dessertlab">DESSERT github repository</a>
+</div>
+
+<div class="card-columns">
+    {% assign repositories = site.data.repositories.github_repos %}
+    {% for r in repositories %}
+        {% include repo.html repository=r %}
+    {% endfor %}
+</div>
+

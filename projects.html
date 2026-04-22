@@ -1,0 +1,27 @@
+---
+layout: default
+---
+
+<pre style="padding-top: 5px; height: auto; margin-bottom: 5px;"><h2>Current projects</h2></pre>
+<div class="card-columns">
+    {% comment %}
+    Sort the projects by date, putting those without dates last
+    {% endcomment %}
+    {% assign projects_by_date = site.projects_current | sort: 'last-updated', 'first' %}
+    {% assign projects_by_date = projects_by_date | reverse %}
+    {% for p in projects_by_date %}
+        {% include project-card.html project=p %}
+    {% endfor %}
+</div>
+
+<pre style="padding-top: 5px; height: auto; margin-bottom: 5px;"><h2>Past projects</h2></pre>
+<div class="card-columns">
+    {% comment %}
+    Sort the projects by date, putting those without dates last
+    {% endcomment %}
+    {% assign projects_by_date = site.projects_past | sort: 'last-updated', 'first' %}
+    {% assign projects_by_date = projects_by_date | reverse %}
+    {% for p in projects_by_date %}
+        {% include project-card.html project=p %}
+    {% endfor %}
+</div>

@@ -1,0 +1,20 @@
+github_repos:
+  - dessertlab/iris
+  - dessertlab/OpenStack-Fault-Injection-Environment
+  - dessertlab/DAIC
+  - dessertlab/PySA2
+  - dessertlab/OpenStack-multi-tenant-workload
+  - dessertlab/k4.0s
+  - dessertlab/cti-to-mitre-with-nlp
+  - dessertlab/DevOpsTesting
+  - dessertlab/Shellcode_IA32
+  - dessertlab/EVIL
+  - dessertlab/thorfi
+  - dessertlab/Failure-Dataset-OpenStack
+  - dessertlab/JSSOFTWARE_Android_rejuvenation
+  - dessertlab/DeepEST
+  - dessertlab/Fault-Injection-Dataset
+  - dessertlab/BayesianReliabilityAssessment
+  - dessertlab/EMART
+  - dessertlab/fantastic_beasts
+  - dessertlab/MetroFunnel
