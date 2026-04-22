@@ -1,7 +1,7 @@
-name: DESSERT Research Group
 title: DESSERT Research Group
-url: http://dessert.unina.it
-base: /dessert.github.io
+name: DESSERT Research Group
+url: https://dessertlab.github.io
+baseurl: /dessert.github.io
 
 exclude: [bibble, README.md, Makefile, Dockerfile]
 
