@@ -1,4 +1,4 @@
-.PHONY: all build serve clean deploy publications-assets
+.PHONY: all build serve clean publications-assets
 
 all: build
 
@@ -16,17 +16,11 @@ PUBS_INCLUDES = \
 
 PUBLICATIONS_JSON = assets/publications.json
 
-PUBS_HTML_SCRIPT = tools/build_publications_html.py
-
 publications-assets: $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
 
-$(PUBS_INCLUDES): $(wildcard bib/pubs_*.bib) $(PUBS_HTML_SCRIPT)
-	mkdir -p _includes
-	$(PYTHON) $(PUBS_HTML_SCRIPT)
-
-$(PUBLICATIONS_JSON): bib/pubs_editorial.bib bib/pubs_book.bib bib/pubs_journal.bib bib/pubs_conference.bib tools/build_publications_json.py
-	mkdir -p assets
-	$(PYTHON) tools/build_publications_json.py --output $@
+$(PUBS_INCLUDES) $(PUBLICATIONS_JSON): $(wildcard bib/pubs_*.bib) tools/build_publications_html.py
+	mkdir -p _includes assets
+	$(PYTHON) tools/build_publications_html.py
 
 build: publications-assets
 	$(JEKYLL) build
@@ -38,6 +32,3 @@ clean:
 	rm -rf _site
 	rm -f $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
 	$(JEKYLL) clean
-
-deploy: clean build
-	$(RSYNC) _site/ $(DEPLOY_HOST):$(DEPLOY_PATH)
