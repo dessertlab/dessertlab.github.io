@@ -34,7 +34,7 @@ jobs:
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "git+https://github.com/sampsyo/bibble.git" "bibtexparser<2"
+          python -m pip install "bibtexparser<2"
 
       - name: Generate publication assets
         run: make publications-assets

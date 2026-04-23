@@ -1,8 +1,7 @@
-.PHONY: all build serve clean deploy publications-assets
+.PHONY: all build serve clean publications-assets
 
 all: build
 
-BIBBLE ?= bibble
 PYTHON ?= python3
 JEKYLL ?= jekyll
 
@@ -19,25 +18,14 @@ PUBLICATIONS_JSON = assets/publications.json
 
 publications-assets: $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
 
-_includes/pubs_editorial.html: bib/pubs_editorial.bib bib/publications_editorial.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-_includes/pubs_book.html: bib/pubs_book.bib bib/publications_book.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-_includes/pubs_journal.html: bib/pubs_journal.bib bib/publications_journal.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-_includes/pubs_conference.html: bib/pubs_conference.bib bib/publications_conference.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-$(PUBLICATIONS_JSON): bib/pubs_editorial.bib bib/pubs_book.bib bib/pubs_journal.bib bib/pubs_conference.bib tools/build_publications_json.py
-	mkdir -p assets
-	$(PYTHON) tools/build_publications_json.py --output $@
+$(PUBS_INCLUDES) $(PUBLICATIONS_JSON): \
+	bib/pubs_editorial.bib \
+	bib/pubs_book.bib \
+	bib/pubs_journal.bib \
+	bib/pubs_conference.bib \
+	tools/build_publications_assets.py
+	mkdir -p _includes assets
+	$(PYTHON) tools/build_publications_assets.py
 
 build: publications-assets
 	$(JEKYLL) build
@@ -49,6 +37,3 @@ clean:
 	rm -rf _site
 	rm -f $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
 	$(JEKYLL) clean
-
-deploy: clean build
-	$(RSYNC) _site/ $(DEPLOY_HOST):$(DEPLOY_PATH)
