@@ -8,11 +8,14 @@ structurally identical to what bibtexbrowser.php produced at runtime.
 from __future__ import annotations
 
 import html
+import json
 import re
 from pathlib import Path
 
 import bibtexparser
+from bibtexparser.bibdatabase import BibDatabase
 from bibtexparser.bparser import BibTexParser
+from bibtexparser.bwriter import BibTexWriter
 from bibtexparser.customization import convert_to_unicode
 
 
@@ -257,17 +260,63 @@ def render_book(entries: list[dict]) -> str:
 # Entry point
 # ---------------------------------------------------------------------------
 
-SOURCES: list[tuple[str, str, object]] = [
-    ("bib/pubs_journal.bib",    "_includes/pubs_journal.html",    render_journal),
-    ("bib/pubs_conference.bib", "_includes/pubs_conference.html", render_conference),
-    ("bib/pubs_editorial.bib",  "_includes/pubs_editorial.html",  render_editorial),
-    ("bib/pubs_book.bib",       "_includes/pubs_book.html",       render_book),
+SOURCES: list[tuple[str, str, str, str, object]] = [
+    ("bib/pubs_journal.bib",    "_includes/pubs_journal.html",    "journal",   "jpaper", render_journal),
+    ("bib/pubs_conference.bib", "_includes/pubs_conference.html", "conference","cpaper", render_conference),
+    ("bib/pubs_editorial.bib",  "_includes/pubs_editorial.html",  "editorial", "vpaper", render_editorial),
+    ("bib/pubs_book.bib",       "_includes/pubs_book.html",       "book",      "bpaper", render_book),
 ]
+
+JSON_OUT = "assets/publications.json"
+
+
+def entry_to_bibtex(entry: dict) -> str:
+    db = BibDatabase()
+    db.entries = [dict(entry)]
+    writer = BibTexWriter()
+    writer.order_entries_by = None
+    writer.indent = "  "
+    writer.comma_first = False
+    return bibtexparser.dumps(db, writer).strip()
+
+
+def normalize_space(value: str) -> str:
+    return re.sub(r"\s+", " ", (value or "")).strip()
+
+
+def strip_latex_for_search(value: str) -> str:
+    value = normalize_space(value)
+    value = value.replace("{", "").replace("}", "")
+    value = value.replace("~", " ")
+    value = value.replace("\\&", "&")
+    value = re.sub(r"\\[a-zA-Z]+\*?(?:\[[^\]]*\])?(?:\{[^}]*\})?", " ", value)
+    value = re.sub(r"\\.", " ", value)
+    return normalize_space(value)
+
+
+def build_json_record(entry: dict, category: str, css_class: str) -> dict:
+    title = normalize_space(entry.get("title", ""))
+    authors = normalize_space(entry.get("author", ""))
+    year = normalize_space(str(entry.get("year", "")))
+    key = entry.get("ID") or entry.get("id") or ""
+    return {
+        "id": key,
+        "entry_type": normalize_space(entry.get("ENTRYTYPE", "")),
+        "category": category,
+        "css_class": css_class,
+        "title": title,
+        "authors": authors,
+        "year": year,
+        "search_text": strip_latex_for_search(f"{title} {authors} {year}").lower(),
+        "bibtex": entry_to_bibtex(entry),
+    }
 
 
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
-    for bib_rel, out_rel, renderer in SOURCES:
+    all_json: list[dict] = []
+
+    for bib_rel, out_rel, category, css_class, renderer in SOURCES:
         bib_path = root / bib_rel
         out_path = root / out_rel
         if not bib_path.exists():
@@ -278,6 +327,17 @@ def main() -> int:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(content + "\n", encoding="utf-8")
         print(f"Wrote {len(entries)} entries → {out_path.name}")
+        all_json.extend(build_json_record(e, category, css_class) for e in entries)
+
+    all_json.sort(key=lambda e: (
+        -(int(e["year"]) if e["year"].isdigit() else -1),
+        e["title"].lower(),
+        e["id"].lower(),
+    ))
+    json_path = root / JSON_OUT
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(json.dumps(all_json, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"Wrote {len(all_json)} records → {json_path.name}")
     return 0
 
 
