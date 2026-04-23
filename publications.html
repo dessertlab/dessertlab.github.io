@@ -1,0 +1,252 @@
+---
+layout: default
+---
+
+<!-- CSS styles -->
+<link rel="stylesheet" href='{{ "/css/perfect-scrollbar-0.4.5.min.css" | relative_url }}'>
+<link rel="stylesheet" href='{{ "/css/magnific-popup.css" | relative_url }}'>
+<link rel="stylesheet" href='{{ "/css/style.css" | relative_url }}'>
+<link id="theme-style" rel="stylesheet" href='{{ "/css/styles/default.css" | relative_url }}'>
+
+<!-- Javascript files -->
+<script type="text/javascript" src='{{ "/js/jquery-1.10.2.js" | relative_url }}'></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript" src='{{ "/js/TweenMax.min.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/jquery.touchSwipe.min.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/jquery.carouFredSel-6.2.1-packed.js" | relative_url }}'></script>
+
+<script type="text/javascript" src='{{ "/js/modernizr.custom.63321.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/jquery.dropdownit.js" | relative_url }}'></script>
+
+<script type="text/javascript" src='{{ "/js/jquery.stellar.min.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/ScrollToPlugin.min.js" | relative_url }}'></script>
+
+<script type="text/javascript" src='{{ "/js/jquery.mixitup.min.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/masonry.min.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/perfect-scrollbar-0.4.5.with-mousewheel.min.js" | relative_url }}'></script>
+
+<script type="text/javascript" src='{{ "/js/magnific-popup.js" | relative_url }}'></script>
+<script type="text/javascript" src='{{ "/js/custom.js" | relative_url }}'></script>
+
+<div class="pagecontents">
+
+  <div class="section color-1" id="filters">
+    <div class="section-container" style="padding: 0;">
+      <div class="row" style="margin-left: 0px; margin-right: 0px;">
+
+        <div class="col-md-3 search-bar">
+          <div class="input-group">
+            <input
+              type="text"
+              class="search-input form-control"
+              id="searchInput"
+              placeholder="Search..."
+              oninput="filterItems()"
+            >
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6" style="padding: 0;">
+          <nav class="cd-navigation" style="height: 70px;">
+            <ul class="cd-nav">
+              <li class="cd-nav-item active" onclick="changeActive(0)"><a href="#">All</a></li>
+              <li class="cd-nav-item" onclick="changeActive(1)"><a href="#">Journals</a></li>
+              <li class="cd-nav-item" onclick="changeActive(2)"><a href="#">Conferences</a></li>
+              <li class="cd-nav-item" onclick="changeActive(3)"><a href="#">Editorials</a></li>
+              <li class="cd-nav-item" onclick="changeActive(4)"><a href="#">Books</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="col-md-1" style="padding: 0;">
+          <nav class="cd-navigation" style="height: 70px;">
+            <ul class="cd-nav">
+              <li class="cd-nav-item">
+                <a href="#" id="downloadLink" data-toggle="tooltip" data-placement="top" title="Download selected BibTeX entries">
+                  <i class="fa fa-external-link"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="col-md-2 year-selector">
+          <div class="input-group">
+            <select class="year-dropdown form-control" style="height: auto;" id="yearSelector" onchange="filterItems()">
+              <option value="">All Years</option>
+            </select>
+          </div>
+        </div>
+
+        <script>
+          function getSelectedPaperType() {
+            var activeNavItem = document.querySelector('.cd-nav-item.active');
+            var activeIndex = Array.from(activeNavItem.parentNode.children).indexOf(activeNavItem);
+            var paperTypes = ['0', 'jpaper', 'cpaper', 'vpaper', 'bpaper'];
+            return {
+              activeIndex: activeIndex,
+              selectedType: paperTypes[activeIndex]
+            };
+          }
+
+          function filterItems() {
+            var input = document.getElementById("searchInput").value.toLowerCase();
+            var selectedYear = document.getElementById("yearSelector").value;
+            var selection = getSelectedPaperType();
+            var activeIndex = selection.activeIndex;
+            var selectedType = selection.selectedType;
+
+            var items = document.getElementsByClassName("item");
+
+            for (var i = 0; i < items.length; i++) {
+              var titleEl = items[i].querySelector(".pubtitle strong");
+              var authorEl = items[i].querySelector(".pubauthor");
+
+              var title = titleEl ? titleEl.textContent.toLowerCase() : "";
+              var author = authorEl ? authorEl.textContent.toLowerCase() : "";
+              var itemYear = items[i].getAttribute("data-year");
+              var itemType = items[i].classList.contains(selectedType) || activeIndex === 0;
+
+              if (title.includes(input) || author.includes(input)) {
+                if ((itemYear === selectedYear || selectedYear === "") && itemType) {
+                  items[i].style.display = "block";
+                } else {
+                  items[i].style.display = "none";
+                }
+              } else {
+                items[i].style.display = "none";
+              }
+            }
+          }
+
+          function changeActive(index) {
+            const navItems = document.querySelectorAll(".cd-nav-item");
+            navItems.forEach(function(item) {
+              item.classList.remove("active");
+            });
+            navItems[index].classList.add("active");
+            filterItems();
+          }
+
+          async function downloadSelectedBibtex(event) {
+            event.preventDefault();
+
+            var downloadLink = document.getElementById("downloadLink");
+            var originalTitle = downloadLink.getAttribute("title");
+
+            try {
+              var response = await fetch('{{ "/assets/publications.json" | relative_url }}', { cache: "no-store" });
+              if (!response.ok) {
+                throw new Error("Could not load publications.json");
+              }
+
+              var entries = await response.json();
+
+              var input = document.getElementById("searchInput").value.toLowerCase().trim();
+              var selectedYear = document.getElementById("yearSelector").value;
+              var selection = getSelectedPaperType();
+              var activeIndex = selection.activeIndex;
+              var selectedType = selection.selectedType;
+
+              var matches = entries.filter(function(entry) {
+                var title = (entry.title || "").toLowerCase();
+                var authors = (entry.authors || "").toLowerCase();
+                var searchText = (entry.search_text || "").toLowerCase();
+                var year = String(entry.year || "");
+                var typeMatch = activeIndex === 0 || entry.css_class === selectedType;
+                var yearMatch = selectedYear === "" || year === selectedYear;
+                var textMatch =
+                  input === "" ||
+                  title.includes(input) ||
+                  authors.includes(input) ||
+                  searchText.includes(input);
+
+                return textMatch && yearMatch && typeMatch;
+              });
+
+              if (matches.length === 0) {
+                alert("No publications match the current filters.");
+                return;
+              }
+
+              var content = matches
+                .map(function(entry) { return entry.bibtex || ""; })
+                .filter(function(text) { return text.trim() !== ""; })
+                .join("\n\n");
+
+              var blob = new Blob([content + "\n"], {
+                type: "application/x-bibtex;charset=utf-8"
+              });
+              var url = URL.createObjectURL(blob);
+
+              var a = document.createElement("a");
+              a.href = url;
+              a.download = "publications.bib";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+
+              URL.revokeObjectURL(url);
+            } catch (error) {
+              console.error(error);
+              alert("Unable to generate BibTeX download.");
+            } finally {
+              downloadLink.setAttribute("title", originalTitle || "Download selected BibTeX entries");
+            }
+          }
+
+          document.addEventListener("DOMContentLoaded", function() {
+            var yearSelector = document.getElementById("yearSelector");
+            var currentYear = new Date().getFullYear();
+
+            for (var year = 1994; year <= currentYear; year++) {
+              var option = document.createElement("option");
+              option.value = year;
+              option.textContent = year;
+              yearSelector.appendChild(option);
+            }
+
+            var downloadLink = document.getElementById("downloadLink");
+            downloadLink.addEventListener("click", downloadSelectedBibtex);
+
+            filterItems();
+          });
+        </script>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="section color-1" id="pub-grid">
+    <div class="section-container" style="padding: 0;">
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="pitems">
+
+            <!-- ############ JOURNAL PAPER #################### -->
+            {% include pubs_journal.html %}
+
+            <!-- ############ CONFERENCE PAPER #################### -->
+            {% include pubs_conference.html %}
+
+            <!-- ############ Editorials #################### -->
+            {% include pubs_editorial.html %}
+
+            <!-- ############ Books & Book Chapters #################### -->
+            {% include pubs_book.html %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

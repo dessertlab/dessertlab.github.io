@@ -1,40 +1,54 @@
-# targets that aren't filenames
-.PHONY: all clean deploy build serve
+.PHONY: all build serve clean deploy publications-assets
 
 all: build
 
-BIBBLE = bibble
+BIBBLE ?= bibble
+PYTHON ?= python3
+JEKYLL ?= jekyll
 
-_includes/pubs_editorial.php: bib/pubs_editorial.bib bib/publications_editorial.tmpl
+SERVE_HOST ?= 127.0.0.1
+SERVE_PORT ?= 4000
+
+PUBS_INCLUDES = \
+	_includes/pubs_editorial.html \
+	_includes/pubs_book.html \
+	_includes/pubs_journal.html \
+	_includes/pubs_conference.html
+
+PUBLICATIONS_JSON = assets/publications.json
+
+publications-assets: $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
+
+_includes/pubs_editorial.html: bib/pubs_editorial.bib bib/publications_editorial.tmpl
 	mkdir -p _includes
 	$(BIBBLE) $+ > $@
 
-_includes/pubs_book.php: bib/pubs_book.bib bib/publications_book.tmpl
+_includes/pubs_book.html: bib/pubs_book.bib bib/publications_book.tmpl
 	mkdir -p _includes
 	$(BIBBLE) $+ > $@
 
-_includes/pubs_journal.php: bib/pubs_journal.bib bib/publications_journal.tmpl
+_includes/pubs_journal.html: bib/pubs_journal.bib bib/publications_journal.tmpl
 	mkdir -p _includes
 	$(BIBBLE) $+ > $@
 
-_includes/pubs_conference.php: bib/pubs_conference.bib bib/publications_conference.tmpl
+_includes/pubs_conference.html: bib/pubs_conference.bib bib/publications_conference.tmpl
 	mkdir -p _includes
 	$(BIBBLE) $+ > $@
 
-build: _includes/pubs_editorial.php _includes/pubs_book.php _includes/pubs_journal.php _includes/pubs_conference.php
-	jekyll build
+$(PUBLICATIONS_JSON): bib/pubs_editorial.bib bib/pubs_book.bib bib/pubs_journal.bib bib/pubs_conference.bib tools/build_publications_json.py
+	mkdir -p assets
+	$(PYTHON) tools/build_publications_json.py --output $@
 
-# you can configure these at the shell, e.g.:
-# SERVE_PORT=5001 make serve
-# SERVE_HOST ?= 192.168.100.5
-# SERVE_PORT ?= 4000
+build: publications-assets
+	$(JEKYLL) build
 
-serve: _includes/pubs_editorial.php _includes/pubs_book.php _includes/pubs_journal.php _includes/pubs_conference.php
-	jekyll serve --port $(SERVE_PORT) --host $(SERVE_HOST)
+serve: publications-assets
+	$(JEKYLL) serve --port $(SERVE_PORT) --host $(SERVE_HOST)
 
 clean:
-	$(RM) -r _site/* _includes/pubs_editorial.php _includes/pubs_book.php _includes/pubs_journal.php _includes/pubs_conference.php
-	jekyll clean
+	rm -rf _site
+	rm -f $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
+	$(JEKYLL) clean
 
 deploy: clean build
 	$(RSYNC) _site/ $(DEPLOY_HOST):$(DEPLOY_PATH)
