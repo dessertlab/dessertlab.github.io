@@ -1,0 +1,202 @@
+/* Space out content a bit */
+body {
+  padding-top: 20px;
+}
+
+.header {
+  border-bottom: 1px solid #EEE;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.footer {
+  /* padding-top: 19px; */
+  color: #999;
+  border-top: 1px solid #EEE;
+  text-align: center;
+  font-size: 0.8em;
+}
+.footer a:link, .footer a:visited {
+  color: #999;
+}
+
+pre {
+  background: #eee;
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  margin-bottom: 1.6em;
+  max-width: 100%;
+  overflow: auto;
+  overflow-y: hidden;
+  background-image: linear-gradient(to left, #6c757d, rgba(0, 123, 255, 0.25));
+  height: 80px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 24px;
+  border-radius: 25px;
+}
+
+.fa {
+  color: #999;
+}
+
+a > .fa {
+  display: inline;
+}
+
+/* /\* Customize container *\/ */
+/* @media (min-width: 768px) { */
+/*     .container { */
+/*         max-width: 730px; */
+/*     } */
+/* } */
+/* Jumbotron */
+.jumbotron {
+  text-align: justify;
+  padding-top: 1.5em;
+  padding-bottom: 0.5em;
+  font-size: 125%;
+}
+
+/* Group logo */
+#logo {
+  width: 300px;
+  height: auto;
+  margin: 2px 0 8px 0;
+}
+
+/* Front page news. */
+ul.news .date {
+  color: #999;
+  font-weight: bold;
+}
+ul.news > li {
+  margin-top: 1em;
+}
+
+@media (min-width: 768px) {
+  .card-columns {
+    column-count: 4;
+    display: grid;
+    grid-template-columns: 24% 24% 24% 24%;
+  }
+}
+@media (min-width: 576px) {
+  .card-columns {
+    column-count: 3;
+    display: grid;
+    grid-template-columns: 32.1% 32.1% 32.1%;
+  }
+}
+@media (max-width: 767px) {
+  .hidden-mobile {
+    display: none;
+  }
+}
+@media (min-width: 576px) {
+  .project-people {
+    column-count: 2;
+  }
+}
+@media (min-width: 768px) {
+  .role.grad {
+    column-count: 2;
+  }
+  .role.faculty {
+    column-count: 3;
+  }
+  .role.postdoc {
+    column-count: 3;
+  }
+  .role.phd_student {
+    column-count: 3;
+  }
+  .role.former_researchers {
+    column-count: 4;
+  }
+  .role.visiting_researchers {
+    column-count: 4;
+  }
+  .project-people {
+    column-count: 3;
+  }
+}
+.title img {
+  max-width: 50%;
+}
+
+section {
+  margin-bottom: 2em;
+}
+
+.profile {
+  object-fit: cover;
+}
+
+.noprofile circle {
+  fill: #EEE;
+}
+.noprofile text {
+  font-weight: 700;
+  fill: white;
+}
+
+.card {
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+}
+.card .profile {
+  height: 40px;
+  width: 40px;
+  margin: 3px;
+}
+.card .card-footer {
+  padding: 0.5em;
+}
+
+.person {
+  margin-bottom: 10px;
+}
+.person .profile {
+  height: 70px;
+  width: 70px;
+}
+.person .bio {
+  color: #999;
+}
+.person .person-name {
+  margin: 0;
+}
+
+.person-without-image {
+  margin: 0;
+}
+.person-without-image .bio {
+  margin-left: 1em;
+}
+
+.role .person {
+  margin-bottom: 20px;
+}
+
+svg {
+  vertical-align: middle;
+}
+
+#topbar {
+  padding-top: 50px;
+}
+
+b, strong {
+  font-weight: bold;
+}
+
+.pubcite .btn {
+  font-size: 100%;
+}
+
+/*# sourceMappingURL=group.css.map */

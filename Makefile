@@ -2,7 +2,6 @@
 
 all: build
 
-BIBBLE ?= bibble
 PYTHON ?= python3
 JEKYLL ?= jekyll
 
@@ -17,23 +16,13 @@ PUBS_INCLUDES = \
 
 PUBLICATIONS_JSON = assets/publications.json
 
+PUBS_HTML_SCRIPT = tools/build_publications_html.py
+
 publications-assets: $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
 
-_includes/pubs_editorial.html: bib/pubs_editorial.bib bib/publications_editorial.tmpl
+$(PUBS_INCLUDES): $(wildcard bib/pubs_*.bib) $(PUBS_HTML_SCRIPT)
 	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-_includes/pubs_book.html: bib/pubs_book.bib bib/publications_book.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-_includes/pubs_journal.html: bib/pubs_journal.bib bib/publications_journal.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
-
-_includes/pubs_conference.html: bib/pubs_conference.bib bib/publications_conference.tmpl
-	mkdir -p _includes
-	$(BIBBLE) $+ > $@
+	$(PYTHON) $(PUBS_HTML_SCRIPT)
 
 $(PUBLICATIONS_JSON): bib/pubs_editorial.bib bib/pubs_book.bib bib/pubs_journal.bib bib/pubs_conference.bib tools/build_publications_json.py
 	mkdir -p assets
