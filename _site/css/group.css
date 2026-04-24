@@ -30,13 +30,16 @@ pre {
   font-family: "Roboto", sans-serif;
   overflow: visible;
   white-space: normal;
+}
+
+pre:has(> h2) {
   display: flex;
   align-items: stretch;
   height: auto;
   padding: 0;
   margin: 2.5em 0 1.5em 0;
 }
-pre h2 {
+pre:has(> h2) h2 {
   margin: 0;
   width: 100%;
   padding: 0.5em 1.1em 0.5em 1em;
@@ -50,6 +53,18 @@ pre h2 {
   border: 1px solid #e2e8f0;
   border-left: 3px solid #1a85d6;
   box-shadow: none;
+}
+
+#bibtex-modal-body {
+  display: block;
+  white-space: pre;
+  overflow-x: auto;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85rem;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
 }
 
 .fa {
@@ -553,8 +568,8 @@ ul.news .news-categories {
 ul.news .news-category {
   display: inline-block;
   padding: 0.1em 0.6em;
-  background: rgba(26, 133, 214, 0.09);
-  color: #1a85d6;
+  background: #f1f5f9;
+  color: #64748b;
   border: 1px solid rgba(26, 133, 214, 0.2);
   border-radius: 6px;
   font-size: 0.7rem;
@@ -591,7 +606,7 @@ ul.news .news-readmore::after {
   margin: 0.5em 0;
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 #filters .cd-navigation {
@@ -775,7 +790,7 @@ ul.news .news-readmore::after {
 .pitems .pubcite .btn {
   font-size: 0.72rem;
   padding: 0.1em 0.7em;
-  border-radius: 20px;
+  border-radius: 6px;
   font-weight: 600;
   border: none;
 }
@@ -799,17 +814,21 @@ ul.news .news-readmore::after {
   background: transparent !important;
   border-top: none !important;
   padding: 0 !important;
-  top: 0.7em !important;
-  bottom: auto !important;
+  top: auto !important;
+  bottom: 0.7em !important;
   right: 0.7em !important;
 }
-.pitems .pubassets a {
+.pitems .pubassets a, .pitems .pubassets a:link, .pitems .pubassets a:visited, .pitems .pubassets a:active, .pitems .pubassets a:focus {
   color: #ced4da !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
   padding: 4px 7px !important;
   font-size: 1rem !important;
   float: none !important;
   border-radius: 6px !important;
   transition: background 0.15s ease, color 0.15s ease !important;
+  text-decoration: none !important;
 }
 .pitems .pubassets a:hover {
   color: #1a85d6 !important;

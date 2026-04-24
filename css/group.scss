@@ -41,6 +41,10 @@ pre {
     font-family: 'Roboto', sans-serif;
     overflow: visible;
     white-space: normal;
+}
+
+// Section header: <pre><h2>…</h2></pre> pattern
+pre:has(> h2) {
     // Section header layout
     display: flex;
     align-items: stretch;
@@ -63,6 +67,19 @@ pre {
         border-left: 3px solid $accent;
         box-shadow: none;
     }
+}
+
+// Bibtex modal pre: undo section-header styles, restore code-block appearance
+#bibtex-modal-body {
+    display: block;
+    white-space: pre;
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85rem;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
 }
 
 .fa {
@@ -598,8 +615,8 @@ ul.news {
     .news-category {
         display: inline-block;
         padding: 0.1em 0.6em;
-        background: $accent-faint;
-        color: $accent;
+        background: #f1f5f9;
+        color: #64748b;
         border: 1px solid rgba(26, 133, 214, 0.2);
         border-radius: 6px;
         font-size: 0.7rem;
@@ -641,7 +658,7 @@ ul.news {
     margin: 0.5em 0;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 
     .cd-navigation {
@@ -843,7 +860,7 @@ ul.news {
     .pubcite .btn {
         font-size: 0.72rem;
         padding: 0.1em 0.7em;
-        border-radius: 20px;
+        border-radius: 6px;
         font-weight: 600;
         border: none;
     }
@@ -857,20 +874,24 @@ ul.news {
         background: transparent !important;
         border-top: none !important;
         padding: 0 !important;
-        top: 0.7em !important;
-        bottom: auto !important;
+        top: auto !important;
+        bottom: 0.7em !important;
         right: 0.7em !important;
-        a {
+        a, a:link, a:visited, a:active, a:focus {
             color: #ced4da !important;
+            background: transparent !important;
+            background-image: none !important;
+            box-shadow: none !important;
             padding: 4px 7px !important;
             font-size: 1rem !important;
             float: none !important;
             border-radius: 6px !important;
             transition: background 0.15s ease, color 0.15s ease !important;
-            &:hover {
-                color: $accent !important;
-                background: $accent-faint !important;
-            }
+            text-decoration: none !important;
+        }
+        a:hover {
+            color: $accent !important;
+            background: $accent-faint !important;
         }
     }
 }
