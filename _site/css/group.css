@@ -29,6 +29,7 @@ pre {
   border-radius: 0;
   font-family: "Roboto", sans-serif;
   overflow: visible;
+  white-space: normal;
   display: flex;
   align-items: stretch;
   height: auto;
@@ -73,6 +74,7 @@ a > .fa {
   border-radius: 6px;
   padding: 1.6em 2em 1.4em 2em;
   margin-bottom: 2em;
+  text-align: justify;
 }
 .hero-intro .hero-desc {
   font-size: 0.95rem;
