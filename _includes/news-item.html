@@ -7,48 +7,27 @@
 {% assign icon = "newspaper-o" %}
 {% endif %}
 
-{% capture news %}
-    <div>
-        {% if post.shortnews %}
-            {{ post.content | markdownify | remove: '<p>' | remove: '</p>' }}
-        {% else %}
-            <h5> <a href="{{ post.url | relative_url }}"> {{ post.title }} </a> </h5>
-            {{ post.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}
-            <br>
-            <a href="{{ post.url | relative_url }}"> Read more &raquo;</a>
-        {% endif %}
-    </div>
-{% endcapture %}
-
-{% capture header %}
-<span class="fa fa-fw fa-{{ icon }}"></span>
-<span class="date">{{ post.date | date: '%B %d, %Y' }}</span>
-{% endcapture %}
-
 <li class="{{ class }}">
-    {% if post.image %}
-
-        {% capture img %}
-            <img class="img-fluid d-block mx-auto"
-                 style="{{ post.image_style }}"
-                 src="{{ post.image }}">
-        {% endcapture %}
-
-        <div class="row">
-            <div class="col-sm-10">
-                {{ header }}
-                {{ news }}
-            </div>
-            <div class="col-sm-2">
-                {% if post.image_link %}
-                    <a href="{{ post.image_link }}">{{ img }}</a>
-                {% else %}
-                    {{ img }}
-                {% endif %}
+    <div class="news-meta">
+        <div class="news-icon-badge">
+            <span class="fa fa-{{ icon }}"></span>
+        </div>
+        <span class="date">{{ post.date | date: '%B %d, %Y' }}</span>
+    </div>
+    {% if post.shortnews %}
+        <div class="news-body">
+            <div class="news-excerpt">{{ post.content | markdownify | remove: '<p>' | remove: '</p>' }}</div>
+        </div>
+    {% else %}
+        <div class="news-body">
+            <h5><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h5>
+            <div class="news-excerpt">{{ post.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}</div>
+            {% if post.image %}
+                <img class="img-fluid mt-2 mb-2" style="{{ post.image_style }}" src="{{ post.image }}">
+            {% endif %}
+            <div class="news-footer">
+                <a class="news-readmore" href="{{ post.url | relative_url }}">Read more &rarr;</a>
             </div>
         </div>
-     {% else %}
-        {{ header }}
-        {{ news }}
     {% endif %}
 </li>

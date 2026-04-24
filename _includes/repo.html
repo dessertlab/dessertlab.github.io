@@ -1,17 +1,26 @@
-{% assign repo_url =  include.repository | split: '/' %}
-
-{% if site.data.repositories.github_users contains repo_url.first %}
-  {% assign show_owner = false %}
-{% else %}
-  {% assign show_owner = true %}
-{% endif %}
-
-<div class="card">
-    <div class="card-body" style="padding:0">
-        <div class="repo text-center" style="padding:0">
-            <a href="https://github.com/{{ include.repository }}">
-                <img class="repo-img-dark w-100" alt="{{ include.repository }}" src="https://github-readme-stats.vercel.app/api/pin/?username={{ repo_url[0] }}&repo={{ repo_url[1] }}&theme={{ site.repo_theme_light }}&show_owner={{ show_owner }}">
-           </a>
+<div class="card project-card repo-card">
+    <div class="card-body">
+        <h5 class="card-title mb-1">
+            <a href="{{ include.repo.url }}" target="_blank" rel="noopener">
+                <i class="fa fa-github" aria-hidden="true"></i>
+                {{ include.repo.name | replace: '-', ' ' | replace: '_', ' ' }}
+            </a>
+        </h5>
+        <p class="card-text repo-description">{{ include.repo.description }}</p>
+        <div class="card-readmore">
+            <a href="{{ include.repo.url }}" target="_blank" rel="noopener">View on GitHub &rarr;</a>
         </div>
+    </div>
+    <div class="card-footer">
+        <div class="repo-languages">
+            {% if include.repo.languages and include.repo.languages.size > 0 %}
+                {% for lang in include.repo.languages %}
+                    <span class="repo-language">{{ lang }}</span>
+                {% endfor %}
+            {% elsif include.repo.language and include.repo.language != '' %}
+                <span class="repo-language">{{ include.repo.language }}</span>
+            {% endif %}
+        </div>
+        <span class="repo-stars"><i class="fa fa-star" aria-hidden="true"></i> {{ include.repo.stars }}</span>
     </div>
 </div>

@@ -940,11 +940,37 @@ ul.timeline li .data .text {
 	cursor: pointer;
 }
 
+/* type-colored left border per publication category */
+.pitems .item.jpaper .pubmain { border-left: 4px solid #5cb85c; }
+.pitems .item.cpaper .pubmain { border-left: 4px solid #f0ad4e; }
+.pitems .item.vpaper .pubmain { border-left: 4px solid #337ab7; }
+.pitems .item.bpaper .pubmain { border-left: 4px solid #d9534f; }
+
 .pitems .pubtitle {
 	margin: 0;
 	padding: 0 0 15px 0;
 	font-size: 20px;
-	font-weight: 300;
+	font-weight: 500;
+}
+
+.pitems .pubauthor {
+	color: #555;
+	font-style: italic;
+	margin-bottom: 4px;
+}
+
+/* sticky year headers */
+.pitems h2 {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 60px;
+	background: #fcfcfc;
+	z-index: 10;
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+	font-size: 22px;
+	font-weight: 400;
+	margin: 0 0 12px 0;
 }
 
 .pitems .pubmain div {
@@ -953,6 +979,16 @@ ul.timeline li .data .text {
 
 .pitems .pubmain .label {
 	margin-right: 10px;
+}
+
+/* DOI link styling */
+.pitems .pubmain .doi a {
+	color: #888;
+	text-decoration: none;
+}
+.pitems .pubmain .doi a:hover {
+	color: #333;
+	text-decoration: underline;
 }
 
 .pitems .pubmain .pubassets {

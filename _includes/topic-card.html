@@ -7,44 +7,41 @@
     {% capture proj-url %}{{ topic.url | append: ".html" | relative_url }}{% endcapture %}
 {% endif %}
 
-<div class="card">
-    <div class="card-body">
-        {% if topic.image %}
-            {% assign imgurl = topic.image %}
-            {% capture init %}{{ topic.image | slice: 0,1 }}{% endcapture %}
-            {% if init == "/" %}
-                {% capture imgurl %}{{ topic.image | relative_url }}{% endcapture %}
-            {% endif %}
-            <a href="{{ proj-url }}">
-                <img class="img-fluid" src="{{imgurl}}" alt="{{project.title}}"/>
-            </a>
+<div class="card project-card">
+    {% if topic.image %}
+        {% assign imgurl = topic.image %}
+        {% capture init %}{{ topic.image | slice: 0,1 }}{% endcapture %}
+        {% if init == "/" %}
+            {% capture imgurl %}{{ topic.image | relative_url }}{% endcapture %}
         {% endif %}
+        <a href="{{ proj-url }}">
+            <img class="card-img-top" src="{{imgurl}}" alt="{{topic.title}}"/>
+        </a>
+    {% endif %}
+    <div class="card-body">
         {% if topic.notitle != true %}
             <h4 class="card-title">
-                {{  topic.title }}
+                <a href="{{ proj-url }}">{{ topic.title }}</a>
             </h4>
         {% endif %}
         {% if topic.subtitle != null and topic.subtitle != "" %}
-            <h6 class="card-subtitle mb-2 text-muted">
-                {{  topic.subtitle }}
-            </h6>
+            <p class="card-subtitle">{{ topic.subtitle }}</p>
         {% endif %}
         <div class="card-text">
             {{ topic.description | markdownify }}
         </div>
         {% if topic.no-link != true or topic.link %}
-            <a href="{{ proj-url }}"> Read more &raquo;</a>
+            <div class="card-readmore">
+                <a href="{{ proj-url }}">Read more &raquo;</a>
+            </div>
         {% endif %}
     </div>
     {% if topic.people %}
-        <div class="card-footer d-flex flex-row flex-wrap justify-content-center">
+        <div class="card-footer d-flex flex-row flex-wrap justify-content-center align-items-center">
             {% for uname in topic.people %}
-                <div>
-                    {% assign person = site.data.people[uname]  %}
-                    {% include person-image.html person=person %}
-                </div>
+                {% assign person = site.data.people[uname] %}
+                {% include person-image.html person=person %}
             {% endfor %}
         </div>
     {% endif %}
-
 </div>

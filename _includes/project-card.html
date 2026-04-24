@@ -7,45 +7,41 @@
     {% capture proj-url %}{{ project.url | append: ".html" | relative_url }}{% endcapture %}
 {% endif %}
 
-<div class="card">
-    <div class="card-body">
-        {% if project.image %}
-            {% assign imgurl = project.image %}
-            {% capture init %}{{ project.image | slice: 0,1 }}{% endcapture %}
-            {% if init == "/" %}
-                {% capture imgurl %}{{ project.image | relative_url }}{% endcapture %}
-            {% endif %}
-            <a href="{{ proj-url }}">
-                <img class="img-fluid mb-3" src="{{imgurl}}" alt="{{project.title}}"/>
-            </a>
+<div class="card project-card">
+    {% if project.image %}
+        {% assign imgurl = project.image %}
+        {% capture init %}{{ project.image | slice: 0,1 }}{% endcapture %}
+        {% if init == "/" %}
+            {% capture imgurl %}{{ project.image | relative_url }}{% endcapture %}
         {% endif %}
+        <a href="{{ proj-url }}">
+            <img class="card-img-top" src="{{imgurl}}" alt="{{project.title}}"/>
+        </a>
+    {% endif %}
+    <div class="card-body">
         {% if project.notitle != true %}
             <h4 class="card-title">
-                {{  project.title }}
+                <a href="{{ proj-url }}">{{ project.title }}</a>
             </h4>
         {% endif %}
         {% if project.subtitle != null and project.subtitle != "" %}
-            <h6 class="card-subtitle mb-2 text-muted">
-                {{  project.subtitle }}
-            </h6>
+            <p class="card-subtitle">{{ project.subtitle }}</p>
         {% endif %}
         <div class="card-text">
             {{ project.description | markdownify }}
         </div>
         {% if project.no-link != true or project.link %}
-            <a href="{{ proj-url }}"> Read more &raquo;</a>
+            <div class="card-readmore">
+                <a href="{{ proj-url }}">Read more &raquo;</a>
+            </div>
         {% endif %}
     </div>
-
     {% if project.people %}
-        <div class="card-footer d-flex flex-row flex-wrap justify-content-center">
+        <div class="card-footer d-flex flex-row flex-wrap justify-content-center align-items-center">
             {% for uname in project.people %}
-                <div>
-                    {% assign person = site.data.people[uname]  %}
-                    {% include person-image.html person=person %}
-                </div>
+                {% assign person = site.data.people[uname] %}
+                {% include person-image.html person=person %}
             {% endfor %}
         </div>
     {% endif %}
-
 </div>

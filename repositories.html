@@ -2,19 +2,16 @@
 layout: default
 ---
 
-<pre style="padding-top: 5px; height: auto;"><h2>Repositories</h2></pre>
+<pre><h2>Tools &amp; Code</h2></pre>
 
-<div style="
-    padding-top: 10px;
-    padding-bottom: 10px;">
-In the following, the list of tools, artifacts, datasets, etc., developed by DESSERT people. 
-Please, refer also to the <a href="https://github.com/dessertlab">DESSERT github repository</a>
-</div>
+<p class="mb-4">
+    Tools, artifacts, and datasets developed by DESSERT members.
+    See also the <a href="https://github.com/dessertlab" target="_blank" rel="noopener"><i class="fa fa-github"></i> DESSERT GitHub page</a>.
+</p>
 
 <div class="card-columns">
-    {% assign repositories = site.data.repositories.github_repos %}
-    {% for r in repositories %}
-        {% include repo.html repository=r %}
+    {% for r in site.data.repositories_meta.repos %}
+        {% include repo.html repo=r %}
     {% endfor %}
 </div>
 

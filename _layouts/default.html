@@ -66,7 +66,7 @@
 
             <div class="header d-flex
                         flex-column
-                        flex-md-row justify-content-md-between" id="myHeader">
+                        flex-md-row justify-content-md-between align-items-md-center" id="myHeader">
                 <a href="{{ "/" | relative_url }}" class="">
                     <img src="{{ "/img/dessert_logo.png" | relative_url }}"
                          alt="DESSERT" id="logo">
@@ -105,8 +105,8 @@
                      class="img-fluid mx-auto d-block mb-4"/>
             {% endif %}
 
-            {% if page.notitle != true %}
-                <h1>{{ page.title }}</h1>
+            {% if page.notitle != true and page.title and page.title != '' %}
+                <pre><h2>{{ page.title }}</h2></pre>
             {% endif %}
 
             {{ content }}

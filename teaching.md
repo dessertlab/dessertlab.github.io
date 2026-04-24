@@ -3,7 +3,9 @@ layout: default
 title: 
 ---
 
-<pre style="padding-top: 5px; height: auto; margin-bottom: 5px;"><h2>Courses</h2></pre>
+<div class="teaching" markdown="1">
+
+<pre><h2>Courses</h2></pre>
 
 #### MSc
 - Impianti di Elaborazione (prof. *Domenico Cotroneo*, Corso di Laurea Magistrale in Ingegneria Informatica)
@@ -29,7 +31,7 @@ For a list of **completed PhD thesis**, refer to the [dedicated page](thesis_PhD
 
 - CyberChallenge (prof. Pietro Liguori, prof. Roberto Natella), refer to the [dedicated page](https://cyberchallenge.it/) for details
 
-<pre style="padding-top: 5px; height: auto; margin-bottom: 5px;"><h2>MSc Thesis Proposals</h2></pre>
+<pre><h2>MSc Thesis Proposals</h2></pre>
 
 **Impianti di Elaborazione**
 - To be addedd
@@ -50,7 +52,7 @@ For a list of **completed PhD thesis**, refer to the [dedicated page](thesis_PhD
 - To be addedd
 
 
-<pre style="padding-top: 5px; height: auto; margin-bottom: 5px;"><h2>BSc Thesis Proposals</h2></pre>
+<pre><h2>BSc Thesis Proposals</h2></pre>
 
 **Ingegneria del Software**
 - To be addedd
@@ -60,6 +62,8 @@ For a list of **completed PhD thesis**, refer to the [dedicated page](thesis_PhD
 
 **Advanced Computer Programming**
 - To be addedd
+
+</div>
 
 
 

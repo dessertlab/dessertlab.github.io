@@ -84,21 +84,23 @@ def format_authors(raw: str) -> str:
 # ---------------------------------------------------------------------------
 
 def assets_html(entry: dict) -> str:
-    """Render the pubassets div (external link + DOI link)."""
-    url = paper_url(entry)
+    """Render the pubassets div (bibtex popup button + DOI link)."""
     doi = field(entry, "doi")
+    bib = entry_to_bibtex(entry)
     parts = []
-    if url:
+    if bib:
+        escaped_bib = html.escape(bib)
         parts.append(
-            f'<a href="{html.escape(url)}" data-toggle="tooltip" '
-            f'data-placement="top" title="BibTeX entry">'
-            f'<i class="fa fa-external-link"></i></a>'
+            f'<a href="javascript:void(0)" class="bibtex-btn" data-toggle="tooltip" '
+            f'data-placement="top" title="BibTeX entry" '
+            f'data-bibtex="{escaped_bib}">'
+            f'<i class="fa fa-quote-right"></i></a>'
         )
     if doi:
         doi_url = doi if doi.startswith("http") else f"https://doi.org/{doi}"
         parts.append(
             f'<a href="{html.escape(doi_url)}" data-toggle="tooltip" '
-            f'data-placement="top" title="Published version">'
+            f'data-placement="top" title="DOI" target="_blank" rel="noopener">'
             f'<i class="fa fa-cloud-download"></i></a>'
         )
     return '<div class="pubassets">' + "".join(parts) + "</div>"
@@ -155,7 +157,8 @@ def render_journal(entries: list[dict]) -> str:
         out.append(f'<div>{", ".join(venue)}</div>')
 
         if doi := field(entry, "doi"):
-            out.append(f'<div class="doi">DOI: {html.escape(doi)}</div>')
+            doi_url = doi if doi.startswith("http") else f"https://doi.org/{doi}"
+            out.append(f'<div class="doi"><a href="{html.escape(doi_url)}" target="_blank" rel="noopener">DOI: {html.escape(doi)}</a></div>')
         if pub := field(entry, "publisher"):
             out.append(f'<div class="publisher">{html.escape(pub)}</div>')
 
@@ -185,7 +188,8 @@ def render_conference(entries: list[dict]) -> str:
         if bt := field(entry, "booktitle"):
             out.append(f"<div>{html.escape(bt)}</div>")
         if doi := field(entry, "doi"):
-            out.append(f'<div class="doi">DOI: {html.escape(doi)}</div>')
+            doi_url = doi if doi.startswith("http") else f"https://doi.org/{doi}"
+            out.append(f'<div class="doi"><a href="{html.escape(doi_url)}" target="_blank" rel="noopener">DOI: {html.escape(doi)}</a></div>')
 
         out.append(
             '<div class="pubcite">'
