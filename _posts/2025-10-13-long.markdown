@@ -1,13 +1,11 @@
 ---
 layout: post
-title:  "Seminar Announcement"
+title:  "🌴🚀 CaPriC 2025 Begins!"
 date:   2025-10-13 08:30:00 +0000
 shortnews: false
-categories: jekyll update
+categories: [events, phd school]
 icon: newspaper-o
 ---
-
-## 🌴🚀 CaPriC 2025 Begins!
 
 We’re live from Anacapri, Italy for the 1st CaPriC PhD School on Cyber-Physical Cloud 🌤️
 

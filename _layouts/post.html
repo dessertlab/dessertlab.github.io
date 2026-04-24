@@ -3,6 +3,21 @@ layout: default
 ---
 <p class="date">{{ page.date | date: '%B %d, %Y' }}</p>
 
+{% if page.speaker %}
+<div class="seminar-infobox">
+  <div class="seminar-infobox-header">
+    <span class="fa fa-microphone"></span> Seminar Announcement
+  </div>
+  <table class="seminar-details">
+    {% if page.speaker %}<tr><th>Speaker</th><td>{{ page.speaker }}</td></tr>{% endif %}
+    {% if page.affiliation %}<tr><th>Affiliation</th><td>{{ page.affiliation }}</td></tr>{% endif %}
+    {% if page.event_date %}<tr><th>Date</th><td>{{ page.event_date }}</td></tr>{% endif %}
+    {% if page.event_time %}<tr><th>Time</th><td>{{ page.event_time }}</td></tr>{% endif %}
+    {% if page.location %}<tr><th>Location</th><td>{{ page.location }}</td></tr>{% endif %}
+  </table>
+</div>
+{% endif %}
+
 <div class="post">
 {{ content }}
 </div>

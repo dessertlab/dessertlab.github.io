@@ -216,6 +216,11 @@ section {
         padding: 0.5em;
         background: #f8f9fa;
         border-top: 1px solid #e9ecef;
+
+        a {
+            position: relative;
+            z-index: 2;
+        }
     }
 }
 
@@ -227,6 +232,7 @@ section {
     transition: box-shadow 0.22s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
 
     &:hover {
         box-shadow: 0 6px 20px rgba(0,0,0,0.1);
@@ -280,6 +286,12 @@ section {
             font-weight: 600;
             color: $accent;
             &:hover { text-decoration: underline; }
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+            }
         }
     }
 }
@@ -512,9 +524,11 @@ ul.news {
         border-top: 3px solid $accent;
         border-radius: 6px;
         transition: box-shadow 0.2s ease;
+        position: relative;
 
         &:hover {
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            cursor: pointer;
         }
 
     }
@@ -569,6 +583,29 @@ ul.news {
         }
     }
 
+    .news-categories {
+        position: absolute;
+        top: 0.75em;
+        right: 0.75em;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3em;
+        z-index: 2;
+    }
+
+    .news-category {
+        display: inline-block;
+        padding: 0.1em 0.6em;
+        background: $accent-faint;
+        color: $accent;
+        border: 1px solid rgba(26, 133, 214, 0.2);
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
     .news-excerpt {
         font-size: 0.88rem;
         color: #555;
@@ -586,6 +623,12 @@ ul.news {
         color: $accent;
         font-weight: 600;
         &:hover { text-decoration: underline; }
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
     }
 }
 
@@ -914,5 +957,51 @@ ul.news {
     &:hover {
         border-color: $accent;
         box-shadow: 0 0 0 3px rgba(26, 133, 214, 0.18);
+    }
+}
+
+
+// -- Seminar info-box (post layout) -------------------------------------------
+.seminar-infobox {
+    background: $accent-faint;
+    border-left: 4px solid $accent;
+    border-radius: 6px;
+    padding: 1.2em 1.5em;
+    margin-bottom: 2em;
+
+    .seminar-infobox-header {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: $accent;
+        margin-bottom: 0.8em;
+
+        .fa {
+            margin-right: 0.4em;
+        }
+    }
+
+    .seminar-details {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+
+        th, td {
+            padding: 0.25em 0.5em;
+            vertical-align: top;
+            border: none;
+        }
+
+        th {
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+            width: 7em;
+        }
+
+        td {
+            color: #222;
+        }
     }
 }

@@ -207,6 +207,10 @@ section {
   background: #f8f9fa;
   border-top: 1px solid #e9ecef;
 }
+.card .card-footer a {
+  position: relative;
+  z-index: 2;
+}
 
 .project-card {
   border: 1px solid #e2e8f0;
@@ -215,6 +219,7 @@ section {
   transition: box-shadow 0.22s ease;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .project-card:hover {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
@@ -267,6 +272,12 @@ section {
 }
 .project-card .card-readmore a:hover {
   text-decoration: underline;
+}
+.project-card .card-readmore a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
 .person {
@@ -477,9 +488,11 @@ ul.news > li {
   border-top: 3px solid #1a85d6;
   border-radius: 6px;
   transition: box-shadow 0.2s ease;
+  position: relative;
 }
 ul.news > li:hover {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
 }
 ul.news .news-meta {
   display: flex;
@@ -526,6 +539,27 @@ ul.news h5 a {
 ul.news h5 a:hover {
   color: #1a85d6;
 }
+ul.news .news-categories {
+  position: absolute;
+  top: 0.75em;
+  right: 0.75em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  z-index: 2;
+}
+ul.news .news-category {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  background: rgba(26, 133, 214, 0.09);
+  color: #1a85d6;
+  border: 1px solid rgba(26, 133, 214, 0.2);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 ul.news .news-excerpt {
   font-size: 0.88rem;
   color: #555;
@@ -543,6 +577,12 @@ ul.news .news-readmore {
 }
 ul.news .news-readmore:hover {
   text-decoration: underline;
+}
+ul.news .news-readmore::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
 #filters {
@@ -850,6 +890,44 @@ ul.news .news-readmore:hover {
 .card-footer .profile:hover {
   border-color: #1a85d6;
   box-shadow: 0 0 0 3px rgba(26, 133, 214, 0.18);
+}
+
+.seminar-infobox {
+  background: rgba(26, 133, 214, 0.09);
+  border-left: 4px solid #1a85d6;
+  border-radius: 6px;
+  padding: 1.2em 1.5em;
+  margin-bottom: 2em;
+}
+.seminar-infobox .seminar-infobox-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1a85d6;
+  margin-bottom: 0.8em;
+}
+.seminar-infobox .seminar-infobox-header .fa {
+  margin-right: 0.4em;
+}
+.seminar-infobox .seminar-details {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.seminar-infobox .seminar-details th, .seminar-infobox .seminar-details td {
+  padding: 0.25em 0.5em;
+  vertical-align: top;
+  border: none;
+}
+.seminar-infobox .seminar-details th {
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+  width: 7em;
+}
+.seminar-infobox .seminar-details td {
+  color: #222;
 }
 
 /*# sourceMappingURL=group.css.map */

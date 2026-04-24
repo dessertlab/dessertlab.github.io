@@ -19,6 +19,13 @@
             <div class="news-excerpt">{{ post.content | markdownify | remove: '<p>' | remove: '</p>' }}</div>
         </div>
     {% else %}
+        {% if post.categories and post.categories.size > 0 %}
+            <div class="news-categories">
+                {% for cat in post.categories %}
+                    <span class="news-category">{{ cat }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
         <div class="news-body">
             <h5><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h5>
             <div class="news-excerpt">{{ post.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}</div>
