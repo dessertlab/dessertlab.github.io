@@ -278,23 +278,14 @@
           </nav>
         </div>
 
-        <div class="col-md-1" style="padding: 0;">
-          <nav class="cd-navigation" style="height: 70px;">
-            <ul class="cd-nav">
-              <li class="cd-nav-item">
-                <a href="#" id="downloadLink" data-toggle="tooltip" data-placement="top" title="Download selected BibTeX entries">
-                  <i class="fa fa-external-link"></i>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <div class="col-md-2 year-selector">
-          <div class="input-group">
+        <div class="col-md-3 year-selector">
+          <div class="pub-filter-row">
             <select class="year-dropdown form-control" style="height: auto;" id="yearSelector" onchange="filterItems()">
               <option value="">All Years</option>
             </select>
+            <a href="#" id="downloadLink" class="pub-download-btn" title="Download BibTeX for current selection">
+              <i class="fa fa-download"></i>
+            </a>
           </div>
         </div>
 

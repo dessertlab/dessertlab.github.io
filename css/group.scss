@@ -542,11 +542,11 @@ ul.news {
         border: 1px solid #e2e8f0;
         border-top: 3px solid $accent;
         border-radius: 6px;
-        transition: box-shadow 0.2s ease;
+        transition: box-shadow 0.22s ease;
         position: relative;
 
         &:hover {
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             cursor: pointer;
         }
 
@@ -746,16 +746,47 @@ ul.news {
         display: none;
     }
 
+    .pub-filter-row {
+        display: flex;
+        align-items: stretch;
+        gap: 0.5em;
+        width: 100%;
+    }
+
+    .year-dropdown {
+        flex: 1;
+    }
+
+    .pub-download-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 2.4em;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background: #fff;
+        color: #6c757d;
+        font-size: 0.88rem;
+        text-decoration: none;
+        transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
+        &:hover {
+            border-color: $accent;
+            color: $accent;
+            box-shadow: 0 0 0 2px rgba(26,133,214,0.12);
+            text-decoration: none;
+        }
+    }
+
     @media (max-width: 767px) {
         padding: 0.75em;
 
-        // Search bar takes full width with proper spacing
         .search-bar {
             padding: 0 0.75em 0.5em 0.75em;
             width: 100%;
         }
 
-        // Tabs wrap and fill the row evenly
         .col-md-6 {
             padding: 0 0.75em 0.5em 0.75em;
         }
@@ -773,18 +804,12 @@ ul.news {
             padding: 0.35em 0.6em;
         }
 
-        // Hide the download icon column (not useful on mobile)
-        .col-md-1 {
-            display: none;
-        }
-
-        // Year selector full width
         .year-selector {
             padding: 0 0.75em;
             margin-top: 0.5em;
         }
 
-        .year-dropdown {
+        .pub-filter-row {
             width: 100%;
         }
     }
