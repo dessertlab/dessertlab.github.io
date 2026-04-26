@@ -1041,13 +1041,6 @@ ul.news .news-readmore::after {
   margin-left: 0.75em;
   flex-shrink: 0;
 }
-@media (max-width: 576px) {
-  .teaching-course-list .teaching-course-degree {
-    margin-left: 0;
-    margin-top: 0.55em;
-    align-self: flex-start;
-  }
-}
 .teaching-course-list .teaching-course-link {
   display: inline-block;
   font-size: 0.82rem;
@@ -1059,6 +1052,17 @@ ul.news .news-readmore::after {
 }
 .teaching-course-list .teaching-course-link:hover {
   text-decoration: underline;
+}
+@media (max-width: 576px) {
+  .teaching-course-list .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  .teaching-course-list .teaching-course-degree,
+  .teaching-course-list .teaching-course-link {
+    margin-left: 0;
+    margin-top: 0.55em;
+  }
 }
 
 .teaching-thesis-cards {

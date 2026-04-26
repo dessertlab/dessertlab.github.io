@@ -1125,12 +1125,6 @@ ul.news {
         white-space: nowrap;
         margin-left: 0.75em;
         flex-shrink: 0;
-
-        @media (max-width: 576px) {
-            margin-left: 0;
-            margin-top: 0.55em;
-            align-self: flex-start;
-        }
     }
 
     .teaching-course-link {
@@ -1143,6 +1137,18 @@ ul.news {
         white-space: nowrap;
 
         &:hover { text-decoration: underline; }
+    }
+
+    @media (max-width: 576px) {
+        .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        .teaching-course-degree,
+        .teaching-course-link {
+            margin-left: 0;
+            margin-top: 0.55em;
+        }
     }
 }
 
