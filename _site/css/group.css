@@ -977,4 +977,152 @@ ul.news .news-readmore::after {
   color: #222;
 }
 
+.teaching-intro {
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 1.75em;
+}
+.teaching-intro a {
+  color: #1a85d6;
+}
+
+.teaching-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3em;
+  padding: 0.55em 0.75em;
+  margin-bottom: 1.5em;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.teaching-nav .teaching-nav-item {
+  display: inline-block;
+  padding: 0.32em 0.85em;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #495057;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.teaching-nav .teaching-nav-item:hover {
+  background-color: rgba(26, 133, 214, 0.09);
+  color: #1a85d6;
+  text-decoration: none;
+}
+
+.teaching-course-list .list-group-item {
+  padding: 0.75em 1.1em;
+  border-color: #e2e8f0;
+}
+.teaching-course-list .teaching-course-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+.teaching-course-list .teaching-course-prof {
+  font-size: 0.83rem;
+  color: #64748b;
+  margin-top: 0.2em;
+}
+.teaching-course-list .teaching-course-degree {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.25em 0.65em;
+  white-space: nowrap;
+  margin-left: 0.75em;
+  flex-shrink: 0;
+}
+@media (max-width: 576px) {
+  .teaching-course-list .teaching-course-degree {
+    margin-left: 0;
+    margin-top: 0.55em;
+    align-self: flex-start;
+  }
+}
+.teaching-course-list .teaching-course-link {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1a85d6;
+  margin-left: 0.75em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.teaching-course-list .teaching-course-link:hover {
+  text-decoration: underline;
+}
+
+.teaching-thesis-cards {
+  margin-top: 0.5em;
+}
+
+.teaching-thesis-card {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 1em 1.2em;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #1a85d6;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.teaching-thesis-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-color: #1a85d6;
+  text-decoration: none;
+  color: inherit;
+}
+.teaching-thesis-card .teaching-thesis-icon {
+  font-size: 1.5rem;
+  color: #1a85d6;
+  flex-shrink: 0;
+}
+.teaching-thesis-card .teaching-thesis-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1e293b;
+}
+.teaching-thesis-card .teaching-thesis-sub {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 0.15em;
+}
+
+.teaching-proposals-course {
+  margin-bottom: 1.25em;
+}
+.teaching-proposals-course .teaching-proposals-course-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.4em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid #e2e8f0;
+}
+.teaching-proposals-course .teaching-proposals-list {
+  margin: 0.4em 0 0 1.2em;
+  padding: 0;
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.7;
+}
+.teaching-proposals-course .teaching-proposals-tba {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  font-style: italic;
+  margin: 0.3em 0 0 0.2em;
+}
+
 /*# sourceMappingURL=group.css.map */

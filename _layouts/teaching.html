@@ -1,0 +1,196 @@
+---
+layout: default
+---
+
+{%- assign tp = site.teaching | where: "data_id", "thesis_proposals" | first -%}
+
+{%- comment -%} ── In-page nav bar ──────────────────────────────────────── {%- endcomment -%}
+<nav class="teaching-nav">
+  {% if page.courses.phd %}<a class="teaching-nav-item" href="#phd">PhD Courses</a>{% endif %}
+  {% if page.courses.msc %}<a class="teaching-nav-item" href="#msc">MSc Courses</a>{% endif %}
+  {% if page.courses.bsc %}<a class="teaching-nav-item" href="#bsc">BSc Courses</a>{% endif %}
+  {% if page.training %}<a class="teaching-nav-item" href="#training">Training</a>{% endif %}
+  {% if tp.thesis_proposals.msc %}<a class="teaching-nav-item" href="#proposals-msc">MSc Thesis Proposals</a>{% endif %}
+  {% if tp.thesis_proposals.bsc %}<a class="teaching-nav-item" href="#proposals-bsc">BSc Thesis Proposals</a>{% endif %}
+  {% if tp.thesis_pages %}<a class="teaching-nav-item" href="#thesis">Theses</a>{% endif %}
+</nav>
+
+{% if page.courses.phd %}
+{% assign sorted_phd = page.courses.phd | sort: "name" %}
+<pre id="phd"><h2>PhD Courses</h2></pre>
+<div class="list-group teaching-course-list mb-4">
+  {% for course in sorted_phd %}
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <div class="teaching-course-name">{{ course.name }}</div>
+        <div class="teaching-course-prof">
+          {% if course.professors %}
+            {% assign sorted_profs = course.professors | sort %}
+            {% for prof in sorted_profs %}prof. <em>{{ prof }}</em>{% unless forloop.last %}, {% endunless %}{% endfor %}
+          {% elsif course.professor %}
+            prof. <em>{{ course.professor }}</em>
+          {% endif %}
+        </div>
+      </div>
+      <span class="teaching-course-degree">{{ course.degree }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if page.courses.msc %}
+{% assign sorted_msc = page.courses.msc | sort: "name" %}
+<pre id="msc"><h2>MSc Courses</h2></pre>
+<div class="list-group teaching-course-list mb-4">
+  {% for course in sorted_msc %}
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <div class="teaching-course-name">{{ course.name }}</div>
+        <div class="teaching-course-prof">
+          {% if course.professors %}
+            {% assign sorted_profs = course.professors | sort %}
+            {% for prof in sorted_profs %}prof. <em>{{ prof }}</em>{% unless forloop.last %}, {% endunless %}{% endfor %}
+          {% elsif course.professor %}
+            prof. <em>{{ course.professor }}</em>
+          {% endif %}
+        </div>
+      </div>
+      <span class="teaching-course-degree">{{ course.degree }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if page.courses.bsc %}
+{% assign sorted_bsc = page.courses.bsc | sort: "name" %}
+<pre id="bsc"><h2>BSc Courses</h2></pre>
+<div class="list-group teaching-course-list mb-4">
+  {% for course in sorted_bsc %}
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <div class="teaching-course-name">{{ course.name }}</div>
+        <div class="teaching-course-prof">
+          {% if course.professors %}
+            {% assign sorted_profs = course.professors | sort %}
+            {% for prof in sorted_profs %}prof. <em>{{ prof }}</em>{% unless forloop.last %}, {% endunless %}{% endfor %}
+          {% elsif course.professor %}
+            prof. <em>{{ course.professor }}</em>
+          {% endif %}
+        </div>
+      </div>
+      <span class="teaching-course-degree">{{ course.degree }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{%- comment -%} ── Training ────────────────────────────────────────────── {%- endcomment -%}
+{% if page.training %}
+<pre id="training"><h2>Training</h2></pre>
+<div class="list-group teaching-course-list mb-4">
+  {% for item in page.training %}
+  <div class="list-group-item">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <div class="teaching-course-name">{{ item.name }}</div>
+        <div class="teaching-course-prof">
+          {% if item.professors %}
+            {% assign sorted_profs = item.professors | sort %}
+            {% for prof in sorted_profs %}prof. <em>{{ prof }}</em>{% unless forloop.last %}, {% endunless %}{% endfor %}
+          {% elsif item.professor %}
+            prof. <em>{{ item.professor }}</em>
+          {% endif %}
+        </div>
+      </div>
+      {% if item.link %}
+      <a href="{{ item.link }}" target="_blank" rel="noopener noreferrer" class="teaching-course-link">Details &rarr;</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{%- comment -%} ── Thesis Proposals ────────────────────────────────────── {%- endcomment -%}
+{% if tp.thesis_proposals.msc %}
+<pre id="proposals-msc"><h2>MSc Thesis Proposals</h2></pre>
+{% for entry in tp.thesis_proposals.msc %}
+<div class="teaching-proposals-course">
+  <div class="teaching-proposals-course-name">{{ entry.course }}</div>
+  {% if entry.proposals %}
+  <ul class="teaching-proposals-list">
+    {% for proposal in entry.proposals %}
+    <li>{{ proposal }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="teaching-proposals-tba">Proposals coming soon.</p>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if tp.thesis_proposals.bsc %}
+<pre id="proposals-bsc"><h2>BSc Thesis Proposals</h2></pre>
+{% for entry in tp.thesis_proposals.bsc %}
+<div class="teaching-proposals-course">
+  <div class="teaching-proposals-course-name">{{ entry.course }}</div>
+  {% if entry.proposals %}
+  <ul class="teaching-proposals-list">
+    {% for proposal in entry.proposals %}
+    <li>{{ proposal }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="teaching-proposals-tba">Proposals coming soon.</p>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{%- comment -%} ── Theses ──────────────────────────────────────────────── {%- endcomment -%}
+{% if tp.thesis_pages %}
+<pre id="thesis"><h2>Theses</h2></pre>
+
+<div class="row teaching-thesis-cards mb-3">
+  {% if tp.thesis_pages.bsc %}
+  <div class="col-md-4 mb-3">
+    <a href="{{ tp.thesis_pages.bsc | relative_url }}" class="teaching-thesis-card">
+      <i class="fa fa-graduation-cap teaching-thesis-icon"></i>
+      <div>
+        <div class="teaching-thesis-title">BSc Theses</div>
+        <div class="teaching-thesis-sub">Completed projects</div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+  {% if tp.thesis_pages.msc %}
+  <div class="col-md-4 mb-3">
+    <a href="{{ tp.thesis_pages.msc | relative_url }}" class="teaching-thesis-card">
+      <i class="fa fa-graduation-cap teaching-thesis-icon"></i>
+      <div>
+        <div class="teaching-thesis-title">MSc Theses</div>
+        <div class="teaching-thesis-sub">Completed projects</div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+  {% if tp.thesis_pages.phd %}
+  <div class="col-md-4 mb-3">
+    <a href="{{ tp.thesis_pages.phd | relative_url }}" class="teaching-thesis-card">
+      <i class="fa fa-graduation-cap teaching-thesis-icon"></i>
+      <div>
+        <div class="teaching-thesis-title">PhD Theses</div>
+        <div class="teaching-thesis-sub">Completed projects</div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endif %}

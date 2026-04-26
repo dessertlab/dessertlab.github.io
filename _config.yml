@@ -42,6 +42,8 @@ collections:
     output: true
   topics_security:
     output: true
+  teaching:
+    output: true
 
 # Navigation bar links.
 navigation:
