@@ -1,8 +1,0 @@
----
-layout: post
-shortnews: true
-icon: newspaper-o
-published: false
----
-
-Welcome to the new DESSERT research group website!!!
