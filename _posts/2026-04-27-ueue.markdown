@@ -1,0 +1,16 @@
+---
+layout: post
+title: "ueue"
+date: 2026-04-27 09:00:00 +0000
+shortnews: false
+categories: [events, seminar]
+icon: newspaper-o
+speaker: "dsadsa dsa a"
+affiliation: "das"
+event_date: "dsa d"
+event_time: "dsa dsa sad"
+location: "as"
+excerpt: "dsa"
+---
+
+d as das
