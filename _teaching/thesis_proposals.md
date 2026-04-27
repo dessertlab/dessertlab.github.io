@@ -18,6 +18,8 @@ thesis_proposals:
       proposals:
     - course: AI Systems Engineering
       proposals:
+        - Ai thesis1
+        - AI thesis2
   bsc:
     - course: Ingegneria del Software
       proposals:
