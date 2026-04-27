@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "🌴🚀 CaPriC 2025 Begins!"
-date:   2025-10-13 08:30:00 +0000
+title: "🌴🚀 CaPriC 2025 Begins!"
+date: 2025-10-13 09:00:00 +0000
 shortnews: false
 categories: [events, phd school]
 icon: newspaper-o
@@ -9,7 +9,7 @@ icon: newspaper-o
 
 We’re live from Anacapri, Italy for the 1st CaPriC PhD School on Cyber-Physical Cloud 🌤️
 
-Top researchers + industry leaders unite to explore:
+Top researchers and industry leaders unite to explore:
 
 - ⚙️ Real-Time Systems
 - ☁️ Cloud Orchestration
