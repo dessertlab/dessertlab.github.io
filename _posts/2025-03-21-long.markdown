@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "📢 Safety Assessment of Autonomous Vehicles: Approaches and Challenges"
 date: 2025-03-21 09:00:00 +0000
@@ -13,7 +13,7 @@ location: "Aula Seminari DIETI, Building 3 Floor 1, Via Claudio 21, Naples"
 excerpt: "Prof. Peter Popov (City St George's, University of London) presents approaches and challenges in autonomous vehicle safety assessment. March 24 - 16:15 - Aula Seminari DIETI, Naples."
 ---
 
-The talk will provide an overview of safety assessment of autonomous vehicles (AV) based on Assurance 2.0. Concepts essential for AV safety assessment will be covered such as operational design domain (ODD) and road hazards. Some of the challenges in AV safety assessment due to the use of "intelligent" components built with Machine learning and Artificial Intelligence will be discussed briefly. The talk will present two approaches to safety assessment: i) based on the use of Stochastic Activity Networks for modelling the road hazards and the impact of failures of perception system and safety monitors on AV safety, and ii) "driving to safety" based on univariate or multivariate Bayesian inference demonstrating their limitations. Challenges for AV safety assessment based on "scenario-based testing" will be covered, too.
+😅The talk will provide an overview of safety assessment of autonomous vehicles (AV) based on Assurance 2.0. Concepts essential for AV safety assessment will be covered such as operational design domain (ODD) and road hazards. Some of the challenges in AV safety assessment due to the use of "intelligent" components built with Machine learning and Artificial Intelligence will be discussed briefly. The talk will present two approaches to safety assessment: i) based on the use of Stochastic Activity Networks for modelling the road hazards and the impact of failures of perception system and safety monitors on AV safety, and ii) "driving to safety" based on univariate or multivariate Bayesian inference demonstrating their limitations. Challenges for AV safety assessment based on "scenario-based testing" will be covered, too.
 
 **About the speaker**
 
