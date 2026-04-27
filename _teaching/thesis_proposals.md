@@ -25,4 +25,5 @@ thesis_proposals:
       proposals:
     - course: Advanced Computer Programming
       proposals:
+        - acp2
 ---
