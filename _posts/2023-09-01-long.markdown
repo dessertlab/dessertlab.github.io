@@ -1,10 +1,11 @@
 ---
 layout: post
-title:  "👋Welcome!"
-date:   2023-09-01 09:00:00 +0000
+title: "👋Welcome!"
+date: 2023-09-01 09:00:00 +0000
 shortnews: false
 categories: [news]
 icon: newspaper-o
+excerpt: "Welcome to the new DESSERT research group website!!!😍"
 ---
 
-Welcome to the new DESSERT research group website!!!
+Welcome to the new DESSERT research group website!!!😍
