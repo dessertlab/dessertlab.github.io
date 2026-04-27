@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — DeSSERT Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f8fafc;
+    --surface2: #f1f5f9;
+    --border: #e2e8f0;
+    --border-h: #cbd5e1;
+    --text: #1e293b;
+    --muted: #64748b;
+    --dim: #94a3b8;
+    --accent: #1a85d6;
+    --accent-d: #1570ba;
+    --danger: #dc2626;
+    --warn: #d97706;
+    --info: #0284c7;
+    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --sans: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; }
+
+  /* ── LOGIN ── */
+  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface); }
+  .login-box { background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 6px; padding: 40px 48px; width: 390px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
+  .login-logo { font-family: 'Roboto', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+  .fl { font-size: 12px; font-weight: 600; color: var(--text); display: block; margin-bottom: 6px; }
+  .fi { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 12px; outline: none; border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+  .fi:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,133,214,0.12); }
+  .btn-login { width: 100%; margin-top: 20px; background: var(--accent); border: none; color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 700; padding: 11px; border-radius: 4px; cursor: pointer; transition: background .15s; }
+  .btn-login:hover { background: var(--accent-d); }
+  .login-err { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* ── APP ── */
+  #app { display: none; }
+  header { height: 56px; border-bottom: 1px solid var(--border); padding: 0 36px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 20; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .h-title { font-family: 'Roboto', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+  .h-repo { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* ── TABS ── */
+  /* ── PRIMARY TAB BAR ── */
+  .tab-bar { border-bottom: 1px solid var(--border); padding: 0 36px; display: flex; background: var(--bg); }
+  .tab { font-size: 13px; font-weight: 500; padding: 14px 18px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s; position: relative; user-select: none; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab.dirty::after { content: '●'; font-size: 8px; color: var(--warn); position: absolute; top: 10px; right: 5px; }
+
+
+
+  main { max-width: 780px; margin: 0 auto; padding: 40px 36px; }
+
+  /* ── STATUS ── */
+  .status { font-size: 13px; padding: 11px 16px; margin-bottom: 28px; display: none; line-height: 1.6; border-radius: 4px; }
+  .status.info    { background: rgba(26,133,214,0.07);  border-left: 3px solid var(--accent); color: var(--accent-d); }
+  .status.error   { background: rgba(220,38,38,0.07);   border-left: 3px solid var(--danger); color: var(--danger); }
+  .status.success { background: rgba(2,132,199,0.07);   border-left: 3px solid var(--info);   color: var(--info); }
+  .status a { color: inherit; }
+
+  /* ── EDITOR CARD ── */
+  .card { background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 6px; }
+  .card-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .card-hint { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .card-hint code { font-family: var(--mono); font-size: 11px; color: var(--text); background: var(--surface); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; }
+  .card-body { padding: 20px; }
+
+  .bib-input {
+    width: 100%; min-height: 260px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--mono); font-size: 12px;
+    line-height: 1.7; padding: 14px; outline: none; resize: vertical;
+    border-radius: 4px; transition: border-color .15s, box-shadow .15s;
+    tab-size: 2;
+  }
+  .bib-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,133,214,0.10); }
+  .bib-input::placeholder { color: var(--dim); }
+  .bib-input.valid   { border-color: #16a34a; }
+  .bib-input.invalid { border-color: var(--danger); }
+
+  /* ── VALIDATION HINT ── */
+  .val-hint { font-family: var(--mono); font-size: 11px; margin-top: 8px; color: var(--muted); }
+  .val-hint.ok  { color: #16a34a; }
+  .val-hint.err { color: var(--danger); }
+
+  /* ── ACTIONS ── */
+  .actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+  .btn-pr { background: var(--accent); border: none; color: #fff; font-size: 13px; font-weight: 700; padding: 10px 22px; border-radius: 4px; cursor: pointer; transition: background .15s; }
+  .btn-pr:hover { background: var(--accent-d); }
+  .btn-pr:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-clear { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 13px; padding: 10px 16px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+  .btn-clear:hover { border-color: var(--border-h); color: var(--text); }
+  .pr-note { font-size: 12px; color: var(--muted); margin-left: 6px; }
+
+  /* ── EXISTING ENTRIES (collapsible) ── */
+  .existing-toggle { font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; margin-top: 32px; display: flex; align-items: center; gap: 8px; user-select: none; }
+  .existing-toggle:hover { color: var(--text); }
+  .existing-toggle .arrow { display: inline-block; transition: transform .2s; }
+  .existing-toggle.open .arrow { transform: rotate(90deg); }
+
+  .existing-list { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .existing-list.open { display: block; }
+  .ex-search { width: 100%; background: var(--surface); border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; padding: 10px 14px; outline: none; }
+  .ex-search:focus { background: #fff; }
+  .ex-search::placeholder { color: var(--dim); }
+  .ex-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); transition: background .1s; }
+  .ex-item:last-child { border-bottom: none; }
+  .ex-item:hover { background: var(--surface); }
+  .ex-key { font-family: var(--mono); font-size: 10px; color: var(--accent); min-width: 160px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-title { font-size: 13px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-year { font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; }
+  .ex-empty { font-size: 12px; color: var(--muted); padding: 20px 14px; text-align: center; }
+
+  .spin { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; margin-right: 7px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── THESIS PROPOSALS SECTION ── */
+  .level-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+  .level-tab { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 8px 22px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+  .level-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .level-tab:hover:not(.active) { border-color: var(--border-h); color: var(--text); }
+  .field-label { font-size: 12px; font-weight: 600; color: var(--text); display: block; margin-bottom: 6px; letter-spacing: 0.02em; }
+  .course-select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 10px 12px; outline: none; border-radius: 4px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .course-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,133,214,0.10); }
+  .proposal-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .proposal-input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 9px 12px; outline: none; border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+  .proposal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,133,214,0.10); }
+  .btn-remove-row { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--sans); font-size: 15px; line-height: 1; padding: 6px 10px; border-radius: 4px; cursor: pointer; flex-shrink: 0; transition: all .15s; }
+  .btn-remove-row:hover { border-color: var(--danger); color: var(--danger); background: rgba(220,38,38,0.05); }
+  .btn-add-proposal { background: none; border: 1px dashed var(--border-h); color: var(--muted); font-family: var(--sans); font-size: 12px; padding: 9px 14px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 4px; transition: all .15s; text-align: left; }
+  .btn-add-proposal:hover { border-color: var(--accent); color: var(--accent); }
+  .ex-course { font-size: 12px; font-weight: 600; color: var(--text); padding: 10px 14px 4px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .ex-proposal { font-size: 12px; color: var(--muted); padding: 4px 14px 4px 28px; }
+  .ex-proposal-none { font-size: 11px; color: var(--dim); font-style: italic; padding: 4px 14px 6px 28px; }
+
+  /* ── POST SECTION ── */
+  .form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .form-row > * { flex: 1; }
+  .form-group { margin-bottom: 16px; }
+  .text-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 9px 12px; outline: none; border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+  .text-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,133,214,0.10); }
+  .text-input::placeholder { color: var(--dim); }
+  .post-body-wrap { border: 1px solid var(--border); border-radius: 4px; transition: border-color .15s, box-shadow .15s; }
+  .post-body-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,133,214,0.10); }
+  .fmt-toolbar { display: flex; gap: 2px; padding: 6px 8px; background: var(--surface2); border-bottom: 1px solid var(--border); flex-wrap: wrap; border-radius: 4px 4px 0 0; }
+  .fmt-btn { background: none; border: 1px solid transparent; color: var(--muted); font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 3px; cursor: pointer; transition: all .12s; line-height: 1.4; }
+  .fmt-btn:hover { background: var(--surface); border-color: var(--border); color: var(--text); }
+  .fmt-sep { width: 1px; background: var(--border); margin: 3px 4px; }
+  .post-body { width: 100%; min-height: 220px; background: var(--bg); border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 12px; line-height: 1.7; padding: 12px 14px; resize: vertical; tab-size: 2; border-radius: 0 0 4px 4px; }
+  .post-body::placeholder { color: var(--dim); }
+  .seminar-fields { display: none; }
+  .seminar-fields.visible { display: block; }
+  .fields-divider { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 14px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .slug-preview { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 5px; word-break: break-all; }
+  .slug-preview span { color: var(--accent); }
+
+  /* ── EMOJI PICKER ── */
+  .emoji-wrap { position: relative; display: inline-block; }
+  .emoji-picker { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 100;
+    background: #fff; border: 1px solid var(--border); border-radius: 6px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.13); padding: 8px; width: 272px; }
+  .emoji-picker.open { display: block; }
+  .emoji-search { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    font-size: 12px; padding: 6px 10px; border-radius: 4px; outline: none; margin-bottom: 6px; }
+  .emoji-search:focus { border-color: var(--accent); }
+  .emoji-grid { display: flex; flex-wrap: wrap; gap: 1px; max-height: 200px; overflow-y: auto; }
+  .emoji-btn { background: none; border: none; font-size: 18px; width: 32px; height: 32px;
+    cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    transition: background .1s; }
+  .emoji-btn:hover { background: var(--surface2); }
+
+  /* ── POST BROWSE ── */
+  .post-ex-item { display:flex; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--border); min-width:0; }
+  .post-ex-item:last-child { border-bottom:none; }
+  .post-ex-date { font-size:11px; color:var(--dim); font-family:var(--mono); white-space:nowrap; min-width:85px; }
+  .post-ex-name { flex:1; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .post-ex-draft { font-size:10px; font-weight:700; color:var(--warn); text-transform:uppercase; letter-spacing:.04em; padding:1px 6px; border:1px solid var(--warn); border-radius:3px; flex-shrink:0; }
+  .post-ex-btns { display:flex; gap:5px; flex-shrink:0; }
+  .btn-ex { font-size:11px; padding:3px 10px; border-radius:3px; cursor:pointer; background:var(--bg); transition:background .12s; white-space:nowrap; }
+  .btn-ex-edit { border:1px solid var(--accent); color:var(--accent); }
+  .btn-ex-edit:hover { background:rgba(26,133,214,0.06); }
+  .btn-ex-del { border:1px solid var(--danger); color:var(--danger); }
+  .btn-ex-del:hover { background:rgba(220,38,38,0.06); }
+  .post-ex-confirm { display:none; align-items:center; gap:8px; flex-shrink:0; }
+  .post-ex-confirm-msg { font-size:11px; color:var(--warn); white-space:nowrap; }
+  .btn-ex-confirm-yes { border:1px solid var(--danger); color:var(--danger); font-weight:700; }
+  .btn-ex-confirm-yes:hover { background:rgba(220,38,38,0.09); }
+  .btn-ex-cancel { border:1px solid var(--border-h); color:var(--muted); }
+  .btn-ex-cancel:hover { background:var(--surface2); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">DeSSERT Lab</div>
+    <div class="login-sub">Admin Panel</div>
+    <label class="fl">GitHub Token</label>
+    <input class="fi" type="password" id="gh-token" placeholder="github_pat_…" />
+    <div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+      <input type="checkbox" id="remember" style="accent-color:var(--accent);width:14px;height:14px;cursor:pointer">
+      <label for="remember" style="font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;user-select:none">Remember on this device</label>
+    </div>
+    <div class="login-err" id="pw-err">Missing token.</div>
+    <button class="btn-login" onclick="doLogin()">Enter →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <span class="h-title">DeSSERT Lab Admin</span>
+    <span style="display:flex;align-items:center;gap:16px">
+      <span class="h-repo" id="repo-label"></span>
+      <button onclick="doLogout(false)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out">Sign out</button>
+      <button onclick="doLogout(true)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out and forget token">Forget &amp; sign out</button>
+    </span>
+  </header>
+  <div class="tab-bar" id="tab-bar"></div>
+  <main>
+    <div id="pub-section">
+    <div class="status" id="status-bar"></div>
+    <div class="level-tabs" id="pub-level-tabs"></div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Paste BibTeX entry</div>
+        <div class="card-hint">
+          Paste one or more <code>@article{…}</code> entries. They will be prepended to
+          <code id="file-hint">—</code> and a pull request will be opened for review.
+        </div>
+      </div>
+      <div class="card-body">
+        <textarea class="bib-input" id="bib-input"
+          placeholder="@article{smith2024neural,&#10;  author = {Smith, John and Doe, Jane},&#10;  title  = {Neural Networks for Software Testing},&#10;  journal = {IEEE Transactions on Software Engineering},&#10;  year   = {2024},&#10;  doi    = {10.1109/TSE.2024.000000}&#10;}"
+          oninput="validateInput()"
+          onkeydown="handleTab(event)"></textarea>
+        <div class="val-hint" id="val-hint"></div>
+        <div class="actions">
+          <button class="btn-pr" id="pr-btn" onclick="openPR()" disabled>Save</button>
+          <button class="btn-clear" onclick="clearInput()">Clear</button>
+          <span class="pr-note" id="pr-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Existing entries (read-only browse) -->
+    <div class="existing-toggle" id="ex-toggle" onclick="toggleExisting()">
+      <span class="arrow">▶</span>
+      <span id="ex-toggle-label">Browse existing entries</span>
+    </div>
+    <div class="existing-list" id="existing-list">
+      <input class="ex-search" id="ex-search" placeholder="Filter…" oninput="renderExisting()" />
+      <div id="ex-items"></div>
+    </div>
+    </div><!-- /pub-section -->
+
+    <!-- ── THESIS PROPOSALS SECTION ── -->
+    <div id="thesis-section" style="display:none">
+      <div class="status" id="thesis-status"></div>
+      <div class="level-tabs">
+        <button class="level-tab active" id="level-msc" onclick="switchLevel('msc')">MSc</button>
+        <button class="level-tab" id="level-bsc" onclick="switchLevel('bsc')">BSc</button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="thesis-card-title">MSc Thesis Proposals</div>
+          <div class="card-hint">
+            Select a course, manage its thesis proposals, and open a pull request to update
+            <code>_teaching/thesis_proposals.md</code>.
+          </div>
+        </div>
+        <div class="card-body">
+          <label class="field-label">Course</label>
+          <select id="course-select" class="course-select" onchange="onCourseChange()">
+            <option value="">— select a course —</option>
+          </select>
+          <div id="proposals-area" style="display:none; margin-top:20px">
+            <label class="field-label">Proposals <span id="proposals-count" style="font-weight:400;color:var(--muted)"></span></label>
+            <div id="proposals-rows"></div>
+            <button class="btn-add-proposal" onclick="addProposalRow('')">+ Add proposal</button>
+          </div>
+          <div class="actions" style="margin-top:20px">
+            <button class="btn-pr" id="thesis-pr-btn" onclick="openThesisPR()" disabled>Save</button>
+            <button class="btn-clear" onclick="resetThesisForm()">Reset</button>
+            <span class="pr-note" id="thesis-pr-note"></span>
+          </div>
+        </div>
+      </div>
+      <div class="existing-toggle" id="thesis-ex-toggle" onclick="toggleThesisExisting()">
+        <span class="arrow">▶</span>
+        <span id="thesis-ex-label">Browse current proposals</span>
+      </div>
+      <div class="existing-list" id="thesis-existing-list">
+        <div id="thesis-ex-items"></div>
+      </div>
+    </div><!-- /thesis-section -->
+
+    <!-- ── POST SECTION ── -->
+    <div id="post-section" style="display:none">
+      <div class="status" id="post-status"></div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="post-card-title">New Post</div>
+          <div class="card-hint">Create a news post or event announcement. A pull request will be opened to add it to <code>_posts/</code>.</div>
+        </div>
+        <div class="card-body">
+
+          <!-- Title + Date -->
+          <div class="form-row">
+            <div class="form-group" style="flex:2;margin-bottom:0">
+              <label class="field-label">Title</label>
+              <input type="text" id="post-title" class="text-input" placeholder="Post title…" oninput="onPostTitleInput()" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Date</label>
+              <input type="date" id="post-date" class="text-input" />
+            </div>
+          </div>
+          <div class="slug-preview" id="slug-preview" style="margin-top:6px;margin-bottom:16px"></div>
+
+          <!-- Category / Subcategory -->
+          <div class="form-row">
+            <div>
+              <label class="field-label">Category</label>
+              <div class="level-tabs" id="post-cat-tabs" style="margin-bottom:0;gap:6px"></div>
+            </div>
+            <div id="post-subcat-wrap" style="display:none">
+              <label class="field-label">Subcategory</label>
+              <div class="level-tabs" id="post-subcat-tabs" style="margin-bottom:0;gap:6px"></div>
+            </div>
+          </div>
+
+          <!-- Status (published / draft) -->
+          <div class="form-row" style="margin-bottom:16px">
+            <div>
+              <label class="field-label">Status</label>
+              <div class="level-tabs" style="margin-bottom:0;gap:6px">
+                <button id="post-pub-yes" class="level-tab active" onclick="setPostPublished(true)">Published</button>
+                <button id="post-pub-no"  class="level-tab"        onclick="setPostPublished(false)">Draft</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seminar extra fields -->
+          <div class="seminar-fields" id="seminar-fields">
+            <div class="fields-divider">Seminar Details</div>
+            <div class="form-row">
+              <div>
+                <label class="field-label">Speaker</label>
+                <input type="text" id="post-speaker" class="text-input" placeholder="Prof. Jane Doe" />
+              </div>
+              <div>
+                <label class="field-label">Affiliation</label>
+                <input type="text" id="post-affiliation" class="text-input" placeholder="University of…" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label class="field-label">Event Date <span style="font-weight:400;color:var(--muted)">(human readable)</span></label>
+                <input type="text" id="post-event-date" class="text-input" placeholder="Monday, 24 March 2025" />
+              </div>
+              <div>
+                <label class="field-label">Time</label>
+                <input type="text" id="post-event-time" class="text-input" placeholder="16:15 - 17:15" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="field-label">Location</label>
+              <input type="text" id="post-location" class="text-input" placeholder="Room / Building / City" />
+            </div>
+          </div>
+
+          <!-- Excerpt -->
+          <div class="form-group" id="post-excerpt-group">
+            <label class="field-label">Excerpt <span style="font-weight:400;color:var(--muted)">(shown on homepage — leave blank to auto-generate)</span></label>
+            <input type="text" id="post-excerpt" class="text-input" placeholder="One-sentence summary…" />
+          </div>
+
+          <!-- Body editor -->
+          <div class="form-group" style="margin-bottom:0">
+            <label class="field-label">Body <span style="font-weight:400;color:var(--muted)">(Markdown)</span></label>
+            <div class="post-body-wrap">
+              <div class="fmt-toolbar">
+                <button class="fmt-btn" title="Bold" onclick="fmtWrap('**','**')"><b>B</b></button>
+                <button class="fmt-btn" title="Italic" onclick="fmtWrap('_','_')"><i>I</i></button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Heading 2" onclick="fmtLine('## ')">H2</button>
+                <button class="fmt-btn" title="Heading 3" onclick="fmtLine('### ')">H3</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Bullet list" onclick="fmtLine('- ')">• List</button>
+                <button class="fmt-btn" title="Numbered list" onclick="fmtLine('1. ')">1. List</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Link" onclick="fmtLink()">[link]</button>
+                <button class="fmt-btn" title="Code" onclick="fmtWrap('`','`')">code</button>
+                <button class="fmt-btn" title="Blockquote" onclick="fmtLine('> ')">❝</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Horizontal rule" onclick="fmtInsert('\n\n---\n\n')">—</button>
+                <div class="fmt-sep"></div>
+                <div class="emoji-wrap">
+                  <button class="fmt-btn" title="Insert emoji" onclick="toggleEmojiPicker(event)">😀</button>
+                  <div class="emoji-picker" id="emoji-picker" onmousedown="event.stopPropagation()">
+                    <input class="emoji-search" id="emoji-search" placeholder="Search emoji…" oninput="filterEmoji()" />
+                    <div class="emoji-grid" id="emoji-grid"></div>
+                  </div>
+                </div>
+              </div>
+              <textarea id="post-body" class="post-body"
+                placeholder="Write the full post content in Markdown…"
+                onkeydown="handlePostTab(event)"></textarea>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top:18px">
+            <button class="btn-pr" id="post-pr-btn" onclick="openPostPR()" disabled>Save</button>
+            <button class="btn-clear" onclick="resetPostForm()">Reset</button>
+            <button class="btn-clear" id="post-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditPost()">Cancel Edit</button>
+            <span class="pr-note" id="post-pr-note">will create a new file in <code>_posts/</code></span>
+          </div>
+        </div>
+      </div>
+      <!-- Browse / edit / delete existing posts -->
+      <div class="existing-toggle" id="posts-ex-toggle" onclick="togglePostsExisting()" style="margin-top:16px">
+        <span class="ex-arrow">&#9658;</span>
+        <span id="posts-ex-label">Browse existing posts</span>
+      </div>
+      <div class="existing-list" id="posts-existing-list">
+        <div id="posts-ex-items"></div>
+      </div>
+    </div><!-- /post-section -->
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════ CONFIGURATION
+const CONFIG = {
+  GITHUB_TOKEN:   '',          // entered at login
+  REPO_OWNER:     'dessertlab',
+  REPO_NAME:      'dessert.github.io',
+  BASE_BRANCH:    'main',
+};
+
+const BIB_FILES = [
+  { id: 'journal',    label: 'Journals',    path: 'bib/pubs_journal.bib'    },
+  { id: 'conference', label: 'Conferences', path: 'bib/pubs_conference.bib' },
+  { id: 'book',       label: 'Books',       path: 'bib/pubs_book.bib'       },
+  { id: 'editorial',  label: 'Editorials',  path: 'bib/pubs_editorial.bib'  },
+];
+
+const state = {};
+BIB_FILES.forEach(f => { state[f.id] = { raw: '', sha: '', entries: [], loaded: false }; });
+let activeTab = BIB_FILES[0].id;
+let exOpen = false;
+
+// ── Thesis Proposals state ──
+const THESIS_FILE  = '_teaching/thesis_proposals.md';
+const COURSES_FILE = '_teaching/courses_and_training.md';
+const thesisState  = { raw: '', sha: '', data: null, loaded: false };
+const coursesState = { raw: '', data: null, loaded: false };
+let activeLevel = 'msc';
+let thesisExOpen = false;
+const postsState  = { posts: [], loaded: false };
+let postsExOpen   = false;
+let editingPost   = null;
+let postPublished = true;
+
+const GH = `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}`;
+const ghH = () => ({ 'Authorization': `token ${CONFIG.GITHUB_TOKEN}`, 'Content-Type': 'application/json' });
+
+// ════════════════════════════════ LOGIN
+document.getElementById('gh-token').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// Auto-fill saved token
+(function () {
+  const saved = localStorage.getItem('gh_token');
+  if (saved) {
+    document.getElementById('gh-token').value = saved;
+    document.getElementById('remember').checked = true;
+  }
+})();
+
+function doLogin() {
+  const token = document.getElementById('gh-token').value.trim();
+  if (token) {
+    CONFIG.GITHUB_TOKEN = token;
+    if (document.getElementById('remember').checked) {
+      localStorage.setItem('gh_token', token);
+    } else {
+      localStorage.removeItem('gh_token');
+    }
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('repo-label').textContent = `${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}`;
+    buildTabs();
+    switchPrimary('publications');
+  } else {
+    document.getElementById('pw-err').style.display = 'block';
+  }
+}
+
+function doLogout(forget) {
+  if (forget) localStorage.removeItem('gh_token');
+  CONFIG.GITHUB_TOKEN = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('tab-bar').innerHTML = '';
+  document.getElementById('pub-level-tabs').innerHTML = '';
+  document.getElementById('post-section').style.display = 'none';
+  document.getElementById('thesis-section').style.display = 'none';
+  document.getElementById('pub-section').style.display = 'block';
+  document.getElementById('login-screen').style.display = 'flex';
+  if (!forget && localStorage.getItem('gh_token')) {
+    document.getElementById('remember').checked = true;
+  }
+}
+
+// ════════════════════════════════ TABS
+function buildTabs() {
+  // Primary bar: Publications | Thesis Proposals | Posts
+  const bar = document.getElementById('tab-bar');
+  [['publications','Publications'],['thesis','Thesis Proposals'],['posts','Posts']].forEach(([id,label]) => {
+    const t = document.createElement('div');
+    t.id = `tab-${id}`; t.className = 'tab'; t.textContent = label;
+    t.onclick = () => switchPrimary(id);
+    bar.appendChild(t);
+  });
+
+  // Pub-type buttons inside pub-section
+  const sub = document.getElementById('pub-level-tabs');
+  BIB_FILES.forEach(f => {
+    const t = document.createElement('button');
+    t.id = `subtab-${f.id}`; t.className = 'level-tab'; t.textContent = f.label;
+    t.onclick = () => switchTab(f.id);
+    sub.appendChild(t);
+  });
+}
+
+function switchPrimary(section) {
+  ['publications','thesis','posts'].forEach(id => {
+    document.getElementById(`tab-${id}`).className = 'tab' + (id === section ? ' active' : '');
+  });
+  document.getElementById('pub-section').style.display    = section === 'publications' ? 'block' : 'none';
+  document.getElementById('thesis-section').style.display = section === 'thesis'       ? 'block' : 'none';
+  document.getElementById('post-section').style.display   = section === 'posts'        ? 'block' : 'none';
+
+  if (section === 'thesis') { hideStatus(); loadThesisData(); }
+  else if (section === 'posts') { hideStatus(); initPostForm(); }
+  else { switchTab(activeTab && BIB_FILES.find(f => f.id === activeTab) ? activeTab : BIB_FILES[0].id); }
+}
+function switchTab(id) {
+  activeTab = id;
+  // Highlight sub-tab
+  BIB_FILES.forEach(f => {
+    document.getElementById(`subtab-${f.id}`).className = 'level-tab' + (f.id === id ? ' active' : '');
+  });
+
+  // update file hint
+  const file = BIB_FILES.find(f => f.id === id);
+  document.getElementById('file-hint').textContent = file.path;
+  // reset textarea & validation
+  document.getElementById('bib-input').value = '';
+  document.getElementById('bib-input').className = 'bib-input';
+  document.getElementById('val-hint').textContent = '';
+  document.getElementById('val-hint').className = 'val-hint';
+  document.getElementById('pr-btn').disabled = true;
+  document.getElementById('pr-note').textContent = '';
+  hideStatus();
+  // collapse existing list
+  if (exOpen) toggleExisting();
+  // load if not yet loaded
+  if (!state[id].loaded) loadBib(id); else renderExisting();
+}
+
+// ════════════════════════════════ GITHUB
+async function loadBib(id) {
+  const file = BIB_FILES.find(f => f.id === id);
+  setStatus('info', `<span class="spin"></span>Loading ${file.path}…`);
+  try {
+    const res = await fetch(`${GH}/contents/${file.path}`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    state[id].sha = data.sha;
+    state[id].raw = b64d(data.content.replace(/\n/g, ''));
+    state[id].entries = parseBib(state[id].raw);
+    state[id].loaded = true;
+    hideStatus();
+    renderExisting();
+  } catch(e) { setStatus('error', `Failed to load ${file.path}: ${e.message}`); }
+}
+
+async function openPR() {
+  const newBib = document.getElementById('bib-input').value.trim();
+  if (!newBib) return;
+
+  const s = state[activeTab];
+  const file = BIB_FILES.find(f => f.id === activeTab);
+  const newEntries = parseBib(newBib);
+
+  // Check for duplicate keys
+  const existingKeys = new Set(s.entries.map(e => e.key));
+  const dupes = newEntries.filter(e => existingKeys.has(e.key)).map(e => e.key);
+  if (dupes.length) {
+    setStatus('error', `Duplicate key(s) already in file: ${dupes.join(', ')}`);
+    return;
+  }
+
+  setStatus('info', `<span class="spin"></span>Opening pull request…`);
+  document.getElementById('pr-btn').disabled = true;
+
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try {
+        const body = await res.json();
+        if (body && body.message) details += ` - ${body.message}`;
+        if (body && Array.isArray(body.errors) && body.errors.length) {
+          const first = body.errors[0];
+          if (typeof first === 'string') details += ` (${first})`;
+          else if (first && first.message) details += ` (${first.message})`;
+          else if (first && first.code) details += ` (${first.code})`;
+        }
+      } catch (_) {
+        // Ignore JSON parsing errors and keep status text.
+      }
+      throw new Error(`${label}: ${details}`);
+    };
+
+    // Prepend new entry + blank line to existing raw content
+    const updatedRaw = newBib.trim() + '\n\n' + s.raw.trim() + '\n';
+
+    // 1. get base SHA
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    // 2. create branch
+    const branch = `publications-${activeTab}-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+
+    // 3. commit updated file
+    const commitRes = await fetch(`${GH}/contents/${file.path}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({
+        message: `Add ${newEntries.map(e => e.key).join(', ')} to ${file.path}`,
+        content: b64e(updatedRaw),
+        sha: s.sha,
+        branch,
+      })
+    });
+    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file update');
+
+    // 4. open PR
+    const keyList = newEntries.map(e => `\`${e.key}\``).join(', ');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `Add ${newEntries.length === 1 ? newEntries[0].key : newEntries.length + ' entries'} to ${file.label || file.id}`,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: `New publication(s) added via admin panel.\n\n**File:** \`${file.path}\`\n**Entries:** ${keyList}\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``,
+      })
+    });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+    setStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('bib-input').value = '';
+    document.getElementById('bib-input').className = 'bib-input';
+    document.getElementById('val-hint').textContent = '';
+    document.getElementById('val-hint').className = 'val-hint';
+    document.getElementById('pr-btn').disabled = true;
+    document.getElementById('pr-note').textContent = '';
+  } catch(e) {
+    setStatus('error', `Failed: ${e.message}`);
+    document.getElementById('pr-btn').disabled = false;
+  }
+}
+
+// ════════════════════════════════ VALIDATION
+function validateInput() {
+  const val = document.getElementById('bib-input').value.trim();
+  const inp = document.getElementById('bib-input');
+  const hint = document.getElementById('val-hint');
+  const btn = document.getElementById('pr-btn');
+  const note = document.getElementById('pr-note');
+
+  if (!val) {
+    inp.className = 'bib-input';
+    hint.textContent = ''; hint.className = 'val-hint';
+    btn.disabled = true; note.textContent = ''; return;
+  }
+
+  const entries = parseBib(val);
+  if (entries.length === 0) {
+    inp.className = 'bib-input invalid';
+    hint.textContent = 'No valid BibTeX entries detected. Make sure your entry starts with @type{key, …}';
+    hint.className = 'val-hint err';
+    btn.disabled = true; note.textContent = ''; return;
+  }
+
+  // Check for missing key fields
+  const warnings = [];
+  entries.forEach(e => {
+    if (!e.fields.title)  warnings.push(`"${e.key}" has no title`);
+    if (!e.fields.author) warnings.push(`"${e.key}" has no author`);
+    if (!e.fields.year)   warnings.push(`"${e.key}" has no year`);
+  });
+
+  if (warnings.length) {
+    inp.className = 'bib-input invalid';
+    hint.textContent = '⚠ ' + warnings.join(' · ');
+    hint.className = 'val-hint err';
+    btn.disabled = false; // still allow — just warn
+  } else {
+    inp.className = 'bib-input valid';
+    hint.textContent = `✓ ${entries.length} valid entr${entries.length > 1 ? 'ies' : 'y'} detected: ${entries.map(e => e.key).join(', ')}`;
+    hint.className = 'val-hint ok';
+    btn.disabled = false;
+  }
+  note.textContent = `will be prepended to ${BIB_FILES.find(f => f.id === activeTab).path}`;
+}
+
+// ════════════════════════════════ EXISTING ENTRIES (browse)
+function toggleExisting() {
+  exOpen = !exOpen;
+  const toggle = document.getElementById('ex-toggle');
+  const list = document.getElementById('existing-list');
+  toggle.classList.toggle('open', exOpen);
+  list.classList.toggle('open', exOpen);
+  if (exOpen) {
+    document.getElementById('ex-search').value = '';
+    renderExisting();
+  }
+}
+
+function renderExisting() {
+  const s = state[activeTab];
+  const container = document.getElementById('ex-items');
+  const q = document.getElementById('ex-search').value.toLowerCase();
+  const label = document.getElementById('ex-toggle-label');
+
+  if (!s.loaded) {
+    container.innerHTML = `<div class="ex-empty"><span class="spin"></span> Loading…</div>`;
+    return;
+  }
+
+  label.textContent = `Browse existing entries (${s.entries.length})`;
+
+  const filtered = q
+    ? s.entries.filter(e => (e.key + ' ' + (e.fields.title||'') + ' ' + (e.fields.author||'') + ' ' + (e.fields.year||'')).toLowerCase().includes(q))
+    : s.entries;
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="ex-empty">No matches.</div>`; return;
+  }
+
+  container.innerHTML = filtered.map(e => `
+    <div class="ex-item">
+      <span class="ex-key">@${e.type} ${esc(e.key)}</span>
+      <span class="ex-title">${esc(e.fields.title || '—')}</span>
+      <span class="ex-year">${esc(e.fields.year || '')}</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════ HELPERS
+function clearInput() {
+  document.getElementById('bib-input').value = '';
+  document.getElementById('bib-input').className = 'bib-input';
+  document.getElementById('val-hint').textContent = '';
+  document.getElementById('val-hint').className = 'val-hint';
+  document.getElementById('pr-btn').disabled = true;
+  document.getElementById('pr-note').textContent = '';
+}
+
+// Allow Tab key to insert spaces in the textarea
+function handleTab(e) {
+  if (e.key !== 'Tab') return;
+  e.preventDefault();
+  const t = e.target, s = t.selectionStart, end = t.selectionEnd;
+  t.value = t.value.substring(0, s) + '  ' + t.value.substring(end);
+  t.selectionStart = t.selectionEnd = s + 2;
+  validateInput();
+}
+
+function parseBib(raw) {
+  const out = [];
+  const re = /@(\w+)\s*\{\s*([^,\s]+)\s*,([^@]*)/gs;
+  let m;
+  while ((m = re.exec(raw)) !== null)
+    out.push({ type: m[1].toLowerCase(), key: m[2].trim(), fields: parseFields(m[3]) });
+  return out;
+}
+function parseFields(body) {
+  const f = {};
+  const re = /(\w+)\s*=\s*(?:\{((?:[^{}]|\{[^{}]*\})*)\}|"([^"]*)"|(\d+))/g;
+  let m;
+  while ((m = re.exec(body)) !== null)
+    f[m[1].toLowerCase()] = (m[2] ?? m[3] ?? m[4] ?? '').trim();
+  return f;
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setStatus(t, h) { const b = document.getElementById('status-bar'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; }
+function hideStatus() { const b = document.getElementById('status-bar'); b.style.display = 'none'; }
+function b64e(str) { return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p) => String.fromCharCode(parseInt(p, 16)))); }
+function b64d(str) { return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); }
+
+// ════════════════════════════════ THESIS PROPOSALS
+
+// ── Load both files from GitHub ────────────────────────────────────────────────
+async function loadThesisData() {
+  if (thesisState.loaded && coursesState.loaded) { renderThesisForm(); renderThesisExisting(); return; }
+  setThesisStatus('info', '<span class="spin"></span>Loading thesis data…');
+  try {
+    const [thRes, coRes] = await Promise.all([
+      fetch(`${GH}/contents/${THESIS_FILE}`,  { headers: ghH() }),
+      fetch(`${GH}/contents/${COURSES_FILE}`, { headers: ghH() }),
+    ]);
+    if (!thRes.ok) throw new Error(`${THESIS_FILE}: ${thRes.status} ${thRes.statusText}`);
+    if (!coRes.ok) throw new Error(`${COURSES_FILE}: ${coRes.status} ${coRes.statusText}`);
+    const thData = await thRes.json();
+    const coData = await coRes.json();
+    thesisState.sha    = thData.sha;
+    thesisState.raw    = b64d(thData.content.replace(/\n/g, ''));
+    thesisState.data   = parseThesisFile(thesisState.raw);
+    thesisState.loaded = true;
+    coursesState.raw    = b64d(coData.content.replace(/\n/g, ''));
+    coursesState.data   = parseCoursesFile(coursesState.raw);
+    coursesState.loaded = true;
+    syncCoursesToProposals();
+    hideThesisStatus();
+    renderThesisForm();
+    renderThesisExisting();
+  } catch(e) { setThesisStatus('error', `Failed to load thesis data: ${e.message}`); }
+}
+
+// ── Sync courses → proposals (add missing, remove deleted) ───────────────────
+function syncCoursesToProposals() {
+  for (const lvl of ['msc', 'bsc']) {
+    const courseNames = [...new Set(coursesState.data[lvl] || [])];
+    const existing   = thesisState.data.thesis_proposals[lvl] || [];
+
+    // Rebuild proposals list to exactly mirror the courses file order.
+    // Courses already in proposals keep their proposals; new courses get an empty list.
+    thesisState.data.thesis_proposals[lvl] = courseNames.map(name => {
+      const found = existing.find(e => e.course === name);
+      return found || { course: name, proposals: [] };
+    });
+  }
+}
+
+// ── YAML helpers ───────────────────────────────────────────────────────────────
+function yVal2(s) { return (s || '').trim().replace(/^["']|["']$/g, ''); }
+function yScalar(s) {
+  s = String(s);
+  if (/[:#\[\]{}|>&*!,'"?%@`]/.test(s) || /^\s|\s$/.test(s))
+    return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  return s;
+}
+
+// ── Parse thesis_proposals.md front matter ────────────────────────────────────
+function parseThesisFile(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!m) throw new Error('No YAML front matter in ' + THESIS_FILE);
+  const lines = m[1].split('\n');
+  const data = { data_id: '', thesis_pages: {}, thesis_proposals: { msc: [], bsc: [] } };
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^data_id:/.test(line)) {
+      data.data_id = yVal2(line.split(':').slice(1).join(':').trim()); i++;
+    } else if (/^thesis_pages:/.test(line)) {
+      i++;
+      while (i < lines.length && /^  \w+:/.test(lines[i])) {
+        const mm = lines[i].match(/^\s+(\w+):\s*(.*)/);
+        if (mm) data.thesis_pages[mm[1]] = yVal2(mm[2]);
+        i++;
+      }
+    } else if (/^thesis_proposals:/.test(line)) {
+      i++;
+      let lvl = null;
+      while (i < lines.length) {
+        const l = lines[i];
+        const lm = l.match(/^  (msc|bsc):/);
+        if (lm) { lvl = lm[1]; i++; continue; }
+        if (lvl && /^    - course:/.test(l)) {
+          const course = yVal2(l.replace(/^    - course:/, ''));
+          const entry = { course, proposals: [] };
+          i++;
+          if (i < lines.length && /^      proposals:/.test(lines[i])) {
+            i++;
+            while (i < lines.length && /^        - /.test(lines[i])) {
+              entry.proposals.push(lines[i].replace(/^        - /, '').trim());
+              i++;
+            }
+          }
+          if (data.thesis_proposals[lvl]) data.thesis_proposals[lvl].push(entry);
+          continue;
+        }
+        if (/^\w/.test(l)) break;
+        i++;
+      }
+    } else { i++; }
+  }
+  return data;
+}
+
+// ── Parse courses_and_training.md front matter ────────────────────────────────
+function parseCoursesFile(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!m) throw new Error('No YAML front matter in ' + COURSES_FILE);
+  const lines = m[1].split('\n');
+  const courses = { msc: [], bsc: [], phd: [] };
+  let i = 0, inCourses = false, lvl = null;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^courses:/.test(line)) { inCourses = true; i++; continue; }
+    if (inCourses) {
+      const lm = line.match(/^  (msc|bsc|phd):/);
+      if (lm) { lvl = lm[1]; i++; continue; }
+      if (lvl && /^    - name:/.test(line)) {
+        const name = yVal2(line.replace(/^    - name:/, ''));
+        if (courses[lvl]) courses[lvl].push(name);
+        i++;
+        while (i < lines.length && /^      \w/.test(lines[i])) i++;
+        continue;
+      }
+      if (/^\w/.test(line)) inCourses = false;
+    }
+    i++;
+  }
+  return courses;
+}
+
+// ── Serialize thesis data back to YAML front matter ────────────────────────────
+function serializeThesisFile(data) {
+  let out = '---\n';
+  out += 'data_id: ' + data.data_id + '\n\n';
+  out += 'thesis_pages:\n';
+  for (const [k, v] of Object.entries(data.thesis_pages)) out += '  ' + k + ': ' + v + '\n';
+  out += '\nthesis_proposals:\n';
+  for (const lvl of ['msc', 'bsc']) {
+    const list = data.thesis_proposals[lvl];
+    if (!list || !list.length) continue;
+    out += '  ' + lvl + ':\n';
+    for (const e of list) {
+      out += '    - course: ' + yScalar(e.course) + '\n';
+      if (e.proposals && e.proposals.length) {
+        out += '      proposals:\n';
+        for (const p of e.proposals) out += '        - ' + yScalar(p) + '\n';
+      } else {
+        out += '      proposals:\n';
+      }
+    }
+  }
+  out += '---\n';
+  return out;
+}
+
+// ── Level tab toggle (MSc / BSc) ───────────────────────────────────────────────
+function switchLevel(lvl) {
+  activeLevel = lvl;
+  document.getElementById('level-msc').classList.toggle('active', lvl === 'msc');
+  document.getElementById('level-bsc').classList.toggle('active', lvl === 'bsc');
+  document.getElementById('thesis-card-title').textContent = lvl.toUpperCase() + ' Thesis Proposals';
+  renderThesisForm();
+  renderThesisExisting();
+}
+
+// ── Populate course selector ───────────────────────────────────────────────────
+function renderThesisForm() {
+  const sel = document.getElementById('course-select');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">\u2014 select a course \u2014</option>';
+  const raw = coursesState.data ? (coursesState.data[activeLevel] || []) : [];
+  const list = [...new Set(raw)]; // deduplicate same-name courses
+  list.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  if (prev && list.includes(prev)) { sel.value = prev; onCourseChange(); }
+  else {
+    document.getElementById('proposals-area').style.display = 'none';
+    document.getElementById('thesis-pr-btn').disabled = true;
+    document.getElementById('thesis-pr-note').textContent = '';
+  }
+}
+
+// ── Course selection change ────────────────────────────────────────────────────
+function onCourseChange() {
+  const course = document.getElementById('course-select').value;
+  if (!course) {
+    document.getElementById('proposals-area').style.display = 'none';
+    document.getElementById('thesis-pr-btn').disabled = true;
+    document.getElementById('thesis-pr-note').textContent = '';
+    return;
+  }
+  const entries = thesisState.data ? thesisState.data.thesis_proposals[activeLevel] : [];
+  const entry   = entries.find(e => e.course === course);
+  document.getElementById('proposals-rows').innerHTML = '';
+  (entry ? entry.proposals : []).forEach(p => addProposalRow(p));
+  document.getElementById('proposals-area').style.display = 'block';
+  document.getElementById('thesis-pr-btn').disabled = false;
+  document.getElementById('thesis-pr-note').textContent = 'will update ' + THESIS_FILE;
+  updateProposalCount();
+}
+
+// ── Proposal row management ────────────────────────────────────────────────────
+function addProposalRow(value) {
+  const rows = document.getElementById('proposals-rows');
+  const row  = document.createElement('div');
+  row.className = 'proposal-row';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'proposal-input';
+  inp.placeholder = 'Proposal title\u2026'; inp.value = value;
+  inp.oninput = updateProposalCount;
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove-row'; btn.textContent = '\u00d7'; btn.title = 'Remove';
+  btn.onclick = () => { row.remove(); updateProposalCount(); };
+  row.appendChild(inp); row.appendChild(btn);
+  rows.appendChild(row);
+  if (!value) inp.focus();
+  updateProposalCount();
+}
+
+function updateProposalCount() {
+  const filled = [...document.querySelectorAll('#proposals-rows .proposal-input')].filter(r => r.value.trim()).length;
+  document.getElementById('proposals-count').textContent = filled ? '(' + filled + ')' : '';
+}
+
+function getProposals() {
+  return [...document.querySelectorAll('#proposals-rows .proposal-input')].map(i => i.value.trim()).filter(Boolean);
+}
+
+function resetThesisForm() {
+  document.getElementById('course-select').value = '';
+  document.getElementById('proposals-area').style.display = 'none';
+  document.getElementById('proposals-rows').innerHTML = '';
+  document.getElementById('thesis-pr-btn').disabled = true;
+  document.getElementById('thesis-pr-note').textContent = '';
+  hideThesisStatus();
+}
+
+// ── Open pull request ──────────────────────────────────────────────────────────
+async function openThesisPR() {
+  const course = document.getElementById('course-select').value;
+  if (!course || !thesisState.loaded) return;
+  const proposals = getProposals();
+
+  const data = JSON.parse(JSON.stringify(thesisState.data)); // deep clone
+  const list = data.thesis_proposals[activeLevel];
+  const idx  = list.findIndex(e => e.course === course);
+  if (idx >= 0) list[idx].proposals = proposals;
+  else list.push({ course, proposals });
+
+  const updatedContent = serializeThesisFile(data);
+  setThesisStatus('info', '<span class="spin"></span>Opening pull request…');
+  document.getElementById('thesis-pr-btn').disabled = true;
+
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try { const body = await res.json(); if (body && body.message) details += ` — ${body.message}`; } catch(_) {}
+      throw new Error(`${label}: ${details}`);
+    };
+
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    const branch = `thesis-proposals-${activeLevel}-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+
+    const commitRes = await fetch(`${GH}/contents/${THESIS_FILE}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({
+        message: `Update ${activeLevel.toUpperCase()} thesis proposals for ${course}`,
+        content: b64e(updatedContent),
+        sha: thesisState.sha,
+        branch,
+      })
+    });
+    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file update');
+
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `Update ${activeLevel.toUpperCase()} thesis proposals for "${course}"`,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: `Thesis proposals updated via admin panel.\n\n**Level:** ${activeLevel.toUpperCase()}\n**Course:** ${course}\n**Proposals (${proposals.length}):**\n${proposals.map(p => `- ${p}`).join('\n') || '_none_'}`,
+      })
+    });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+    setThesisStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('thesis-pr-btn').disabled = false;
+  } catch(e) {
+    setThesisStatus('error', `Failed: ${e.message}`);
+    document.getElementById('thesis-pr-btn').disabled = false;
+  }
+}
+
+// ── Browse existing proposals ──────────────────────────────────────────────────
+function toggleThesisExisting() {
+  thesisExOpen = !thesisExOpen;
+  document.getElementById('thesis-ex-toggle').classList.toggle('open', thesisExOpen);
+  document.getElementById('thesis-existing-list').classList.toggle('open', thesisExOpen);
+  if (thesisExOpen) renderThesisExisting();
+}
+
+function renderThesisExisting() {
+  const container = document.getElementById('thesis-ex-items');
+  if (!thesisState.loaded) {
+    container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>'; return;
+  }
+  const entries = thesisState.data.thesis_proposals[activeLevel] || [];
+  const total   = entries.reduce((s, e) => s + (e.proposals ? e.proposals.length : 0), 0);
+  const lbl = entries.length + ' course' + (entries.length !== 1 ? 's' : '') + ', ' + total + ' proposal' + (total !== 1 ? 's' : '');
+  document.getElementById('thesis-ex-label').textContent = `Browse current proposals (${lbl})`;
+  if (!entries.length || total === 0) {
+    container.innerHTML = `<div class="ex-empty">No thesis proposals available.</div>`; return;
+  }
+  container.innerHTML = entries.map(e =>
+    `<div class="ex-course">${esc(e.course)}</div>` +
+    (e.proposals && e.proposals.length
+      ? e.proposals.map(p => `<div class="ex-proposal">\u00b7 ${esc(p)}</div>`).join('')
+      : '<div class="ex-proposal-none">No proposals yet.</div>')
+  ).join('');
+}
+
+function setThesisStatus(t, h) { const b = document.getElementById('thesis-status'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; }
+function hideThesisStatus()     { const b = document.getElementById('thesis-status'); if (b) b.style.display = 'none'; }
+
+// ════════════════════════════════ POSTS
+
+const POST_CATEGORIES = {
+  news:  { label: 'News',  sub: [] },
+  event: { label: 'Event', sub: ['Seminar', 'PhD School'] },
+};
+
+let postCat    = 'news';
+let postSubcat = '';
+let postFormInit = false;
+
+function initPostForm() {
+  if (postFormInit) return;
+  postFormInit = true;
+
+  // Set default date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('post-date').value = today;
+
+  // Build category buttons
+  const catBar = document.getElementById('post-cat-tabs');
+  Object.entries(POST_CATEGORIES).forEach(([id, cfg]) => {
+    const btn = document.createElement('button');
+    btn.id = `post-cat-${id}`; btn.className = 'level-tab'; btn.textContent = cfg.label;
+    btn.onclick = () => setPostCat(id);
+    catBar.appendChild(btn);
+  });
+
+  setPostCat('news');
+}
+
+function setPostCat(cat) {
+  postCat = cat;
+  Object.keys(POST_CATEGORIES).forEach(id => {
+    document.getElementById(`post-cat-${id}`).className = 'level-tab' + (id === cat ? ' active' : '');
+  });
+
+  const cfg = POST_CATEGORIES[cat];
+  const subcatWrap = document.getElementById('post-subcat-wrap');
+  const subcatBar  = document.getElementById('post-subcat-tabs');
+
+  if (cfg.sub.length) {
+    subcatWrap.style.display = 'block';
+    subcatBar.innerHTML = '';
+    cfg.sub.forEach(sub => {
+      const btn = document.createElement('button');
+      const id = sub.toLowerCase().replace(/\s+/g, '-');
+      btn.id = `post-sub-${id}`; btn.className = 'level-tab'; btn.textContent = sub;
+      btn.onclick = () => setPostSubcat(sub);
+      subcatBar.appendChild(btn);
+    });
+    setPostSubcat(cfg.sub[0]);
+  } else {
+    subcatWrap.style.display = 'none';
+    postSubcat = '';
+    document.getElementById('seminar-fields').classList.remove('visible');
+  }
+  updateSlugPreview();
+}
+
+function setPostSubcat(sub) {
+  postSubcat = sub;
+  const cfg = POST_CATEGORIES[postCat];
+  cfg.sub.forEach(s => {
+    const id = s.toLowerCase().replace(/\s+/g, '-');
+    document.getElementById(`post-sub-${id}`).className = 'level-tab' + (s === sub ? ' active' : '');
+  });
+  const isSeminar = postCat === 'event' && sub.toLowerCase() === 'seminar';
+  document.getElementById('seminar-fields').classList.toggle('visible', isSeminar);
+  updateSlugPreview();
+}
+
+function setPostPublished(pub) {
+  postPublished = pub;
+  document.getElementById('post-pub-yes').className = 'level-tab' + (pub ? ' active' : '');
+  document.getElementById('post-pub-no').className  = 'level-tab' + (!pub ? ' active' : '');
+}
+
+function onPostTitleInput() {
+  document.getElementById('post-pr-btn').disabled = !document.getElementById('post-title').value.trim();
+  updateSlugPreview();
+}
+
+function buildSlug(title) {
+  return title.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim().replace(/\s+/g, '-')
+    .replace(/-+/g, '-').substring(0, 60);
+}
+
+function updateSlugPreview() {
+  const title = document.getElementById('post-title').value.trim();
+  const date  = document.getElementById('post-date').value || new Date().toISOString().split('T')[0];
+  const slug  = title ? buildSlug(title) : 'post-title';
+  const file  = `_posts/${date}-${slug}.markdown`;
+  document.getElementById('slug-preview').innerHTML = `File: <span>${esc(file)}</span>`;
+}
+
+function buildPostFrontMatter() {
+  const title       = document.getElementById('post-title').value.trim();
+  const date        = document.getElementById('post-date').value;
+  const excerptRaw  = document.getElementById('post-excerpt').value.trim();
+  const bodyRaw     = document.getElementById('post-body').value;
+  const isSeminar   = postCat === 'event' && postSubcat.toLowerCase() === 'seminar';
+
+  // Auto-generate excerpt from body if not provided (first 40 words)
+  let excerpt = excerptRaw;
+  if (!excerpt && bodyRaw.trim()) {
+    const words = bodyRaw.trim().split(/\s+/);
+    excerpt = words.slice(0, 40).join(' ') + (words.length > 40 ? '\u2026' : '');
+  }
+
+  // categories array
+  let cats;
+  if (postCat === 'news') cats = ['news'];
+  else cats = ['events', postSubcat.toLowerCase()];
+
+  let fm = '---\n';
+  fm += 'layout: post\n';
+  fm += `title: "${title.replace(/"/g, '\\"')}"\n`;
+  fm += `date: ${date} 09:00:00 +0000\n`;
+  fm += 'shortnews: false\n';
+  fm += `categories: [${cats.join(', ')}]\n`;
+  fm += 'icon: newspaper-o\n';
+  if (!postPublished) fm += 'published: false\n';
+
+  if (isSeminar) {
+    const speaker     = document.getElementById('post-speaker').value.trim();
+    const affiliation = document.getElementById('post-affiliation').value.trim();
+    const eventDate   = document.getElementById('post-event-date').value.trim();
+    const eventTime   = document.getElementById('post-event-time').value.trim();
+    const location    = document.getElementById('post-location').value.trim();
+    if (speaker)     fm += `speaker: "${speaker.replace(/"/g, '\\"')}"\n`;
+    if (affiliation) fm += `affiliation: "${affiliation.replace(/"/g, '\\"')}"\n`;
+    if (eventDate)   fm += `event_date: "${eventDate.replace(/"/g, '\\"')}"\n`;
+    if (eventTime)   fm += `event_time: "${eventTime.replace(/"/g, '\\"')}"\n`;
+    if (location)    fm += `location: "${location.replace(/"/g, '\\"')}"\n`;
+  }
+
+  if (excerpt) fm += `excerpt: "${excerpt.replace(/"/g, '\\"')}"\n`;
+
+  fm += '---\n';
+  return fm;
+}
+
+async function openPostPR() {
+  const title = document.getElementById('post-title').value.trim();
+  const date  = document.getElementById('post-date').value;
+  const body  = document.getElementById('post-body').value;
+
+  if (!title) { setPostStatus('error', 'Please enter a title.'); return; }
+  if (!date)  { setPostStatus('error', 'Please select a date.'); return; }
+
+  const isEditing = editingPost !== null;
+  const slug      = buildSlug(title);
+  const filePath  = isEditing ? editingPost.path : `_posts/${date}-${slug}.markdown`;
+  const content   = buildPostFrontMatter() + '\n' + body.trim() + '\n';
+
+  setPostStatus('info', '<span class="spin"></span>Opening pull request…');
+  document.getElementById('post-pr-btn').disabled = true;
+
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try { const b = await res.json(); if (b && b.message) details += ` — ${b.message}`; } catch(_) {}
+      throw new Error(`${label}: ${details}`);
+    };
+
+    // 1. get base SHA
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    // 2. create branch
+    const branch = isEditing ? `edit-post-${slug}-${Date.now()}` : `post-${date}-${slug}-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+
+    // 3. commit file (with sha when updating, without for new)
+    const commitPayload = {
+      message: isEditing ? `Update post: ${title}` : `Add post: ${title}`,
+      content: b64e(content),
+      branch,
+    };
+    if (isEditing) commitPayload.sha = editingPost.sha;
+    const commitRes = await fetch(`${GH}/contents/${filePath}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify(commitPayload)
+    });
+    if (!commitRes.ok) await parseGhError(commitRes, isEditing ? 'Failed to update post file' : 'Failed to create post file');
+
+    // 4. open PR
+    const prBody = `${isEditing ? 'Post updated' : 'New post added'} via admin panel.\n\n**File:** \`${filePath}\`\n**Category:** ${postCat}${postSubcat ? ' / ' + postSubcat : ''}\n\n---\n\n${body.trim().substring(0, 500)}${body.length > 500 ? '\n\u2026' : ''}`;
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: isEditing ? `Update post: ${title}` : `New post: ${title}`,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: prBody,
+      })
+    });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+    setPostStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('post-pr-btn').disabled = false;
+  } catch(e) {
+    setPostStatus('error', `Failed: ${e.message}`);
+    document.getElementById('post-pr-btn').disabled = false;
+  }
+}
+
+function resetPostForm() {
+  document.getElementById('post-title').value = '';
+  document.getElementById('post-date').value  = new Date().toISOString().split('T')[0];
+  document.getElementById('post-excerpt').value = '';
+  document.getElementById('post-body').value = '';
+  ['post-speaker','post-affiliation','post-event-date','post-event-time','post-location']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  setPostCat('news');
+  setPostPublished(true);
+  editingPost = null;
+  document.getElementById('post-pr-btn').disabled = true;
+  document.getElementById('post-card-title').textContent = 'New Post';
+  document.getElementById('post-pr-btn').textContent = 'Save';
+  document.getElementById('post-cancel-edit-btn').style.display = 'none';
+  document.getElementById('post-pr-note').innerHTML = `will create a new file in <code>_posts/</code>`;
+  hidePostStatus();
+  updateSlugPreview();
+}
+
+// ── Markdown toolbar ───────────────────────────────────────────────────────────
+function fmtWrap(before, after) {
+  const ta = document.getElementById('post-body');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || 'text';
+  ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
+  ta.selectionStart = s + before.length;
+  ta.selectionEnd   = s + before.length + sel.length;
+  ta.focus();
+}
+
+function fmtLine(prefix) {
+  const ta = document.getElementById('post-body');
+  const s = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
+  ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
+  ta.selectionStart = ta.selectionEnd = s + prefix.length;
+  ta.focus();
+}
+
+function fmtInsert(text) {
+  const ta = document.getElementById('post-body');
+  const s = ta.selectionStart;
+  ta.value = ta.value.substring(0, s) + text + ta.value.substring(s);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.focus();
+}
+
+function fmtLink() {
+  const ta = document.getElementById('post-body');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || 'link text';
+  const insertion = `[${sel}](url)`;
+  ta.value = ta.value.substring(0, s) + insertion + ta.value.substring(e);
+  // select "url" so user can type right away
+  const urlStart = s + sel.length + 3;
+  ta.selectionStart = urlStart; ta.selectionEnd = urlStart + 3;
+  ta.focus();
+}
+
+function handlePostTab(e) {
+  if (e.key !== 'Tab') return;
+  e.preventDefault();
+  const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
+  ta.value = ta.value.substring(0, s) + '  ' + ta.value.substring(en);
+  ta.selectionStart = ta.selectionEnd = s + 2;
+}
+
+function setPostStatus(t, h) { const b = document.getElementById('post-status'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; }
+function hidePostStatus()     { const b = document.getElementById('post-status'); if (b) b.style.display = 'none'; }
+
+// ════════════════════════════════ EMOJI PICKER
+const EMOJIS = [
+  // Faces & people
+  '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','😇','🥰','😍','🤩','😘',
+  '😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🥴',
+  '😐','😑','😶','😏','😒','🙄','😬','😮','🤯','😳','🥺','😦','😧','😨','😰','😥',
+  '😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','💀','☠️',
+  '👍','👎','👏','🙌','🤝','🤜','🤛','✊','👊','🤚','✋','🖐️','👋','🤙','💪',
+  // Nature & animals
+  '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵',
+  '🌸','🌺','🌻','🌹','🍀','🌿','🍃','🌱','🌲','🌳','🌴','🍁','🌾','🌊','🌈',
+  '☀️','🌤️','⛅','🌦️','🌧️','⛈️','🌩️','❄️','⛄','🌬️','🌀','🌪️',
+  // Food & drink
+  '🍎','🍊','🍋','🍇','🍓','🫐','🍒','🍑','🥭','🍍','🥝','🍅','🫒','🥑','🍆',
+  '🍕','🍔','🍟','🌭','🌮','🌯','🥗','🍜','🍣','🍱','🧁','🎂','🍰','🍩','🍪',
+  '☕','🍵','🧃','🥤','🍺','🍻','🥂','🍷','🍸','🧉',
+  // Activities & objects
+  '⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱','🏓','🎯','🎮','🕹️','🎲','♟️','🎭',
+  '📚','📖','📝','✏️','🖊️','📌','📍','📎','🔍','🔎','💡','🔦','🏆','🥇','🎖️',
+  '🎉','🎊','🎈','🎁','🎀','🎗️','🎟️','🎫','🎪','🎨','🖼️','🎬','📽️','🎥',
+  '💻','🖥️','🖨️','⌨️','🖱️','📱','📷','📸','📡','🔬','🔭','⚗️','🧪','🧬',
+  // Symbols & misc
+  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗',
+  '💖','💘','💝','💟','✨','⭐','🌟','💫','⚡','🔥','💥','❗','❓','‼️','⁉️',
+  '✅','❎','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤',
+  '📢','📣','🔔','🔕','🔇','🔈','🔉','🔊','📡','🗣️','💬','💭','🗯️',
+  '🚀','🛸','✈️','🚁','🛩️','🚂','🚢','🚗','🏠','🏢','🏫','🌍','🌎','🌏','🗺️',
+];
+
+let emojiFiltered = [...EMOJIS];
+
+function buildEmojiGrid(list) {
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = list.map(e =>
+    `<button class="emoji-btn" title="${e}" onmousedown="event.preventDefault()" onclick="insertEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+
+function filterEmoji() {
+  const q = document.getElementById('emoji-search').value.trim().toLowerCase();
+  document.getElementById('emoji-grid').querySelectorAll('.emoji-btn').forEach(btn => {
+    btn.style.display = (!q || btn.title.includes(q)) ? '' : 'none';
+  });
+}
+
+// Build grid once at script load so it's ready instantly
+buildEmojiGrid(EMOJIS);
+
+function toggleEmojiPicker(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const picker = document.getElementById('emoji-picker');
+  const isOpen = picker.classList.contains('open');
+  picker.classList.toggle('open', !isOpen);
+  if (!isOpen) {
+    document.getElementById('emoji-search').value = '';
+    // show all emojis (grid already built), just scroll to top
+    const grid = document.getElementById('emoji-grid');
+    grid.scrollTop = 0;
+    const allBtns = grid.querySelectorAll('.emoji-btn');
+    allBtns.forEach(b => b.style.display = '');
+  }
+}
+
+function insertEmoji(emoji) {
+  // Cursor position is preserved because onmousedown prevents focus loss
+  fmtInsert(emoji);
+  document.getElementById('emoji-picker').classList.remove('open');
+}
+
+// Close picker on mousedown outside (fires before click, avoids race with toggleEmojiPicker)
+document.addEventListener('mousedown', e => {
+  const picker = document.getElementById('emoji-picker');
+  if (picker && picker.classList.contains('open') &&
+      !picker.closest('.emoji-wrap').contains(e.target)) {
+    picker.classList.remove('open');
+  }
+});
+
+// ════════════════════════════════ POSTS BROWSE / EDIT / DELETE
+
+function cancelEditPost() { resetPostForm(); }
+
+function togglePostsExisting() {
+  postsExOpen = !postsExOpen;
+  document.getElementById('posts-ex-toggle').classList.toggle('open', postsExOpen);
+  document.getElementById('posts-existing-list').classList.toggle('open', postsExOpen);
+  if (postsExOpen && !postsState.loaded) loadPostsList();
+}
+
+async function loadPostsList() {
+  const container = document.getElementById('posts-ex-items');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  try {
+    const res = await fetch(`${GH}/contents/_posts`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const items = await res.json();
+    const files = items
+      .filter(i => i.type === 'file' && i.name.endsWith('.markdown'))
+      .sort((a, b) => b.name.localeCompare(a.name));
+
+    // Fetch titles in parallel from raw content
+    postsState.posts = await Promise.all(files.map(async p => {
+      try {
+        const r = await fetch(p.download_url);
+        const text = await r.text();
+        const tm = text.match(/^title:\s*["']?(.+?)["']?\s*$/m);
+        return { ...p, title: tm ? tm[1].replace(/\\"/g, '"').trim() : null };
+      } catch { return p; }
+    }));
+
+    postsState.loaded = true;
+    renderPostsList();
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load posts: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderPostsList() {
+  const container = document.getElementById('posts-ex-items');
+  const lbl = document.getElementById('posts-ex-label');
+  if (!postsState.posts.length) {
+    lbl.textContent = 'Browse existing posts (0)';
+    container.innerHTML = '<div class="ex-empty">No posts yet.</div>';
+    return;
+  }
+  lbl.textContent = `Browse existing posts (${postsState.posts.length})`;
+  container.innerHTML = postsState.posts.map((p, i) => {
+    const m    = p.name.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.markdown$/);
+    const date  = m ? m[1] : '';
+    const label = p.title || (m ? m[2].replace(/-/g, ' ') : p.name);
+    return `<div class="post-ex-item" id="post-row-${i}">` +
+      `<span class="post-ex-date">${esc(date)}</span>` +
+      `<span class="post-ex-name" title="${esc(p.name)}">${esc(label)}</span>` +
+      `<div class="post-ex-btns" id="post-row-btns-${i}">` +
+        `<button class="btn-ex btn-ex-edit" onclick="editPost(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))})">Edit</button>` +
+        `<button class="btn-ex btn-ex-del"  onclick="showDeleteConfirm(${i})">Delete</button>` +
+      `</div>` +
+      `<div class="post-ex-confirm" id="post-row-confirm-${i}">` +
+        `<span class="post-ex-confirm-msg">Delete this post?</span>` +
+        `<button class="btn-ex btn-ex-confirm-yes" onclick="deletePost(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))})">Yes, delete</button>` +
+        `<button class="btn-ex btn-ex-cancel" onclick="hideDeleteConfirm(${i})">Cancel</button>` +
+      `</div>` +
+      `</div>`;
+  }).join('');
+}
+
+function showDeleteConfirm(i) {
+  document.getElementById(`post-row-btns-${i}`).style.display = 'none';
+  document.getElementById(`post-row-confirm-${i}`).style.display = 'flex';
+}
+
+function hideDeleteConfirm(i) {
+  document.getElementById(`post-row-btns-${i}`).style.display = 'flex';
+  document.getElementById(`post-row-confirm-${i}`).style.display = 'none';
+}
+
+async function editPost(path, sha) {
+  setPostStatus('info', '<span class="spin"></span>Loading post…');
+  try {
+    const res     = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data    = await res.json();
+    const content = b64d(data.content.replace(/\n/g, ''));
+    populatePostForm(content);
+    editingPost = { path, sha: data.sha };
+    document.getElementById('post-card-title').textContent        = 'Edit Post';
+    document.getElementById('post-pr-btn').textContent            = 'Save Changes';
+    document.getElementById('post-cancel-edit-btn').style.display = 'inline-block';
+    document.getElementById('post-pr-note').innerHTML             = `editing <code>${esc(path)}</code>`;
+    hidePostStatus();
+    document.getElementById('post-pr-btn').disabled = false;
+    document.getElementById('post-section').scrollIntoView({ behavior: 'smooth' });
+  } catch(e) {
+    setPostStatus('error', `Failed to load post: ${esc(e.message)}`);
+  }
+}
+
+function populatePostForm(content) {
+  if (!postFormInit) initPostForm();
+  const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!fmMatch) return;
+  const fm   = fmMatch[1];
+  const body = fmMatch[2].trim();
+
+  const getField = (key) => {
+    const m = fm.match(new RegExp(`^${key}:\\s*"?(.*?)"?\\s*$`, 'm'));
+    return m ? m[1].replace(/\\"/g, '"').trim() : '';
+  };
+
+  document.getElementById('post-title').value       = getField('title');
+  document.getElementById('post-excerpt').value     = getField('excerpt');
+  document.getElementById('post-speaker').value     = getField('speaker');
+  document.getElementById('post-affiliation').value = getField('affiliation');
+  document.getElementById('post-event-date').value  = getField('event_date');
+  document.getElementById('post-event-time').value  = getField('event_time');
+  document.getElementById('post-location').value    = getField('location');
+  document.getElementById('post-body').value        = body;
+
+  const dateRaw = getField('date');
+  const dateVal = dateRaw ? dateRaw.substring(0, 10) : '';
+  if (dateVal) document.getElementById('post-date').value = dateVal;
+
+  setPostPublished(getField('published') !== 'false');
+
+  const catsMatch = fm.match(/^categories:\s*\[(.+)\]$/m);
+  if (catsMatch) {
+    const cats = catsMatch[1].split(',').map(s => s.trim().toLowerCase());
+    if (cats.includes('news')) {
+      setPostCat('news');
+    } else {
+      setPostCat('event');
+      const foundSub = POST_CATEGORIES.event.sub.find(s => cats.includes(s.toLowerCase()));
+      if (foundSub) setPostSubcat(foundSub);
+    }
+  }
+  updateSlugPreview();
+}
+
+async function deletePost(path, sha) {
+  setPostStatus('info', '<span class="spin"></span>Opening delete PR…');
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try { const b = await res.json(); if (b && b.message) details += ` \u2014 ${b.message}`; } catch(_) {}
+      throw new Error(`${label}: ${details}`);
+    };
+
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    const name   = path.replace('_posts/', '').replace('.markdown', '');
+    const branch = `delete-post-${name}-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+
+    const delRes = await fetch(`${GH}/contents/${path}`, { method: 'DELETE', headers: ghH(),
+      body: JSON.stringify({ message: `Delete post: ${name}`, sha, branch }) });
+    if (!delRes.ok) await parseGhError(delRes, 'Failed to delete file');
+
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `Delete post: ${name}`,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: `Delete post via admin panel.\n\n**File:** \`${path}\``,
+      }) });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    setPostStatus('success', `\u2713 Delete PR opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    postsState.loaded = false;
+    if (postsExOpen) loadPostsList();
+  } catch(e) {
+    setPostStatus('error', `Failed: ${e.message}`);
+  }
+}
+</script>
+</body>
+</html>

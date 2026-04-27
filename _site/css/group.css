@@ -1104,6 +1104,10 @@ ul.news .news-readmore::after {
   margin-top: 0.15em;
 }
 
+.teaching-proposals-tba {
+  font-style: italic;
+}
+
 .teaching-proposals-course {
   margin-bottom: 1.25em;
 }

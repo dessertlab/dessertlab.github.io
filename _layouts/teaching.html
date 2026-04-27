@@ -120,6 +120,10 @@ layout: default
 {%- comment -%} ── Thesis Proposals ────────────────────────────────────── {%- endcomment -%}
 {% if tp.thesis_proposals.msc %}
 <pre id="proposals-msc"><h2>MSc Thesis Proposals</h2></pre>
+{% assign msc_total = 0 %}{% for entry in tp.thesis_proposals.msc %}{% if entry.proposals %}{% assign msc_total = msc_total | plus: entry.proposals.size %}{% endif %}{% endfor %}
+{% if msc_total == 0 %}
+<p class="teaching-proposals-tba">No thesis proposals available.</p>
+{% else %}
 {% for entry in tp.thesis_proposals.msc %}
 <div class="teaching-proposals-course">
   <div class="teaching-proposals-course-name">{{ entry.course }}</div>
@@ -135,9 +139,14 @@ layout: default
 </div>
 {% endfor %}
 {% endif %}
+{% endif %}
 
 {% if tp.thesis_proposals.bsc %}
 <pre id="proposals-bsc"><h2>BSc Thesis Proposals</h2></pre>
+{% assign bsc_total = 0 %}{% for entry in tp.thesis_proposals.bsc %}{% if entry.proposals %}{% assign bsc_total = bsc_total | plus: entry.proposals.size %}{% endif %}{% endfor %}
+{% if bsc_total == 0 %}
+<p class="teaching-proposals-tba">No thesis proposals available.</p>
+{% else %}
 {% for entry in tp.thesis_proposals.bsc %}
 <div class="teaching-proposals-course">
   <div class="teaching-proposals-course-name">{{ entry.course }}</div>
@@ -152,6 +161,7 @@ layout: default
   {% endif %}
 </div>
 {% endfor %}
+{% endif %}
 {% endif %}
 
 {%- comment -%} ── Theses ──────────────────────────────────────────────── {%- endcomment -%}
