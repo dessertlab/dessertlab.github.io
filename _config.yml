@@ -1,7 +1,7 @@
 title: DESSERT Research Group
 name: DESSERT Research Group
 url: https://dessertlab.github.io
-baseurl: /dessert.github.io
+baseurl: ""
 
 exclude: [bibble, README.md, Makefile, Dockerfile]
 
