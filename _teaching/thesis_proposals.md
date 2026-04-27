@@ -18,6 +18,7 @@ thesis_proposals:
       proposals:
     - course: AI Systems Engineering
       proposals:
+        - ai3
   bsc:
     - course: Ingegneria del Software
       proposals:
