@@ -20,6 +20,7 @@
     --danger: #dc2626;
     --warn: #d97706;
     --info: #0284c7;
+    --success: #16a34a;
     --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
     --sans: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
@@ -27,7 +28,7 @@
   body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; }
 
   /* ── LOGIN ── */
-  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface); }
+  #login-screen { display: none; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface); }
   .login-box { background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 6px; padding: 40px 48px; width: 390px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
   .login-logo { font-family: 'Roboto', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
   .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
@@ -46,7 +47,7 @@
 
   /* ── TABS ── */
   /* ── PRIMARY TAB BAR ── */
-  .tab-bar { border-bottom: 1px solid var(--border); padding: 0 36px; display: flex; background: var(--bg); }
+  .tab-bar { border-bottom: 1px solid var(--border); padding: 0 36px; display: flex; background: var(--bg); position: sticky; top: 56px; z-index: 19; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
   .tab { font-size: 13px; font-weight: 500; padding: 14px 18px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s; position: relative; user-select: none; }
   .tab:hover { color: var(--text); }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -60,7 +61,8 @@
   .status { font-size: 13px; padding: 11px 16px; margin-bottom: 28px; display: none; line-height: 1.6; border-radius: 4px; }
   .status.info    { background: rgba(26,133,214,0.07);  border-left: 3px solid var(--accent); color: var(--accent-d); }
   .status.error   { background: rgba(220,38,38,0.07);   border-left: 3px solid var(--danger); color: var(--danger); }
-  .status.success { background: rgba(2,132,199,0.07);   border-left: 3px solid var(--info);   color: var(--info); }
+  .status.success { background: rgba(22,163,74,0.07);   border-left: 3px solid var(--success); color: var(--success); }
+  .status.warn    { background: rgba(217,119,6,0.07);   border-left: 3px solid var(--warn);   color: var(--warn); }
   .status a { color: inherit; }
 
   /* ── EDITOR CARD ── */
@@ -193,9 +195,33 @@
   .btn-ex-confirm-yes:hover { background:rgba(220,38,38,0.09); }
   .btn-ex-cancel { border:1px solid var(--border-h); color:var(--muted); }
   .btn-ex-cancel:hover { background:var(--surface2); }
+
+  /* ── TOP PROGRESS BAR ── */
+  #page-progress { position:fixed; top:0; left:0; height:3px; width:0%; background:var(--accent); z-index:9999; pointer-events:none; opacity:0; }
+
+  /* ── POST ROW STATES ── */
+  .post-ex-item.is-editing  { background:rgba(217,119,6,0.06); border-left:3px solid var(--warn); padding-left:13px; }
+  .post-ex-item.is-deleting { background:rgba(220,38,38,0.04); border-left:3px solid var(--danger); opacity:.6; pointer-events:none; padding-left:13px; }
+  .post-ex-badge { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:1px 7px; border-radius:3px; flex-shrink:0; white-space:nowrap; }
+  .post-ex-badge.editing  { color:var(--warn);   border:1px solid var(--warn); }
+  .post-ex-badge.deleting { color:var(--danger); border:1px solid var(--danger); }
+  .post-ex-item.pending-delete { background:rgba(220,38,38,0.04); border-left:3px solid var(--danger); padding-left:13px; }
+  .post-ex-item.pending-delete .post-ex-name { text-decoration:line-through; color:var(--muted); }
+  .post-ex-item.pending-update { background:rgba(217,119,6,0.06); border-left:3px solid var(--warn); padding-left:13px; }
+  .post-ex-badge.pending-delete { color:var(--danger); border:1px solid var(--danger); }
+  .post-ex-badge.pending-update { color:var(--warn);   border:1px solid var(--warn); }
+
+  /* ── SECTION FADE TRANSITION ── */
+  @keyframes fadeSlideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  .section-enter { animation: fadeSlideIn .22s ease both; }
+
+  /* ── CONFETTI ── */
+  #confetti-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
 </style>
 </head>
 <body>
+<div id="page-progress"></div>
+<canvas id="confetti-canvas"></canvas>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -219,8 +245,8 @@
     <span class="h-title">DeSSERT Lab Admin</span>
     <span style="display:flex;align-items:center;gap:16px">
       <span class="h-repo" id="repo-label"></span>
-      <button onclick="doLogout(false)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out">Sign out</button>
-      <button onclick="doLogout(true)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out and forget token">Forget &amp; sign out</button>
+      <button onclick="doLogout(false)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out (token kept for next login)">Sign out</button>
+      <button onclick="doLogout(true)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out and delete saved token">Forget &amp; sign out</button>
     </span>
   </header>
   <div class="tab-bar" id="tab-bar"></div>
@@ -247,6 +273,7 @@
           <button class="btn-pr" id="pr-btn" onclick="openPR()" disabled>Save</button>
           <button class="btn-clear" onclick="clearInput()">Clear</button>
           <span class="pr-note" id="pr-note"></span>
+          <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+⏎</kbd>
         </div>
       </div>
     </div>
@@ -259,6 +286,13 @@
     <div class="existing-list" id="existing-list">
       <input class="ex-search" id="ex-search" placeholder="Filter…" oninput="renderExisting()" />
       <div id="ex-items"></div>
+    </div>
+    <div class="existing-toggle" id="pub-pending-toggle" onclick="togglePubPending()" style="margin-top:8px">
+      <span class="arrow">▶</span>
+      <span id="pub-pending-label">Browse publications pending approval</span>
+    </div>
+    <div class="existing-list" id="pub-pending-list">
+      <div id="pub-pending-items"></div>
     </div>
     </div><!-- /pub-section -->
 
@@ -289,8 +323,9 @@
           </div>
           <div class="actions" style="margin-top:20px">
             <button class="btn-pr" id="thesis-pr-btn" onclick="openThesisPR()" disabled>Save</button>
-            <button class="btn-clear" onclick="resetThesisForm()">Reset</button>
+            <button class="btn-clear" onclick="resetThesisForm();hideThesisStatus()">Reset</button>
             <span class="pr-note" id="thesis-pr-note"></span>
+            <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+⏎</kbd>
           </div>
         </div>
       </div>
@@ -300,6 +335,13 @@
       </div>
       <div class="existing-list" id="thesis-existing-list">
         <div id="thesis-ex-items"></div>
+      </div>
+      <div class="existing-toggle" id="thesis-pending-toggle" onclick="toggleThesisPending()" style="margin-top:8px">
+        <span class="arrow">▶</span>
+        <span id="thesis-pending-label">Browse proposals pending approval</span>
+      </div>
+      <div class="existing-list" id="thesis-pending-list">
+        <div id="thesis-pending-items"></div>
       </div>
     </div><!-- /thesis-section -->
 
@@ -414,25 +456,35 @@
               </div>
               <textarea id="post-body" class="post-body"
                 placeholder="Write the full post content in Markdown…"
-                onkeydown="handlePostTab(event)"></textarea>
+                onkeydown="handlePostTab(event)" oninput="updateWordCount()"></textarea>
             </div>
+            <div id="post-word-count" style="font-size:11px;color:var(--dim);text-align:right;margin-top:4px"></div>
           </div>
 
           <div class="actions" style="margin-top:18px">
             <button class="btn-pr" id="post-pr-btn" onclick="openPostPR()" disabled>Save</button>
-            <button class="btn-clear" onclick="resetPostForm()">Reset</button>
+            <button class="btn-clear" onclick="resetPostForm();hidePostStatus()">Reset</button>
             <button class="btn-clear" id="post-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditPost()">Cancel Edit</button>
             <span class="pr-note" id="post-pr-note">will create a new file in <code>_posts/</code></span>
+            <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+⏎</kbd>
           </div>
         </div>
       </div>
       <!-- Browse / edit / delete existing posts -->
       <div class="existing-toggle" id="posts-ex-toggle" onclick="togglePostsExisting()" style="margin-top:16px">
-        <span class="ex-arrow">&#9658;</span>
+        <span class="arrow">&#9658;</span>
         <span id="posts-ex-label">Browse existing posts</span>
       </div>
       <div class="existing-list" id="posts-existing-list">
         <div id="posts-ex-items"></div>
+      </div>
+      <!-- Pending posts PRs -->
+      <div class="existing-toggle" id="posts-pending-toggle" onclick="togglePostsPending()" style="margin-top:8px">
+        <span class="arrow">&#9658;</span>
+        <span id="posts-pending-label">Browse posts pending approval</span>
+      </div>
+      <div class="existing-list" id="posts-pending-list">
+        <div id="posts-pending-items"></div>
       </div>
     </div><!-- /post-section -->
   </main>
@@ -455,7 +507,7 @@ const BIB_FILES = [
 ];
 
 const state = {};
-BIB_FILES.forEach(f => { state[f.id] = { raw: '', sha: '', entries: [], loaded: false }; });
+BIB_FILES.forEach(f => { state[f.id] = { raw: '', sha: '', entries: [], loaded: false, draft: '' }; });
 let activeTab = BIB_FILES[0].id;
 let exOpen = false;
 
@@ -465,8 +517,16 @@ const COURSES_FILE = '_teaching/courses_and_training.md';
 const thesisState  = { raw: '', sha: '', data: null, loaded: false };
 const coursesState = { raw: '', data: null, loaded: false };
 let activeLevel = 'msc';
+const thesisDraft = {};                  // "level:course" → string[]
+const thesisLevelCourse = { msc: '', bsc: '' }; // last selected course per level
 let thesisExOpen = false;
-const postsState  = { posts: [], loaded: false };
+const postsState  = {
+  posts: [], loaded: false,
+  pendingDelete: new Set(),
+  pendingUpdate: new Set(),
+};
+function addPendingDelete(path) { postsState.pendingDelete.add(path); }
+function addPendingUpdate(path) { postsState.pendingUpdate.add(path); }
 let postsExOpen   = false;
 let editingPost   = null;
 let postPublished = true;
@@ -474,39 +534,92 @@ let postPublished = true;
 const GH = `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}`;
 const ghH = () => ({ 'Authorization': `token ${CONFIG.GITHUB_TOKEN}`, 'Content-Type': 'application/json' });
 
+// ════════════════════════════════ PROGRESS BAR
+let _progTimer;
+function progressStart() {
+  const b = document.getElementById('page-progress');
+  clearTimeout(_progTimer);
+  b.style.transition = 'none'; b.style.width = '0%'; b.style.opacity = '1';
+  b.offsetWidth; // reflow
+  b.style.transition = 'width 2.5s ease-out'; b.style.width = '80%';
+}
+function progressEnd() {
+  const b = document.getElementById('page-progress');
+  clearTimeout(_progTimer);
+  b.style.transition = 'width .15s ease'; b.style.width = '100%';
+  _progTimer = setTimeout(() => {
+    b.style.transition = 'opacity .35s ease'; b.style.opacity = '0';
+    _progTimer = setTimeout(() => { b.style.transition = 'none'; b.style.width = '0%'; }, 400);
+  }, 180);
+}
+
 // ════════════════════════════════ LOGIN
 document.getElementById('gh-token').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-// Auto-fill saved token
+// Auto-login with saved token
 (function () {
   const saved = localStorage.getItem('gh_token');
-  if (saved) {
+  if (saved && !sessionStorage.getItem('signed_out')) {
     document.getElementById('gh-token').value = saved;
     document.getElementById('remember').checked = true;
+    const btn = document.querySelector('.btn-login');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    doLogin();
+  } else {
+    if (saved) {
+      document.getElementById('gh-token').value = saved;
+      document.getElementById('remember').checked = true;
+    }
+    document.getElementById('login-screen').style.display = 'flex';
   }
 })();
 
-function doLogin() {
+async function doLogin() {
   const token = document.getElementById('gh-token').value.trim();
-  if (token) {
+  const errEl = document.getElementById('pw-err');
+  const btn   = document.querySelector('.btn-login');
+  errEl.style.display = 'none';
+  if (!token) { errEl.textContent = 'Missing token.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Validating…';
+  progressStart();
+  try {
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}`,
+      { headers: { 'Authorization': `token ${token}` } });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.message || `HTTP ${res.status}`);
+    }
     CONFIG.GITHUB_TOKEN = token;
+    sessionStorage.removeItem('signed_out');
     if (document.getElementById('remember').checked) {
       localStorage.setItem('gh_token', token);
     } else {
       localStorage.removeItem('gh_token');
     }
+    progressEnd();
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('repo-label').textContent = `${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}`;
     buildTabs();
-    switchPrimary('publications');
-  } else {
-    document.getElementById('pw-err').style.display = 'block';
+    activeTab = sessionStorage.getItem('active_subtab') || BIB_FILES[0].id;
+    switchPrimary(sessionStorage.getItem('active_tab') || 'publications');
+  } catch(e) {
+    progressEnd();
+    document.getElementById('login-screen').style.display = 'flex';
+    errEl.textContent = `Token invalid or no repo access: ${e.message}`;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enter →';
   }
 }
 
 function doLogout(forget) {
-  if (forget) localStorage.removeItem('gh_token');
+  if (forget) {
+    localStorage.removeItem('gh_token');
+    sessionStorage.removeItem('signed_out');
+  } else {
+    sessionStorage.setItem('signed_out', '1');
+  }
   CONFIG.GITHUB_TOKEN = '';
   document.getElementById('app').style.display = 'none';
   document.getElementById('tab-bar').innerHTML = '';
@@ -515,10 +628,165 @@ function doLogout(forget) {
   document.getElementById('thesis-section').style.display = 'none';
   document.getElementById('pub-section').style.display = 'block';
   document.getElementById('login-screen').style.display = 'flex';
-  if (!forget && localStorage.getItem('gh_token')) {
-    document.getElementById('remember').checked = true;
-  }
 }
+
+// ════════════════════════════════ CONFETTI
+(function () {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  const COLORS = ['#1a85d6','#16a34a','#d97706','#dc2626','#8b5cf6','#ec4899','#f59e0b','#06b6d4','#ffffff'];
+  const GRAVITY = 0.38;
+  let particles = [], raf = null;
+
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  // Each piece: a flat ribbon that flutters (oscillates width) as it falls
+  function Particle(x, y, vx, vy) {
+    this.x = x; this.y = y;
+    this.vx = vx; this.vy = vy;
+    this.w = 8 + Math.random() * 7;   // ribbon width
+    this.h = 4 + Math.random() * 4;   // ribbon height
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.angle = Math.random() * Math.PI * 2;
+    this.spin  = (Math.random() - 0.5) * 0.18;
+    this.wobble = Math.random() * Math.PI * 2;  // phase for flutter
+    this.wobbleSpeed = 0.08 + Math.random() * 0.07;
+    this.alpha = 1;
+    this.life  = 0;
+    this.maxLife = 110 + Math.random() * 60;    // frames alive
+  }
+  Particle.prototype.update = function() {
+    this.life++;
+    this.vy += GRAVITY;
+    this.vx *= 0.99;                            // gentle air resistance
+    this.x += this.vx;
+    this.y += this.vy;
+    this.angle += this.spin;
+    this.wobble += this.wobbleSpeed;
+    // fade out in last 30% of life
+    const fadeStart = this.maxLife * 0.7;
+    if (this.life > fadeStart) this.alpha = 1 - (this.life - fadeStart) / (this.maxLife - fadeStart);
+    if (this.life >= this.maxLife) this.alpha = 0;
+  };
+  Particle.prototype.draw = function() {
+    const scaleX = Math.abs(Math.cos(this.wobble)); // flutter: ribbon face-on to edge-on
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.fillStyle = this.color;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.scale(scaleX, 1);
+    ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+    ctx.restore();
+  };
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.alpha > 0);
+    particles.forEach(p => { p.update(); p.draw(); });
+    if (particles.length) { raf = requestAnimationFrame(loop); }
+    else { raf = null; }
+  }
+
+  // Fire a cannon burst from a corner at a given angle range (radians)
+  function cannon(originX, originY, angleMin, angleMax, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = angleMin + Math.random() * (angleMax - angleMin);
+      const speed = 10 + Math.random() * 14;
+      particles.push(new Particle(
+        originX, originY,
+        Math.cos(angle) * speed,
+        Math.sin(angle) * speed
+      ));
+    }
+  }
+
+  window.launchConfetti = function() {
+    resize();
+    const W = canvas.width, H = canvas.height;
+    const PER_CANNON = 60;
+    // Left cannon: shoot up-right  (angle: -75° to -15° from horizontal = 285° to 345° = -(pi*5/12) to -(pi/12))
+    cannon(W * 0.15, H, -Math.PI * 5 / 12, -Math.PI / 12, PER_CANNON);
+    // Right cannon: shoot up-left  (mirror)
+    cannon(W * 0.85, H, -Math.PI + Math.PI / 12, -Math.PI * 7 / 12, PER_CANNON);
+    // Small centre burst for extra density at top
+    cannon(W * 0.5, H * 0.55, -Math.PI * 11 / 12, -Math.PI / 12, 30);
+    if (!raf) raf = requestAnimationFrame(loop);
+  };
+})();
+
+// ════════════════════════════════ WORD COUNT
+function updateWordCount() {
+  const body = document.getElementById('post-body').value.trim();
+  const el   = document.getElementById('post-word-count');
+  if (!el) return;
+  if (!body) { el.textContent = ''; return; }
+  const words = body.split(/\s+/).filter(Boolean).length;
+  const chars = body.length;
+  el.textContent = `${words} word${words !== 1 ? 's' : ''} · ${chars} char${chars !== 1 ? 's' : ''}`;
+}
+
+// ════════════════════════════════ DIRTY TAB INDICATOR
+const dirtyState = { publications: false, thesis: false, posts: false };
+
+function markDirty(section, dirty) {
+  dirtyState[section] = dirty;
+  const tab = document.getElementById(`tab-${section}`);
+  if (tab) tab.classList.toggle('dirty', dirty);
+}
+
+function refreshAllDirtyTabs() {
+  ['publications', 'thesis', 'posts'].forEach(section => {
+    const tab = document.getElementById(`tab-${section}`);
+    if (tab) tab.classList.toggle('dirty', dirtyState[section]);
+  });
+}
+
+function updateDirtyTab() {
+  // Save the live textarea value back to the active tab's draft before checking
+  if (document.getElementById('bib-input') && typeof activeTab !== 'undefined')
+    state[activeTab].draft = document.getElementById('bib-input').value;
+  const pubDirty = BIB_FILES.some(f => (state[f.id]?.draft || '').trim().length > 0);
+  markDirty('publications', pubDirty);
+  // Thesis: save visible rows into thesisDraft first, then check all stored drafts
+  const activeCourse = document.getElementById('course-select')?.value;
+  if (activeCourse) {
+    thesisDraft[`${activeLevel}:${activeCourse}`] = getProposals();
+  }
+  const thesisDirty = Object.values(thesisDraft).some(d => d.length > 0)
+    || !!document.getElementById('proposals-rows')?.querySelector('.proposal-input');
+  markDirty('thesis', thesisDirty);
+  const postDirty = !!document.getElementById('post-title')?.value.trim() || !!document.getElementById('post-body')?.value.trim();
+  markDirty('posts', postDirty);
+}
+
+// ════════════════════════════════ CTRL+ENTER SUBMIT
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    const section = sessionStorage.getItem('active_tab') || 'publications';
+    if (section === 'publications') {
+      const btn = document.getElementById('pr-btn');
+      if (btn && !btn.disabled) btn.click();
+    } else if (section === 'thesis') {
+      const btn = document.getElementById('thesis-pr-btn');
+      if (btn && !btn.disabled) btn.click();
+    } else if (section === 'posts') {
+      const btn = document.getElementById('post-pr-btn');
+      if (btn && !btn.disabled) btn.click();
+    }
+  }
+});
+
+// Wire dirty indicator to all relevant inputs
+document.addEventListener('input', function(e) {
+  const id = e.target?.id;
+  if (['bib-input','post-title','post-body'].includes(id) || e.target?.classList.contains('proposal-input')) {
+    updateDirtyTab();
+  }
+});
+
 
 // ════════════════════════════════ TABS
 function buildTabs() {
@@ -542,19 +810,31 @@ function buildTabs() {
 }
 
 function switchPrimary(section) {
+  sessionStorage.setItem('active_tab', section);
   ['publications','thesis','posts'].forEach(id => {
-    document.getElementById(`tab-${id}`).className = 'tab' + (id === section ? ' active' : '');
+    document.getElementById(`tab-${id}`).classList.toggle('active', id === section);
   });
+  refreshAllDirtyTabs();
   document.getElementById('pub-section').style.display    = section === 'publications' ? 'block' : 'none';
   document.getElementById('thesis-section').style.display = section === 'thesis'       ? 'block' : 'none';
   document.getElementById('post-section').style.display   = section === 'posts'        ? 'block' : 'none';
+  // Fade-in the active section
+  const activeSection = document.getElementById(
+    section === 'publications' ? 'pub-section' : section === 'thesis' ? 'thesis-section' : 'post-section'
+  );
+  activeSection.classList.remove('section-enter');
+  void activeSection.offsetWidth; // force reflow
+  activeSection.classList.add('section-enter');
 
   if (section === 'thesis') { hideStatus(); loadThesisData(); }
   else if (section === 'posts') { hideStatus(); initPostForm(); }
   else { switchTab(activeTab && BIB_FILES.find(f => f.id === activeTab) ? activeTab : BIB_FILES[0].id); }
 }
 function switchTab(id) {
+  // Save draft from the sub-tab being left
+  state[activeTab].draft = document.getElementById('bib-input')?.value ?? '';
   activeTab = id;
+  sessionStorage.setItem('active_subtab', id);
   // Highlight sub-tab
   BIB_FILES.forEach(f => {
     document.getElementById(`subtab-${f.id}`).className = 'level-tab' + (f.id === id ? ' active' : '');
@@ -563,24 +843,21 @@ function switchTab(id) {
   // update file hint
   const file = BIB_FILES.find(f => f.id === id);
   document.getElementById('file-hint').textContent = file.path;
-  // reset textarea & validation
-  document.getElementById('bib-input').value = '';
-  document.getElementById('bib-input').className = 'bib-input';
-  document.getElementById('val-hint').textContent = '';
-  document.getElementById('val-hint').className = 'val-hint';
-  document.getElementById('pr-btn').disabled = true;
-  document.getElementById('pr-note').textContent = '';
+  // restore draft or clear textarea
+  document.getElementById('bib-input').value = state[id].draft;
   hideStatus();
   // collapse existing list
   if (exOpen) toggleExisting();
   // load if not yet loaded
   if (!state[id].loaded) loadBib(id); else renderExisting();
+  // Re-validate to restore save button state for existing draft
+  validateInput();
 }
 
 // ════════════════════════════════ GITHUB
 async function loadBib(id) {
   const file = BIB_FILES.find(f => f.id === id);
-  setStatus('info', `<span class="spin"></span>Loading ${file.path}…`);
+  progressStart();
   try {
     const res = await fetch(`${GH}/contents/${file.path}`, { headers: ghH() });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -590,8 +867,9 @@ async function loadBib(id) {
     state[id].entries = parseBib(state[id].raw);
     state[id].loaded = true;
     hideStatus();
+    progressEnd();
     renderExisting();
-  } catch(e) { setStatus('error', `Failed to load ${file.path}: ${e.message}`); }
+  } catch(e) { progressEnd(); setStatus('error', `Failed to load ${file.path}: ${e.message}`); }
 }
 
 async function openPR() {
@@ -610,7 +888,7 @@ async function openPR() {
     return;
   }
 
-  setStatus('info', `<span class="spin"></span>Opening pull request…`);
+  progressStart();
   document.getElementById('pr-btn').disabled = true;
 
   try {
@@ -669,6 +947,7 @@ async function openPR() {
     if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
     const pr = await prRes.json();
     if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+    progressEnd();
     setStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
     document.getElementById('bib-input').value = '';
     document.getElementById('bib-input').className = 'bib-input';
@@ -676,7 +955,12 @@ async function openPR() {
     document.getElementById('val-hint').className = 'val-hint';
     document.getElementById('pr-btn').disabled = true;
     document.getElementById('pr-note').textContent = '';
+    // Invalidate cache so existing list reloads fresh on next view
+    state[activeTab].loaded = false;
+    state[activeTab].draft = '';
+    updateDirtyTab();
   } catch(e) {
+    progressEnd();
     setStatus('error', `Failed: ${e.message}`);
     document.getElementById('pr-btn').disabled = false;
   }
@@ -768,6 +1052,65 @@ function renderExisting() {
     </div>`).join('');
 }
 
+let pubPendingOpen = false;
+function togglePubPending() {
+  pubPendingOpen = !pubPendingOpen;
+  document.getElementById('pub-pending-toggle').classList.toggle('open', pubPendingOpen);
+  document.getElementById('pub-pending-list').classList.toggle('open', pubPendingOpen);
+  if (pubPendingOpen) loadPubPending();
+}
+
+async function loadPubPending() {
+  const container = document.getElementById('pub-pending-items');
+  const lbl = document.getElementById('pub-pending-label');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) throw new Error(`${prRes.status}`);
+    const prs = await prRes.json();
+    const pubPRs = prs.filter(pr => /^publications-(journal|conference|book|editorial)-\d{10,}$/.test(pr.head.ref));
+    if (!pubPRs.length) {
+      lbl.textContent = 'Browse publications pending approval (0)';
+      container.innerHTML = '<div class="ex-empty">No publications pending approval.</div>'; return;
+    }
+    lbl.textContent = `Browse publications pending approval (${pubPRs.length})`;
+    const results = await Promise.all(pubPRs.map(async pr => {
+      const branch = pr.head.ref;
+      const typeM = branch.match(/^publications-(\w+)-/);
+      const bibType = typeM ? typeM[1] : '?';
+      const file = BIB_FILES.find(f => f.id === bibType);
+      try {
+        const raw = await fetch(`${GH}/contents/${file ? file.path : `bib/pubs_${bibType}.bib`}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
+        if (!raw.ok) return { pr, bibType, entries: null };
+        const txt = b64d((await raw.json()).content.replace(/\n/g, ''));
+        // Only show entries that are NOT yet in the base file (i.e. in the PR branch but not main)
+        // For simplicity: show all entries in the branch file
+        const entries = parseBib(txt).slice(0, 5); // cap at 5 to avoid huge lists
+        return { pr, bibType, entries };
+      } catch { return { pr, bibType, entries: null }; }
+    }));
+    container.innerHTML = results.map(({ pr, bibType, entries }) => {
+      const file = BIB_FILES.find(f => f.id === bibType);
+      const typeLabel = file ? file.label : bibType;
+      const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
+        `<span><span style="font-size:10px;font-weight:700;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;border-radius:3px;margin-right:6px">${esc(typeLabel)}</span>` +
+        `<a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
+        `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
+      if (!entries) return header + '<div class="ex-proposal-none">Could not load entries from branch.</div>';
+      const rows = entries.map(e =>
+        `<div class="ex-item">` +
+        `<span class="ex-key">@${esc(e.type)} ${esc(e.key)}</span>` +
+        `<span class="ex-title">${esc(e.fields.title || '—')}</span>` +
+        `<span class="ex-year">${esc(e.fields.year || '')}</span>` +
+        `</div>`
+      );
+      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No entries found.</div>');
+    }).join('<div style="border-top:2px solid var(--border,#e2e8f0);margin:4px 0"></div>');
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
+  }
+}
+
 // ════════════════════════════════ HELPERS
 function clearInput() {
   document.getElementById('bib-input').value = '';
@@ -806,8 +1149,9 @@ function parseFields(body) {
 }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function setStatus(t, h) { const b = document.getElementById('status-bar'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; }
-function hideStatus() { const b = document.getElementById('status-bar'); b.style.display = 'none'; }
+let _stTimer = null, _thTimer = null, _poTimer = null;
+function setStatus(t, h) { clearTimeout(_stTimer); const b = document.getElementById('status-bar'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; if (t === 'success') { _stTimer = setTimeout(hideStatus, 6000); launchConfetti(); } }
+function hideStatus() { clearTimeout(_stTimer); const b = document.getElementById('status-bar'); b.style.display = 'none'; }
 function b64e(str) { return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p) => String.fromCharCode(parseInt(p, 16)))); }
 function b64d(str) { return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); }
 
@@ -815,8 +1159,8 @@ function b64d(str) { return decodeURIComponent(atob(str).split('').map(c => '%' 
 
 // ── Load both files from GitHub ────────────────────────────────────────────────
 async function loadThesisData() {
-  if (thesisState.loaded && coursesState.loaded) { renderThesisForm(); renderThesisExisting(); return; }
-  setThesisStatus('info', '<span class="spin"></span>Loading thesis data…');
+  if (thesisState.loaded && coursesState.loaded) { if (!dirtyState.thesis) renderThesisForm(); renderThesisExisting(); return; }
+  progressStart();
   try {
     const [thRes, coRes] = await Promise.all([
       fetch(`${GH}/contents/${THESIS_FILE}`,  { headers: ghH() }),
@@ -834,10 +1178,11 @@ async function loadThesisData() {
     coursesState.data   = parseCoursesFile(coursesState.raw);
     coursesState.loaded = true;
     syncCoursesToProposals();
+    progressEnd();
     hideThesisStatus();
     renderThesisForm();
     renderThesisExisting();
-  } catch(e) { setThesisStatus('error', `Failed to load thesis data: ${e.message}`); }
+  } catch(e) { progressEnd(); setThesisStatus('error', `Failed to load thesis data: ${e.message}`); }
 }
 
 // ── Sync courses → proposals (add missing, remove deleted) ───────────────────
@@ -965,6 +1310,13 @@ function serializeThesisFile(data) {
 
 // ── Level tab toggle (MSc / BSc) ───────────────────────────────────────────────
 function switchLevel(lvl) {
+  // Save draft + selected course for the level being left
+  const sel = document.getElementById('course-select');
+  const prevCourse = sel.value;
+  if (prevCourse) {
+    thesisDraft[`${activeLevel}:${prevCourse}`] = getProposals();
+    thesisLevelCourse[activeLevel] = prevCourse;
+  }
   activeLevel = lvl;
   document.getElementById('level-msc').classList.toggle('active', lvl === 'msc');
   document.getElementById('level-bsc').classList.toggle('active', lvl === 'bsc');
@@ -976,17 +1328,33 @@ function switchLevel(lvl) {
 // ── Populate course selector ───────────────────────────────────────────────────
 function renderThesisForm() {
   const sel = document.getElementById('course-select');
-  const prev = sel.value;
+  // Use the per-level remembered course, not sel.value (which belongs to the old level)
+  const toRestore = thesisLevelCourse[activeLevel];
   sel.innerHTML = '<option value="">\u2014 select a course \u2014</option>';
   const raw = coursesState.data ? (coursesState.data[activeLevel] || []) : [];
-  const list = [...new Set(raw)]; // deduplicate same-name courses
+  const list = [...new Set(raw)];
   list.forEach(name => {
     const opt = document.createElement('option');
     opt.value = name; opt.textContent = name;
     sel.appendChild(opt);
   });
-  if (prev && list.includes(prev)) { sel.value = prev; onCourseChange(); }
-  else {
+  if (toRestore && list.includes(toRestore)) {
+    sel.value = toRestore;
+    sel._prevCourse = toRestore;
+    // Restore proposals directly (no onCourseChange call to avoid save/overwrite cycle)
+    const draft = thesisDraft[`${activeLevel}:${toRestore}`];
+    const entries = thesisState.data ? thesisState.data.thesis_proposals[activeLevel] : [];
+    const entry = entries.find(e => e.course === toRestore);
+    const proposals = draft !== undefined ? draft : (entry ? entry.proposals : []);
+    document.getElementById('proposals-rows').innerHTML = '';
+    proposals.forEach(p => addProposalRow(p));
+    document.getElementById('proposals-area').style.display = 'block';
+    document.getElementById('thesis-pr-btn').disabled = false;
+    document.getElementById('thesis-pr-note').textContent = 'will update ' + THESIS_FILE;
+    updateProposalCount();
+    checkThesisPendingAll();
+  } else {
+    sel._prevCourse = '';
     document.getElementById('proposals-area').style.display = 'none';
     document.getElementById('thesis-pr-btn').disabled = true;
     document.getElementById('thesis-pr-note').textContent = '';
@@ -995,21 +1363,71 @@ function renderThesisForm() {
 
 // ── Course selection change ────────────────────────────────────────────────────
 function onCourseChange() {
-  const course = document.getElementById('course-select').value;
+  const sel = document.getElementById('course-select');
+  const prev = sel._prevCourse || '';
+  const course = sel.value;
+  // Save draft for the course being left
+  if (prev && prev !== course) {
+    thesisDraft[`${activeLevel}:${prev}`] = getProposals();
+  }
+  sel._prevCourse = course;
+  thesisLevelCourse[activeLevel] = course;
   if (!course) {
     document.getElementById('proposals-area').style.display = 'none';
     document.getElementById('thesis-pr-btn').disabled = true;
     document.getElementById('thesis-pr-note').textContent = '';
+    hideThesisStatus();
     return;
   }
+  // Restore draft if exists, otherwise load from file data
+  const draftKey = `${activeLevel}:${course}`;
+  const draft = thesisDraft[draftKey];
   const entries = thesisState.data ? thesisState.data.thesis_proposals[activeLevel] : [];
   const entry   = entries.find(e => e.course === course);
+  const proposals = draft !== undefined ? draft : (entry ? entry.proposals : []);
   document.getElementById('proposals-rows').innerHTML = '';
-  (entry ? entry.proposals : []).forEach(p => addProposalRow(p));
+  proposals.forEach(p => addProposalRow(p));
   document.getElementById('proposals-area').style.display = 'block';
   document.getElementById('thesis-pr-btn').disabled = false;
   document.getElementById('thesis-pr-note').textContent = 'will update ' + THESIS_FILE;
   updateProposalCount();
+  checkThesisPendingAll();
+}
+
+// Check open PRs for BOTH levels for the selected course and show all warnings
+async function checkThesisPendingAll() {
+  const course = document.getElementById('course-select').value;
+  if (!course) return;
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) return;
+    const prs = await prRes.json();
+    const warnings = [];
+    for (const lvl of ['msc', 'bsc']) {
+      const entries = thesisState.data?.thesis_proposals[lvl] || [];
+      if (!entries.some(e => e.course === course)) continue;
+      const levelPRs = prs.filter(pr => new RegExp(`^thesis-proposals-${lvl}-\\d{10,}$`).test(pr.head.ref));
+      if (!levelPRs.length) continue;
+      const baseProposals = entries.find(e => e.course === course)?.proposals || [];
+      const baseKey = JSON.stringify(baseProposals.slice().sort());
+      for (const pr of levelPRs) {
+        try {
+          const fRes = await fetch(`${GH}/contents/${THESIS_FILE}?ref=${encodeURIComponent(pr.head.ref)}`, { headers: ghH() });
+          if (!fRes.ok) continue;
+          const parsed = parseThesisFile(b64d((await fRes.json()).content.replace(/\n/g, '')));
+          const branchProposals = (parsed.thesis_proposals[lvl] || [])
+            .find(e => e.course === course)?.proposals || [];
+          const branchKey = JSON.stringify(branchProposals.slice().sort());
+          if (branchKey !== baseKey) {
+            warnings.push(`⚠️ <strong>${lvl.toUpperCase()}</strong>: <a href="${esc(pr.html_url)}" target="_blank">#${pr.number} ${esc(pr.title)}</a> already modifies "<strong>${esc(course)}</strong>". Submitting may conflict.`);
+            break;
+          }
+        } catch { /* best-effort */ }
+      }
+    }
+    if (warnings.length) setThesisStatus('warn', warnings.join('<br>'));
+    else hideThesisStatus();
+  } catch { /* best-effort */ }
 }
 
 // ── Proposal row management ────────────────────────────────────────────────────
@@ -1040,12 +1458,20 @@ function getProposals() {
 }
 
 function resetThesisForm() {
-  document.getElementById('course-select').value = '';
+  const sel = document.getElementById('course-select');
+  const course = sel.value;
+  // Clear draft for the submitted/reset course
+  if (course) delete thesisDraft[`${activeLevel}:${course}`];
+  sel._prevCourse = '';
+  sel.value = '';
+  thesisLevelCourse[activeLevel] = '';
   document.getElementById('proposals-area').style.display = 'none';
   document.getElementById('proposals-rows').innerHTML = '';
   document.getElementById('thesis-pr-btn').disabled = true;
   document.getElementById('thesis-pr-note').textContent = '';
-  hideThesisStatus();
+  // Keep dot if other level still has a draft
+  const stillDirty = Object.values(thesisDraft).some(d => d.length > 0);
+  markDirty('thesis', stillDirty);
 }
 
 // ── Open pull request ──────────────────────────────────────────────────────────
@@ -1061,7 +1487,7 @@ async function openThesisPR() {
   else list.push({ course, proposals });
 
   const updatedContent = serializeThesisFile(data);
-  setThesisStatus('info', '<span class="spin"></span>Opening pull request…');
+  progressStart();
   document.getElementById('thesis-pr-btn').disabled = true;
 
   try {
@@ -1101,9 +1527,12 @@ async function openThesisPR() {
     if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
     const pr = await prRes.json();
     if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+    progressEnd();
     setThesisStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    resetThesisForm();
     document.getElementById('thesis-pr-btn').disabled = false;
   } catch(e) {
+    progressEnd();
     setThesisStatus('error', `Failed: ${e.message}`);
     document.getElementById('thesis-pr-btn').disabled = false;
   }
@@ -1137,8 +1566,59 @@ function renderThesisExisting() {
   ).join('');
 }
 
-function setThesisStatus(t, h) { const b = document.getElementById('thesis-status'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; }
-function hideThesisStatus()     { const b = document.getElementById('thesis-status'); if (b) b.style.display = 'none'; }
+let thesisPendingOpen = false;
+function toggleThesisPending() {
+  thesisPendingOpen = !thesisPendingOpen;
+  document.getElementById('thesis-pending-toggle').classList.toggle('open', thesisPendingOpen);
+  document.getElementById('thesis-pending-list').classList.toggle('open', thesisPendingOpen);
+  if (thesisPendingOpen) loadThesisPending();
+}
+
+async function loadThesisPending() {
+  const container = document.getElementById('thesis-pending-items');
+  const lbl = document.getElementById('thesis-pending-label');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) throw new Error(`${prRes.status}`);
+    const prs = await prRes.json();
+    const thesisPRs = prs.filter(pr => /^thesis-proposals-(msc|bsc)-\d{10,}$/.test(pr.head.ref));
+    if (!thesisPRs.length) {
+      lbl.textContent = 'Browse proposals pending approval (0)';
+      container.innerHTML = '<div class="ex-empty">No proposals pending approval.</div>'; return;
+    }
+    lbl.textContent = `Browse proposals pending approval (${thesisPRs.length})`;
+    // For each PR, fetch the file from that branch and parse proposals
+    const results = await Promise.all(thesisPRs.map(async pr => {
+      const branch = pr.head.ref;
+      const lvlM = branch.match(/^thesis-proposals-(msc|bsc)-/);
+      const lvl = lvlM ? lvlM[1] : '?';
+      try {
+        const fRes = await fetch(`${GH}/contents/${THESIS_FILE}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
+        if (!fRes.ok) return { pr, lvl, entries: null };
+        const fData = await fRes.json();
+        const parsed = parseThesisFile(b64d(fData.content.replace(/\n/g, '')));
+        return { pr, lvl, entries: parsed.thesis_proposals[lvl] || [] };
+      } catch { return { pr, lvl, entries: null }; }
+    }));
+    container.innerHTML = results.map(({ pr, lvl, entries }) => {
+      const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
+        `<span>${esc(lvl.toUpperCase())} — <a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
+        `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
+      if (!entries) return header + '<div class="ex-proposal-none">Could not load file from branch.</div>';
+      const rows = entries.filter(e => e.proposals && e.proposals.length).flatMap(e =>
+        [`<div class="ex-course" style="background:transparent;font-weight:500">${esc(e.course)}</div>`,
+         ...e.proposals.map(p => `<div class="ex-proposal">· ${esc(p)}</div>`)]
+      );
+      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No proposals in this branch.</div>');
+    }).join('<div style="border-top:2px solid var(--border2,#e2e8f0);margin:4px 0"></div>');
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
+  }
+}
+
+function setThesisStatus(t, h) { clearTimeout(_thTimer); const b = document.getElementById('thesis-status'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; if (t === 'success') { _thTimer = setTimeout(hideThesisStatus, 6000); launchConfetti(); } }
+function hideThesisStatus()     { clearTimeout(_thTimer); const b = document.getElementById('thesis-status'); if (b) b.style.display = 'none'; }
 
 // ════════════════════════════════ POSTS
 
@@ -1298,7 +1778,7 @@ async function openPostPR() {
   const filePath  = isEditing ? editingPost.path : `_posts/${date}-${slug}.markdown`;
   const content   = buildPostFrontMatter() + '\n' + body.trim() + '\n';
 
-  setPostStatus('info', '<span class="spin"></span>Opening pull request…');
+  progressStart();
   document.getElementById('post-pr-btn').disabled = true;
 
   try {
@@ -1344,15 +1824,39 @@ async function openPostPR() {
     if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
     const pr = await prRes.json();
     if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+    progressEnd();
+    if (isEditing && editingPost && editingPost.idx !== undefined) {
+      addPendingUpdate(editingPost.path);
+      const _row = document.getElementById(`post-row-${editingPost.idx}`);
+      if (_row) {
+        _row.classList.remove('is-editing');
+        _row.classList.add('pending-update');
+        const _b = _row.querySelector('.post-ex-badge');
+        if (_b) { _b.className = 'post-ex-badge pending-update'; _b.textContent = 'Update Pending'; }
+        else {
+          const badge = document.createElement('span');
+          badge.className = 'post-ex-badge pending-update'; badge.textContent = 'Update Pending';
+          const nameEl = _row.querySelector('.post-ex-name');
+          if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+        }
+      }
+    }
     setPostStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('post-status').scrollIntoView({ behavior: 'smooth', block: 'center' });
     document.getElementById('post-pr-btn').disabled = false;
+    resetPostForm();
   } catch(e) {
+    progressEnd();
     setPostStatus('error', `Failed: ${e.message}`);
     document.getElementById('post-pr-btn').disabled = false;
   }
 }
 
 function resetPostForm() {
+  if (editingPost && editingPost.idx !== undefined) {
+    const _row = document.getElementById(`post-row-${editingPost.idx}`);
+    if (_row) { _row.classList.remove('is-editing'); const _b = _row.querySelector('.post-ex-badge.editing'); if (_b) _b.remove(); }
+  }
   document.getElementById('post-title').value = '';
   document.getElementById('post-date').value  = new Date().toISOString().split('T')[0];
   document.getElementById('post-excerpt').value = '';
@@ -1367,8 +1871,8 @@ function resetPostForm() {
   document.getElementById('post-pr-btn').textContent = 'Save';
   document.getElementById('post-cancel-edit-btn').style.display = 'none';
   document.getElementById('post-pr-note').innerHTML = `will create a new file in <code>_posts/</code>`;
-  hidePostStatus();
-  updateSlugPreview();
+  updateWordCount();
+  updateDirtyTab();
 }
 
 // ── Markdown toolbar ───────────────────────────────────────────────────────────
@@ -1419,8 +1923,8 @@ function handlePostTab(e) {
   ta.selectionStart = ta.selectionEnd = s + 2;
 }
 
-function setPostStatus(t, h) { const b = document.getElementById('post-status'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; }
-function hidePostStatus()     { const b = document.getElementById('post-status'); if (b) b.style.display = 'none'; }
+function setPostStatus(t, h) { clearTimeout(_poTimer); const b = document.getElementById('post-status'); b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block'; if (t === 'success') { _poTimer = setTimeout(hidePostStatus, 6000); launchConfetti(); } }
+function hidePostStatus()     { clearTimeout(_poTimer); const b = document.getElementById('post-status'); if (b) b.style.display = 'none'; }
 
 // ════════════════════════════════ EMOJI PICKER
 const EMOJIS = [
@@ -1503,7 +2007,7 @@ document.addEventListener('mousedown', e => {
 
 // ════════════════════════════════ POSTS BROWSE / EDIT / DELETE
 
-function cancelEditPost() { resetPostForm(); }
+function cancelEditPost() { resetPostForm(); hidePostStatus(); }
 
 function togglePostsExisting() {
   postsExOpen = !postsExOpen;
@@ -1515,6 +2019,7 @@ function togglePostsExisting() {
 async function loadPostsList() {
   const container = document.getElementById('posts-ex-items');
   container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  progressStart();
   try {
     const res = await fetch(`${GH}/contents/_posts`, { headers: ghH() });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -1533,9 +2038,34 @@ async function loadPostsList() {
       } catch { return p; }
     }));
 
+    // Fetch open PRs to determine live pending states
+    postsState.pendingDelete = new Set();
+    postsState.pendingUpdate = new Set();
+    try {
+      const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+      if (prRes.ok) {
+        const prs = await prRes.json();
+        const editPRNums = [];
+        for (const pr of prs) {
+          const branch = pr.head.ref;
+          const delM = branch.match(/^delete-post-(.+)-\d{10,}$/);
+          if (delM) { postsState.pendingDelete.add(`_posts/${delM[1]}.markdown`); continue; }
+          if (/^edit-post-.+-\d{10,}$/.test(branch)) editPRNums.push(pr.number);
+        }
+        await Promise.all(editPRNums.map(async num => {
+          const fRes = await fetch(`${GH}/pulls/${num}/files`, { headers: ghH() });
+          if (!fRes.ok) return;
+          const fList = await fRes.json();
+          fList.forEach(f => { if (f.filename.startsWith('_posts/') && f.filename.endsWith('.markdown')) postsState.pendingUpdate.add(f.filename); });
+        }));
+      }
+    } catch {} // pending state is best-effort
+
     postsState.loaded = true;
+    progressEnd();
     renderPostsList();
   } catch(e) {
+    progressEnd();
     container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load posts: ${esc(e.message)}</div>`;
   }
 }
@@ -1557,16 +2087,100 @@ function renderPostsList() {
       `<span class="post-ex-date">${esc(date)}</span>` +
       `<span class="post-ex-name" title="${esc(p.name)}">${esc(label)}</span>` +
       `<div class="post-ex-btns" id="post-row-btns-${i}">` +
-        `<button class="btn-ex btn-ex-edit" onclick="editPost(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))})">Edit</button>` +
+        `<button class="btn-ex btn-ex-edit" onclick="editPost(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))},${i})">Edit</button>` +
         `<button class="btn-ex btn-ex-del"  onclick="showDeleteConfirm(${i})">Delete</button>` +
       `</div>` +
       `<div class="post-ex-confirm" id="post-row-confirm-${i}">` +
         `<span class="post-ex-confirm-msg">Delete this post?</span>` +
-        `<button class="btn-ex btn-ex-confirm-yes" onclick="deletePost(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))})">Yes, delete</button>` +
+        `<button class="btn-ex btn-ex-confirm-yes" onclick="deletePost(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))},${i})">Yes, delete</button>` +
         `<button class="btn-ex btn-ex-cancel" onclick="hideDeleteConfirm(${i})">Cancel</button>` +
       `</div>` +
       `</div>`;
   }).join('');
+  // Re-apply persistent pending states after re-render
+  postsState.posts.forEach((p, i) => {
+    const row = document.getElementById(`post-row-${i}`);
+    if (!row) return;
+    if (postsState.pendingDelete.has(p.path)) {
+      row.classList.add('pending-delete');
+      const badge = document.createElement('span');
+      badge.className = 'post-ex-badge pending-delete'; badge.textContent = 'Delete Pending';
+      const nameEl = row.querySelector('.post-ex-name'); if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+      // hide both action buttons — delete already pending
+      const btns = document.getElementById(`post-row-btns-${i}`);
+      if (btns) btns.style.display = 'none';
+    } else if (postsState.pendingUpdate.has(p.path)) {
+      row.classList.add('pending-update');
+      const badge = document.createElement('span');
+      badge.className = 'post-ex-badge pending-update'; badge.textContent = 'Update Pending';
+      const nameEl = row.querySelector('.post-ex-name'); if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+      // hide Edit button — update already pending
+      const editBtn = row.querySelector('.btn-ex-edit');
+      if (editBtn) editBtn.style.display = 'none';
+    }
+  });
+}
+
+let postsPendingOpen = false;
+function togglePostsPending() {
+  postsPendingOpen = !postsPendingOpen;
+  document.getElementById('posts-pending-toggle').classList.toggle('open', postsPendingOpen);
+  document.getElementById('posts-pending-list').classList.toggle('open', postsPendingOpen);
+  if (postsPendingOpen) loadPostsPending();
+}
+
+async function loadPostsPending() {
+  const container = document.getElementById('posts-pending-items');
+  const lbl = document.getElementById('posts-pending-label');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) throw new Error(`${prRes.status}`);
+    const prs = await prRes.json();
+    const postPRs = prs.filter(pr => /^post-\d{4}-/.test(pr.head.ref));
+    if (!postPRs.length) {
+      lbl.textContent = 'Browse posts pending approval (0)';
+      container.innerHTML = '<div class="ex-empty">No posts pending approval.</div>'; return;
+    }
+    lbl.textContent = `Browse posts pending approval (${postPRs.length})`;
+    const results = await Promise.all(postPRs.map(async pr => {
+      const branch = pr.head.ref;
+      const kind = 'new';
+      try {
+        const fRes = await fetch(`${GH}/pulls/${pr.number}/files`, { headers: ghH() });
+        const files = fRes.ok ? (await fRes.json()).filter(f => f.filename.startsWith('_posts/') && f.filename.endsWith('.markdown')) : [];
+        const fileInfo = await Promise.all(files.map(async f => {
+          try {
+            const raw = await fetch(`${GH}/contents/${f.filename}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
+            if (!raw.ok) return { filename: f.filename, title: null, date: null };
+            const txt = b64d((await raw.json()).content.replace(/\n/g, ''));
+            const tm = txt.match(/^title:\s*["']?(.+?)["']?\s*$/m);
+            const dm = txt.match(/^date:\s*(\d{4}-\d{2}-\d{2})/m);
+            return { filename: f.filename, title: tm ? tm[1].replace(/\\"/g,'"').trim() : null, date: dm ? dm[1] : null };
+          } catch { return { filename: f.filename, title: null, date: null }; }
+        }));
+        return { pr, kind, files: fileInfo };
+      } catch { return { pr, kind, files: [] }; }
+    }));
+    const kindColor = 'var(--accent)';
+    container.innerHTML = results.map(({ pr, files }) => {
+      const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
+        `<span><a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
+        `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
+      const rows = files.map(f => {
+        const m = f.filename.match(/^_posts\/(\d{4}-\d{2}-\d{2})-(.+)\.markdown$/);
+        const date = f.date || (m ? m[1] : '');
+        const name = f.title || (m ? m[2].replace(/-/g,' ') : f.filename);
+        return `<div class="post-ex-item" style="pointer-events:none">` +
+          `<span class="post-ex-date">${esc(date)}</span>` +
+          `<span class="post-ex-name">${esc(name)}</span>` +
+          `</div>`;
+      });
+      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No posts found.</div>');
+    }).join('<div style="border-top:2px solid var(--border,#e2e8f0);margin:4px 0"></div>');
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
+  }
 }
 
 function showDeleteConfirm(i) {
@@ -1579,23 +2193,42 @@ function hideDeleteConfirm(i) {
   document.getElementById(`post-row-confirm-${i}`).style.display = 'none';
 }
 
-async function editPost(path, sha) {
+async function editPost(path, sha, idx) {
+  progressStart();
   setPostStatus('info', '<span class="spin"></span>Loading post…');
   try {
     const res     = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data    = await res.json();
-    const content = b64d(data.content.replace(/\n/g, ''));
-    populatePostForm(content);
-    editingPost = { path, sha: data.sha };
+    const content = b64d(data.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+    if (!populatePostForm(content)) throw new Error('Could not parse post frontmatter — check browser console for raw content.');
+    // Clear any previous editing badge
+    document.querySelectorAll('.post-ex-item.is-editing').forEach(el => {
+      el.classList.remove('is-editing');
+      const b = el.querySelector('.post-ex-badge.editing'); if (b) b.remove();
+    });
+    // Mark this row as being edited
+    if (idx !== undefined) {
+      const row = document.getElementById(`post-row-${idx}`);
+      if (row) {
+        row.classList.add('is-editing');
+        const badge = document.createElement('span');
+        badge.className = 'post-ex-badge editing'; badge.textContent = 'Editing';
+        const nameEl = row.querySelector('.post-ex-name');
+        if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+      }
+    }
+    editingPost = { path, sha: data.sha, idx };
     document.getElementById('post-card-title').textContent        = 'Edit Post';
     document.getElementById('post-pr-btn').textContent            = 'Save Changes';
     document.getElementById('post-cancel-edit-btn').style.display = 'inline-block';
     document.getElementById('post-pr-note').innerHTML             = `editing <code>${esc(path)}</code>`;
+    progressEnd();
     hidePostStatus();
     document.getElementById('post-pr-btn').disabled = false;
-    document.getElementById('post-section').scrollIntoView({ behavior: 'smooth' });
+    document.querySelector('#post-section .card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch(e) {
+    progressEnd();
     setPostStatus('error', `Failed to load post: ${esc(e.message)}`);
   }
 }
@@ -1603,7 +2236,10 @@ async function editPost(path, sha) {
 function populatePostForm(content) {
   if (!postFormInit) initPostForm();
   const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!fmMatch) return;
+  if (!fmMatch) {
+    console.error('[admin] populatePostForm: fmMatch failed. Raw content starts with:', JSON.stringify(content.substring(0, 80)));
+    return false;
+  }
   const fm   = fmMatch[1];
   const body = fmMatch[2].trim();
 
@@ -1639,10 +2275,21 @@ function populatePostForm(content) {
     }
   }
   updateSlugPreview();
+  updateWordCount();
+  updateDirtyTab();
+  return true;
 }
 
-async function deletePost(path, sha) {
-  setPostStatus('info', '<span class="spin"></span>Opening delete PR…');
+async function deletePost(path, sha, idx) {
+  const delRow = idx !== undefined ? document.getElementById(`post-row-${idx}`) : null;
+  if (delRow) {
+    delRow.classList.add('is-deleting');
+    const badge = document.createElement('span');
+    badge.className = 'post-ex-badge deleting'; badge.textContent = 'Deleting…';
+    const nameEl = delRow.querySelector('.post-ex-name');
+    if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+  }
+  progressStart();
   try {
     const parseGhError = async (res, label) => {
       let details = `${res.status} ${res.statusText}`;
@@ -1673,10 +2320,23 @@ async function deletePost(path, sha) {
       }) });
     if (!prRes.ok) await parseGhError(prRes, 'Failed to open PR');
     const pr = await prRes.json();
-    setPostStatus('success', `\u2713 Delete PR opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
-    postsState.loaded = false;
-    if (postsExOpen) loadPostsList();
+    progressEnd();
+    addPendingDelete(path);
+    setPostStatus('success', `\u2713 Delete Pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (delRow) {
+      delRow.classList.remove('is-deleting');
+      delRow.classList.add('pending-delete');
+      const _b = delRow.querySelector('.post-ex-badge');
+      if (_b) { _b.className = 'post-ex-badge pending-delete'; _b.textContent = 'Delete Pending'; }
+    }
+    // Re-enable pointer events on the confirm strip (already hidden) and buttons
+    const btnsEl = document.getElementById(`post-row-btns-${idx}`);
+    if (btnsEl) btnsEl.style.display = 'flex';
+    const confirmEl = document.getElementById(`post-row-confirm-${idx}`);
+    if (confirmEl) confirmEl.style.display = 'none';
   } catch(e) {
+    progressEnd();
+    if (delRow) { delRow.classList.remove('is-deleting'); const _b = delRow.querySelector('.post-ex-badge.deleting'); if (_b) _b.remove(); }
     setPostStatus('error', `Failed: ${e.message}`);
   }
 }
