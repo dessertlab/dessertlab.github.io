@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "📢 Safety Assessment of Autonomous Vehicles: Approaches and Challenges"
 date: 2025-03-21 09:00:00 +0000
@@ -19,4 +19,4 @@ The talk will provide an overview of safety assessment of autonomous vehicles (A
 
 Dr Peter Popov is Reader in Systems Dependability in the Centre for Software Reliability, City St George's, University of London, United Kingdom. He worked and consulted in the areas of computer and software dependability in several counties in Europe and in the USA, was a visiting scientist at the Coordinated Science Laboratory (CSL) at the University of Illinois at Urbana Champaign (USA), Duke University (USA), LAAS - CNRS in Toulouse, France, the University Federico II, in Naples, Italy and currently of the University of Florence, Italy.
 
-His research interests include dependability assessment of computer-based systems. He is known for his work on probabilistic modelling for dependability assessment, especially of fault tolerant software using "design diversity". His current research, which started as part of the Intel Collaborative Research Institute on Safe Automated Vehicles (ICRI-SAVe), is focused on probabilistic modelling for safety assessment of autonomous vehicles and on cyber-resilience of Connected and Autonomous Vehicles (CAVs).
+His research interests include dependability assessment of computer-based systems. He is known for his work on probabilistic modelling for dependability assessment, especially of fault tolerant software using "design diversity". His current research, which started as part of the Intel Collaborative Research Institute on Safe Automated Vehicles (ICRI-SAVe), is focused on probabilistic modelling for safety assessment of autonomous vehicles and on cyber-resilience of Connected and Autonomous Vehicles (CAVs).😄
