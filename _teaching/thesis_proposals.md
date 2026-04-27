@@ -10,6 +10,7 @@ thesis_proposals:
   msc:
     - course: Impianti di Elaborazione
       proposals:
+        - ie1
     - course: Algorithms and Data Structures
       proposals:
     - course: Software Security
