@@ -10,19 +10,34 @@ thesis_proposals:
   msc:
     - course: Impianti di Elaborazione
       proposals:
-    - course: Algorithms and Data Structures
-      proposals:
-    - course: Software Security
-      proposals:
-    - course: Real Time Systems and Industrial Applications
-      proposals:
     - course: AI Systems Engineering
       proposals:
+    - course: Distributed Systems and IoT
+      proposals:
+    - course: Laboratorio di Programmazione
+      proposals:
+    - course: Practical Cybersecurity
+      proposals:
+    - course: Progetto e Sviluppo di Sistemi in Tempo Reale
+      proposals:
+    - course: Real-Time Systems and Industrial Applications
+      proposals:
+    - course: Real-Time Systems
+      proposals:
   bsc:
+    - course: Advanced Computer Programming
+      proposals:
+    - course: Elementi di Informatica
+      proposals:
+    - course: Fondamenti di Informatica
+      proposals:
+        - dsada
     - course: Ingegneria del Software
+      proposals:
+    - course: Laboratorio di Informatica
       proposals:
     - course: Sistemi Operativi
       proposals:
-    - course: Advanced Computer Programming
+    - course: Tecniche di Programmazione
       proposals:
 ---
