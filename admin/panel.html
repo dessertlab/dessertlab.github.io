@@ -234,6 +234,125 @@
   .post-ex-badge.pending-delete { color:var(--danger); border:1px solid var(--danger); }
   .post-ex-badge.pending-update { color:var(--warn);   border:1px solid var(--warn); }
 
+  /* ── STATS OVERLAY ── */
+  .stats-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; overflow-y:auto; }
+  .stats-overlay.open { display:flex; align-items:flex-start; justify-content:center; padding:24px 12px; }
+  .stats-modal { background:var(--bg); border-radius:10px; width:100%; max-width:760px; box-shadow:0 12px 48px rgba(0,0,0,.2); overflow:hidden; }
+  .stats-head { display:flex; align-items:center; justify-content:space-between; padding:18px 24px; border-bottom:1px solid var(--border); }
+  .stats-head-title { font-weight:700; font-size:16px; }
+  .stats-close { background:none; border:none; cursor:pointer; color:var(--muted); font-size:22px; padding:0 4px; line-height:1; }
+  .stats-close:hover { color:var(--text); }
+  .stats-body { padding:24px; display:flex; flex-direction:column; gap:28px; }
+  .stats-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:12px; }
+  .stats-filter-bar { display:flex; gap:6px; margin-bottom:14px; }
+  .stats-filter-btn { font-family:var(--mono); font-size:11px; padding:4px 12px; border-radius:4px; border:1px solid var(--border); background:none; cursor:pointer; color:var(--muted); }
+  .stats-filter-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .stats-total-row { display:flex; gap:14px; margin-bottom:4px; flex-wrap:wrap; }
+  .stats-total-chip { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 18px; text-align:center; min-width:110px; }
+  .stats-total-num { font-size:24px; font-weight:700; color:var(--text); }
+  .stats-total-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+  .stats-legend { display:flex; gap:16px; margin-bottom:8px; }
+  .stats-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
+  .stats-legend-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+  .stats-chart { display:flex; align-items:flex-end; gap:4px; height:130px; padding-bottom:18px; position:relative; overflow:hidden; width:100%; }
+  .stats-chart::after { content:''; position:absolute; bottom:18px; left:0; right:0; height:1px; background:var(--border); }
+  .stats-bar-group { display:flex; flex-direction:column; align-items:center; flex:1; min-width:0; height:100%; justify-content:flex-end; }
+  .stats-bars-pair { display:flex; align-items:flex-end; gap:1px; width:100%; flex-shrink:0; }
+  .stats-bar-views  { background:#1a85d6; border-radius:2px 2px 0 0; flex:1; min-height:0; transition:height .25s; }
+  .stats-bar-unique { background:#16a34a; border-radius:2px 2px 0 0; flex:1; min-height:0; transition:height .25s; }
+  .stats-bar-label  { font-size:8px; color:var(--muted); margin-top:3px; text-align:center; white-space:nowrap; overflow:hidden; width:100%; line-height:15px; }
+  .stats-ref-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .stats-ref-row:last-child { border-bottom:none; }
+  .stats-ref-icon { width:24px; height:24px; border-radius:50%; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .stats-ref-name { flex:1; font-size:13px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .stats-ref-bar-wrap { width:100px; height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; flex-shrink:0; }
+  .stats-ref-bar-fill { height:100%; background:var(--accent); border-radius:3px; transition:width .3s; }
+  .stats-ref-count { font-size:12px; color:var(--muted); min-width:60px; text-align:right; flex-shrink:0; }
+  .stats-ref-pct { font-size:11px; color:var(--muted); min-width:34px; text-align:right; flex-shrink:0; font-weight:600; }
+  .stats-path-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); }
+  .stats-path-row:last-child { border-bottom:none; }
+  .stats-path-name { flex:1; font-family:var(--mono); font-size:11px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .stats-path-count { font-size:12px; color:var(--muted); min-width:60px; text-align:right; flex-shrink:0; white-space:nowrap; }
+  .stats-geo-note { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:14px 16px; font-size:12px; color:var(--muted); display:flex; gap:10px; align-items:flex-start; }
+  .stats-loading { display:flex; align-items:center; justify-content:center; padding:48px; color:var(--muted); font-size:14px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    /* Login */
+    .login-box { width: 100%; max-width: 390px; padding: 32px 20px; margin: 0 16px; }
+
+    /* Header */
+    header { padding: 0 12px; gap: 6px; height: auto; min-height: 56px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; }
+    .h-title { font-size: 14px; }
+    .h-repo { order: 10; width: 100%; font-size: 10px; text-align: left; padding-top: 2px; }
+    header > span { gap: 4px; flex-wrap: wrap; justify-content: flex-start; }
+    .btn-signout { font-size: 9px !important; padding: 4px 8px !important; white-space: nowrap; }
+    .btn-forget { font-size: 9px !important; padding: 4px 8px !important; white-space: nowrap; }
+
+    /* Tab bar */
+    .tab-bar { padding: 0 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; flex-shrink: 0; }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab { padding: 12px 12px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+
+    /* Main content */
+    main { padding: 20px 14px; }
+
+    /* Cards */
+    .card-body { padding: 14px; }
+    .card-head { padding: 14px 14px 12px; }
+
+    /* Form layout */
+    .form-row { flex-direction: column; gap: 0; }
+    .actions { flex-wrap: wrap; gap: 8px; }
+    .actions kbd { display: none; }
+
+    /* Bib input */
+    .bib-input { min-height: 180px; font-size: 11px; }
+
+    /* Existing entries: title takes full row, buttons below */
+    .ex-item { align-items: flex-start; }
+    .ex-key { min-width: 0; max-width: none; width: 100%; }
+    .ex-title { min-width: 0; width: 100%; flex: none; }
+    .ex-year { display: none; }
+    [id^="bib-row-btns-"] { margin-left: 0 !important; margin-top: 4px; width: 100%; justify-content: flex-start; }
+    [id^="bib-row-confirm-"] { padding-left: 0 !important; }
+
+    /* Thesis proposals */
+    .level-tabs { gap: 6px; }
+    .level-tab { padding: 7px 14px; font-size: 12px; }
+    .proposal-row { flex-wrap: wrap; }
+    .people-row { flex-wrap: wrap; }
+    .people-select { flex: 1 1 100%; }
+    .people-role-input { flex: 1 1 100%; }
+
+    /* Project rows: name on full width, buttons below */
+    .proj-row { flex-wrap: wrap; padding: 9px 10px; }
+    .proj-name { width: 100%; flex: none; min-width: 0; }
+    .proj-status-badge { order: -1; }
+    .proj-row-btns { margin-top: 6px; width: 100%; flex-wrap: wrap; }
+    .proj-confirm { flex-wrap: wrap; }
+
+    /* Post rows: name on full width, buttons below */
+    .post-ex-item { flex-wrap: wrap; padding: 8px 10px; }
+    .post-ex-name { width: 100%; flex: none; order: 2; }
+    .post-ex-date { order: 1; min-width: unset; }
+    .post-ex-draft { order: 3; }
+    .post-ex-btns { order: 4; margin-top: 6px; width: 100%; }
+    .post-ex-confirm { flex-wrap: wrap; }
+
+    /* People filter bar */
+    .ex-filter-bar { flex-direction: column; align-items: stretch; }
+    .ex-filter-bar select { width: 100%; }
+
+    /* Stats modal */
+    .stats-overlay.open { padding: 8px; }
+    .stats-modal { border-radius: 8px; max-height: calc(100vh - 16px); overflow-y: auto; }
+    .stats-body { padding: 16px; gap: 20px; }
+    .stats-head { padding: 14px 16px; }
+    .stats-ref-bar-wrap { width: 70px; }
+    .btn-stats { font-size: 9px !important; padding: 4px 8px !important; white-space: nowrap; }
+  }
+
   /* ── SECTION FADE TRANSITION ── */
   @keyframes fadeSlideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   .section-enter { animation: fadeSlideIn .22s ease both; }
@@ -290,12 +409,27 @@
 <div id="app">
   <header>
     <span class="h-title">DeSSERT Lab Admin</span>
-    <span style="display:flex;align-items:center;gap:16px">
+    <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span class="h-repo" id="repo-label"></span>
-      <button onclick="doLogout(false)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out (token kept for next login)">Sign out</button>
-      <button onclick="doLogout(true)" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out and delete saved token">Forget &amp; sign out</button>
+      <button onclick="openStats()" class="btn-stats" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer">&#x1F4CA; Stats</button>
+      <button onclick="doLogout(false)" class="btn-signout" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out (token kept for next login)">Sign out</button>
+      <button onclick="doLogout(true)" class="btn-forget" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer" title="Sign out and delete saved token">Forget &amp; sign out</button>
     </span>
   </header>
+
+  <!-- Stats overlay -->
+  <div class="stats-overlay" id="stats-overlay" onclick="closeStats(event)">
+    <div class="stats-modal" onclick="event.stopPropagation()">
+      <div class="stats-head">
+        <span class="stats-head-title">&#x1F4CA; Site Traffic</span>
+        <button class="stats-close" onclick="closeStats(event)" title="Close">&#x00D7;</button>
+      </div>
+      <div class="stats-body" id="stats-body">
+        <div class="stats-loading">Loading&hellip;</div>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-bar" id="tab-bar"></div>
   <main>
     <div id="pub-section">
@@ -5148,6 +5282,163 @@ async function loadProjectsPending() {
   } catch(e) {
     container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
   }
+}
+
+// ── Stats ────────────────────────────────────────────────────────────────────
+let statsFilter = 14;   // 7 or 14
+
+function openStats() {
+  document.getElementById('stats-overlay').classList.add('open');
+  loadStats();
+}
+function closeStats(e) {
+  if (e.target === document.getElementById('stats-overlay') || e.currentTarget.classList.contains('stats-close')) {
+    document.getElementById('stats-overlay').classList.remove('open');
+  }
+}
+
+async function loadStats() {
+  const body = document.getElementById('stats-body');
+  body.innerHTML = '<div class="stats-loading">Loading traffic data\u2026</div>';
+  try {
+    const [viewsRes, refRes, pathsRes] = await Promise.all([
+      fetch(`${GH}/traffic/views`,             { headers: ghH() }),
+      fetch(`${GH}/traffic/popular/referrers`, { headers: ghH() }),
+      fetch(`${GH}/traffic/popular/paths`,     { headers: ghH() }),
+    ]);
+    if (!viewsRes.ok) {
+      const msg = viewsRes.status === 403 ? 'Access denied (403). The token needs push/admin access to read traffic data.' :
+                  viewsRes.status === 401 ? 'Unauthorized (401). Check your GitHub token.' :
+                  `Traffic API error ${viewsRes.status}.`;
+      throw new Error(msg);
+    }
+    const views = await viewsRes.json();
+    const refs  = refRes.ok   ? await refRes.json()   : [];
+    const paths = pathsRes.ok ? await pathsRes.json() : [];
+    renderStats(views, refs, paths);
+  } catch(err) {
+    body.innerHTML = `<div class="stats-loading" style="color:var(--danger)">${esc(err.message)}</div>`;
+  }
+}
+
+function setStatsFilter(days) {
+  statsFilter = days;
+  document.querySelectorAll('.stats-filter-btn[data-days]').forEach(b =>
+    b.classList.toggle('active', +b.dataset.days === days));
+  if (window._statsViews) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - statsFilter);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    const filtered = (window._statsViews.views || []).filter(v => v.timestamp.slice(0,10) >= cutoffStr);
+    const totalV = filtered.reduce((s, d) => s + d.count,   0);
+    const totalU = filtered.reduce((s, d) => s + d.uniques, 0);
+    const tv = document.getElementById('stats-total-v'); if (tv) tv.textContent = totalV.toLocaleString();
+    const tu = document.getElementById('stats-total-u'); if (tu) tu.textContent = totalU.toLocaleString();
+    const ol = document.getElementById('stats-overview-lbl'); if (ol) ol.textContent = `last ${statsFilter} days`;
+    renderViewsChart(filtered);
+  }
+}
+function renderStats(views, refs, paths) {
+  window._statsViews = views;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - statsFilter);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const days   = (views.views || []).filter(v => v.timestamp.slice(0,10) >= cutoffStr);
+  const totalV = days.reduce((s, d) => s + d.count,   0);
+  const totalU = days.reduce((s, d) => s + d.uniques, 0);
+  let html = '';
+
+  html += `<div>
+    <div class="stats-section-title">Overview &mdash; <span id="stats-overview-lbl">last ${statsFilter} days</span></div>
+    <div class="stats-total-row">
+      <div class="stats-total-chip" style="border-left:3px solid #1a85d6"><div class="stats-total-num" id="stats-total-v">${totalV.toLocaleString()}</div><div class="stats-total-lbl">&#x1F4C4; Views</div></div>
+      <div class="stats-total-chip" style="border-left:3px solid #16a34a"><div class="stats-total-num" id="stats-total-u">${totalU.toLocaleString()}</div><div class="stats-total-lbl">&#x1F465; Unique visitors</div></div>
+    </div>
+  </div>`;
+
+  html += `<div>
+    <div class="stats-section-title">Daily traffic</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="stats-filter-bar" style="margin-bottom:0">
+        <button class="stats-filter-btn ${statsFilter===7?'active':''}"   data-days="7"  onclick="setStatsFilter(7)">7 days</button>
+        <button class="stats-filter-btn ${statsFilter===14?'active':''}"  data-days="14" onclick="setStatsFilter(14)">14 days</button>
+      </div>
+      <div class="stats-legend">
+        <div class="stats-legend-item"><div class="stats-legend-dot" style="background:#1a85d6"></div>Views</div>
+        <div class="stats-legend-item"><div class="stats-legend-dot" style="background:#16a34a"></div>Unique visitors</div>
+      </div>
+    </div>
+    <div class="stats-chart" id="stats-chart"></div>
+  </div>`;
+
+  if (refs.length) {
+    const totalR = refs.reduce((s, r) => s + r.count, 0);
+    const refRows = refs.map(r => {
+      const pct = totalR ? Math.round(r.count / totalR * 100) : 0;
+      return `<div class="stats-ref-row">
+        <div class="stats-ref-icon">${refIcon(r.referrer)}</div>
+        <span class="stats-ref-name" title="${esc(r.referrer)}">${esc(r.referrer || 'Direct / unknown')}</span>
+        <div class="stats-ref-bar-wrap"><div class="stats-ref-bar-fill" style="width:${pct}%"></div></div>
+        <span class="stats-ref-count">${r.count.toLocaleString()}</span>
+        <span class="stats-ref-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+    html += `<div><div class="stats-section-title">Traffic sources</div>${refRows}</div>`;
+  }
+
+  if (paths.length) {
+    const pathRows = paths.slice(0, 10).map(p =>
+      `<div class="stats-path-row">
+        <span class="stats-path-name" title="${esc(p.path)}">${esc(p.path)}</span>
+        <span class="stats-path-count">${p.count.toLocaleString()} views &middot; ${p.uniques.toLocaleString()} unique</span>
+      </div>`
+    ).join('');
+    html += `<div><div class="stats-section-title">Top pages</div>${pathRows}</div>`;
+  }
+
+
+
+  document.getElementById('stats-body').innerHTML = html;
+  renderViewsChart(days);
+}
+
+function renderViewsChart(days) {
+  const container = document.getElementById('stats-chart');
+  if (!container) return;
+  if (!days.length) {
+    container.innerHTML = '<span style="color:var(--muted);font-size:12px;padding:20px 0">No data available.</span>';
+    return;
+  }
+  const maxV = Math.max(...days.map(d => d.count), 1);
+  container.innerHTML = days.map(d => {
+    const dt    = new Date(d.timestamp.slice(0, 10) + 'T12:00:00Z');
+    const label = `${dt.getUTCMonth() + 1}/${dt.getUTCDate()}`;
+    const viewH   = Math.max(Math.round(d.count   / maxV * 96), d.count   ? 2 : 0);
+    const uniqueH = Math.max(Math.round(d.uniques / maxV * 96), d.uniques ? 1 : 0);
+    return `<div class="stats-bar-group" title="${label}: ${d.count} views, ${d.uniques} unique">
+      <div class="stats-bars-pair">
+        <div class="stats-bar-views"  style="height:${viewH}px"></div>
+        <div class="stats-bar-unique" style="height:${uniqueH}px"></div>
+      </div>
+      <div class="stats-bar-label">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+function refIcon(r) {
+  if (!r) return '&#x1F517;';
+  const s = r.toLowerCase();
+  if (s.includes('google'))       return '&#x1F50D;';
+  if (s.includes('github'))       return '&#x1F419;';
+  if (s.includes('twitter') || s.includes('t.co') || s.includes('x.com')) return '&#x2716;';
+  if (s.includes('linkedin'))     return '&#x1F4BC;';
+  if (s.includes('reddit'))       return '&#x1F4CB;';
+  if (s.includes('youtube'))      return '&#x25B6;';
+  if (s.includes('scholar'))      return '&#x1F4DA;';
+  if (s.includes('bing'))         return '&#x1F50E;';
+  if (s.includes('dblp'))         return '&#x1F4C4;';
+  if (s.includes('researchgate') || s.includes('semanticscholar')) return '&#x1F52C;';
+  return '&#x1F310;';
 }
 </script>
 </body>
