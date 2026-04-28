@@ -1,12 +1,14 @@
 ---
 title: P-Mobility - Borgo 4.0
-subtitle: 
+subtitle: "description: |"
 
 description: |
 
 people:
+  - roberto-natella
 
 proj-roles:
+  - 
 
 layout: project
 no-link: false
