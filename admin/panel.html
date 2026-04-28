@@ -761,6 +761,15 @@ function updateDirtyTab() {
   markDirty('posts', postDirty);
 }
 
+// ════════════════════════════════ BEFOREUNLOAD WARNING
+window.addEventListener('beforeunload', function(e) {
+  const anyDirty = Object.values(dirtyState).some(Boolean);
+  if (anyDirty) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 // ════════════════════════════════ CTRL+ENTER SUBMIT
 document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
