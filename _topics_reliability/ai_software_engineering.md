@@ -7,7 +7,6 @@ description: |
 people:
   - stefano-russo
   - roberto-pietrantuono
-  - antonio-guerriero
   - luca-giamattei
 
 layout: topic
