@@ -2,27 +2,16 @@
 layout: default
 ---
 
-<pre><h2>Real-time and Critical Systems</h2></pre>
+{% for cat in site.data.research_categories %}
+<pre><h2>{{ cat.title }}</h2></pre>
 <div class="card-columns">
-    {% assign topics = site.topics_realtime %}
+    {% assign coll_name = "topics_" | append: cat.key %}
+    {% assign topics = site[coll_name] %}
     {% for t in topics %}
-        {% include topic-card.html topic=t %}
+        {% unless t.published == false %}
+            {% include topic-card.html topic=t %}
+        {% endunless %}
     {% endfor %}
 </div>
-
-<pre><h2>Software Reliability</h2></pre>
-<div class="card-columns">
-    {% assign topics = site.topics_reliability %}
-    {% for t in topics %}
-        {% include topic-card.html topic=t %}
-    {% endfor %}
-</div>
-
-<pre><h2>Software Security</h2></pre>
-<div class="card-columns">
-    {% assign topics = site.topics_security %}
-    {% for t in topics %}
-        {% include topic-card.html topic=t %}
-    {% endfor %}
-</div>
+{% endfor %}
 

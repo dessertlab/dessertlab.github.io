@@ -700,8 +700,9 @@
               <button id="res-cat-custom"      class="level-tab"        onclick="setResCategory('custom')">Custom…</button>
             </div>
             <div id="res-cat-custom-wrap" style="display:none;margin-top:8px">
-              <input type="text" id="res-cat-custom-name" class="text-input" placeholder="folder name, e.g. cybersecurity" style="font-size:13px;padding:5px 8px" oninput="updateResNote()" />
-              <div style="font-size:11px;color:var(--muted);margin-top:3px">Will use <code>_topics_&lt;name&gt;/</code> — lowercase, no spaces. <strong>_config.yml will also be updated.</strong></div>
+              <input type="text" id="res-cat-custom-name" class="text-input" placeholder="folder key, e.g. cybersecurity" style="font-size:13px;padding:5px 8px;margin-bottom:6px" oninput="updateResNote()" />
+              <input type="text" id="res-cat-custom-title" class="text-input" placeholder="Display name, e.g. Cybersecurity" style="font-size:13px;padding:5px 8px" />
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">Folder key uses <code>_topics_&lt;key&gt;/</code> — lowercase, no spaces. Display name is the heading shown on the site.</div>
             </div>
           </div>
 
@@ -2812,6 +2813,9 @@ const peopleListState = { list: [], loaded: false };
 const researchState = {
   realtime: [], reliability: [], security: [], extra: {}, extraCategories: [], loaded: false,
   pendingDelete: new Set(), pendingUpdate: new Set(),
+  catLabels: { realtime:'Real-time and Critical Systems', reliability:'Software Reliability', security:'Software Security' },
+  catOrder: ['realtime','reliability','security'],
+  catLabelsSha: '',
 };
 let resExOpen = false, resPendingOpen = false;
 let editingResearch = null;  // { path, sha, idx, category }
@@ -3529,6 +3533,31 @@ function setResCategory(cat) {
   if (cat === 'custom') setTimeout(() => document.getElementById('res-cat-custom-name')?.focus(), 50);
   updateResNote();
 }
+
+// ── Research categories YAML helpers ────────────────────────────────────────────
+function parseResCatYaml(raw) {
+  const cats = [];
+  const blocks = raw.split(/\n(?=- key:)/);
+  for (const block of blocks) {
+    const keyM   = block.match(/- key:\s*(.+)/);
+    const titleM = block.match(/  title:\s*(.+)/);
+    if (keyM) cats.push({ key: keyM[1].trim(), title: titleM ? titleM[1].trim() : keyM[1].trim() });
+  }
+  return cats;
+}
+function buildResCatYaml(cats) {
+  return cats.map(c => `- key: ${c.key}\n  title: ${c.title}`).join('\n') + '\n';
+}
+async function commitResCatYaml(cats, message, branch) {
+  // Fetch fresh SHA then commit
+  const res = await fetch(`${GH}/contents/_data/research_categories.yml`, { headers: ghH() });
+  const sha = res.ok ? (await res.json()).sha : undefined;
+  const body = { message, content: b64e(buildResCatYaml(cats)), branch };
+  if (sha) body.sha = sha;
+  const r = await fetch(`${GH}/contents/_data/research_categories.yml`, { method: 'PUT', headers: ghH(), body: JSON.stringify(body) });
+  if (!r.ok) await parseGhErrRes(r, 'Failed to update research_categories.yml');
+}
+
 function renderResCatButtons() {
   const tabs = document.getElementById('res-cat-tabs');
   if (!tabs) return;
@@ -3711,13 +3740,24 @@ async function loadResearchList() {
         return { ...item, category, title: parsed?.title || item.name.replace(/\.md$/, ''), subtitle: parsed?.subtitle || '', visible: parsed?.visible !== false, parsed };
       } catch { return { ...item, category, title: item.name.replace(/\.md$/, ''), subtitle: '', visible: true, parsed: null }; }
     };
-    // Fetch known categories + repo root (to discover extras) in parallel
-    const [rtRes, rlRes, secRes, rootRes] = await Promise.all([
-      fetch(`${GH}/contents/_topics_realtime`,    { headers: ghH() }),
-      fetch(`${GH}/contents/_topics_reliability`, { headers: ghH() }),
-      fetch(`${GH}/contents/_topics_security`,    { headers: ghH() }),
-      fetch(`${GH}/contents`,                     { headers: ghH() }),
+    // Fetch known categories + repo root (to discover extras) + categories YAML in parallel
+    const [rtRes, rlRes, secRes, rootRes, catYmlRes] = await Promise.all([
+      fetch(`${GH}/contents/_topics_realtime`,                    { headers: ghH() }),
+      fetch(`${GH}/contents/_topics_reliability`,                 { headers: ghH() }),
+      fetch(`${GH}/contents/_topics_security`,                    { headers: ghH() }),
+      fetch(`${GH}/contents`,                                     { headers: ghH() }),
+      fetch(`${GH}/contents/_data/research_categories.yml`,       { headers: ghH() }),
     ]);
+    // Load category labels from YAML
+    if (catYmlRes.ok) {
+      const catData = await catYmlRes.json();
+      researchState.catLabelsSha = catData.sha;
+      const raw  = b64d(catData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+      const cats = parseResCatYaml(raw);
+      researchState.catLabels = {};
+      cats.forEach(c => { researchState.catLabels[c.key] = c.title; });
+      researchState.catOrder  = cats.map(c => c.key);
+    }
     const rtItems  = rtRes.ok  ? await rtRes.json()  : [];
     const rlItems  = rlRes.ok  ? await rlRes.json()  : [];
     const secItems = secRes.ok ? await secRes.json() : [];
@@ -3833,17 +3873,15 @@ function renderResearchList(filter) {
   const mgmtItems = document.getElementById('res-cat-mgmt-items');
   if (mgmtItems) {
     const builtinCats = ['realtime','reliability','security'];
-    const catLabel = { realtime:'Real-Time', reliability:'Reliability', security:'Security' };
     const allCats = [...builtinCats, ...researchState.extraCategories];
     mgmtItems.innerHTML = allCats.map(name => {
-      const label    = catLabel[name] || (name.charAt(0).toUpperCase() + name.slice(1));
+      const label    = researchState.catLabels[name] || (name.charAt(0).toUpperCase() + name.slice(1));
       const topics   = name === 'realtime' ? researchState.realtime : name === 'reliability' ? researchState.reliability : name === 'security' ? researchState.security : (researchState.extra[name] || []);
       const count    = topics.length;
-      const isCustom = !builtinCats.includes(name);
-      const delBtn = `<button class="btn-ex btn-ex-del" onclick="showResCatDeleteConfirm(${esc(JSON.stringify(name))})" title="Delete entire category">Delete</button>`;
-      const renameBtn = `<button class="btn-ex btn-ex-edit" onclick="showResCatRename(${esc(JSON.stringify(name))})" title="Rename category">Rename</button>`;
+      const delBtn   = `<button class="btn-ex btn-ex-del" onclick="showResCatDeleteConfirm(${esc(JSON.stringify(name))})" title="Delete entire category">Delete</button>`;
+      const renameBtn = `<button class="btn-ex btn-ex-edit" onclick="showResCatRename(${esc(JSON.stringify(name))})" title="Rename folder key &amp; display name">Rename</button>`;
       return `<div class="proj-row" id="res-cat-row-${name}" style="padding:6px 10px;flex-wrap:wrap;gap:6px">` +
-        `<span class="proj-name" style="font-size:13px">${esc(label)} <span style="font-size:11px;color:var(--muted)">(${count} topic${count!==1?'s':''})</span></span>` +
+        `<span class="proj-name" style="font-size:13px">${esc(label)} <span style="font-size:11px;color:var(--muted)">(key: ${esc(name)}, ${count} topic${count!==1?'s':''})</span></span>` +
         `<div class="proj-row-btns" id="res-cat-row-btns-${name}">${renameBtn}${delBtn}</div>` +
         `<div class="proj-confirm" id="res-cat-confirm-${name}">` +
           `<span class="post-ex-confirm-msg">Delete all ${count} topic${count!==1?'s':''} + remove from _config.yml?</span>` +
@@ -3851,8 +3889,11 @@ function renderResearchList(filter) {
           `<button class="btn-ex btn-ex-cancel" onclick="hideResCatDeleteConfirm(${esc(JSON.stringify(name))})">Cancel</button>` +
         `</div>` +
         `<div class="proj-confirm" id="res-cat-rename-${name}" style="width:100%;flex-wrap:wrap;gap:6px;align-items:center">` +
-          `<input id="res-cat-rename-input-${name}" class="ex-search" style="flex:1;min-width:100px;margin:0" placeholder="New category name" value="${esc(name)}" />` +
-          `<button class="btn-ex btn-ex-confirm-yes" onclick="renameResearchCategory(${esc(JSON.stringify(name))})">Rename</button>` +
+          `<div style="display:flex;gap:6px;flex:1;flex-wrap:wrap">` +
+            `<input id="res-cat-rename-key-${name}" class="ex-search" style="flex:1;min-width:100px;margin:0" placeholder="Folder key" value="${esc(name)}" />` +
+            `<input id="res-cat-rename-title-${name}" class="ex-search" style="flex:2;min-width:140px;margin:0" placeholder="Display name" value="${esc(label)}" />` +
+          `</div>` +
+          `<button class="btn-ex btn-ex-confirm-yes" onclick="renameResearchCategory(${esc(JSON.stringify(name))})">Save</button>` +
           `<button class="btn-ex btn-ex-cancel" onclick="hideResCatRename(${esc(JSON.stringify(name))})">Cancel</button>` +
         `</div>` +
         `</div>`;
@@ -3871,8 +3912,10 @@ function hideResCatDeleteConfirm(name) {
 function showResCatRename(name) {
   document.getElementById(`res-cat-row-btns-${name}`).style.display = 'none';
   document.getElementById(`res-cat-rename-${name}`).style.display = 'flex';
-  const inp = document.getElementById(`res-cat-rename-input-${name}`);
-  if (inp) { inp.value = name; inp.focus(); inp.select(); }
+  const keyInp   = document.getElementById(`res-cat-rename-key-${name}`);
+  const titleInp = document.getElementById(`res-cat-rename-title-${name}`);
+  if (keyInp)   { keyInp.value = name; keyInp.focus(); keyInp.select(); }
+  if (titleInp) { titleInp.value = researchState.catLabels[name] || name; }
 }
 function hideResCatRename(name) {
   document.getElementById(`res-cat-row-btns-${name}`).style.display = 'flex';
@@ -3890,55 +3933,75 @@ function toggleResCatMgmt() {
 }
 
 async function renameResearchCategory(oldName) {
-  const inp = document.getElementById(`res-cat-rename-input-${oldName}`);
-  const newName = (inp?.value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  if (!newName || newName === oldName) { hideResCatRename(oldName); return; }
+  const keyInp   = document.getElementById(`res-cat-rename-key-${oldName}`);
+  const titleInp = document.getElementById(`res-cat-rename-title-${oldName}`);
+  const newName  = (keyInp?.value  || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const newTitle = (titleInp?.value || '').trim() || newName;
+  const keyChanged = newName && newName !== oldName;
+  if (!newName && !newTitle) { hideResCatRename(oldName); return; }
   const builtinMap = { realtime: researchState.realtime, reliability: researchState.reliability, security: researchState.security };
   const topics = builtinMap[oldName] ?? researchState.extra[oldName] ?? [];
   progressStart();
-  setResearchStatus('info', `<span class="spin"></span> Renaming category <strong>${esc(oldName)}</strong> → <strong>${esc(newName)}</strong>…`);
+  setResearchStatus('info', `<span class="spin"></span> Saving category changes…`);
   try {
     const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
     if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
     const baseSha = (await baseRes.json()).object.sha;
-    const branch  = `rename-category-${oldName}-to-${newName}-${Date.now()}`;
+    const branch  = `rename-category-${oldName}-${Date.now()}`;
     const brRes   = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
-    // Read each file content and re-create under new path, then delete the old
-    for (const t of topics) {
-      const fileRes = await fetch(`${GH}/contents/${t.path}`, { headers: ghH() });
-      if (!fileRes.ok) await parseGhErrRes(fileRes, `Failed to read ${t.path}`);
-      const fileData = await fileRes.json();
-      const newPath  = t.path.replace(`_topics_${oldName}/`, `_topics_${newName}/`);
-      // Create file at new path
-      const createRes = await fetch(`${GH}/contents/${newPath}`, { method: 'PUT', headers: ghH(),
-        body: JSON.stringify({ message: `Rename category: move ${t.path} → ${newPath}`, content: fileData.content, branch }) });
-      if (!createRes.ok) await parseGhErrRes(createRes, `Failed to create ${newPath}`);
-      // Delete old file
-      const delRes = await fetch(`${GH}/contents/${t.path}`, { method: 'DELETE', headers: ghH(),
-        body: JSON.stringify({ message: `Rename category: delete old ${t.path}`, sha: fileData.sha, branch }) });
-      if (!delRes.ok) await parseGhErrRes(delRes, `Failed to delete ${t.path}`);
-    }
-    // Update _config.yml: replace topics_oldName with topics_newName
-    const cfgRes = await fetch(`${GH}/contents/_config.yml`, { headers: ghH() });
-    if (cfgRes.ok) {
-      const cfgData = await cfgRes.json();
-      const cfgText = b64d(cfgData.content.replace(/\n/g, ''));
-      const newCfg  = cfgText.replace(new RegExp(`(\\n  )topics_${oldName}:(\\n    output: true)`, 'g'), `$1topics_${newName}:$2`);
-      if (newCfg !== cfgText) {
-        const cfgCommit = await fetch(`${GH}/contents/_config.yml`, { method: 'PUT', headers: ghH(),
-          body: JSON.stringify({ message: `Rename category ${oldName} → ${newName} in _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
-        if (!cfgCommit.ok) await parseGhErrRes(cfgCommit, 'Failed to update _config.yml');
+    if (keyChanged) {
+      // Move all files to new folder
+      for (const t of topics) {
+        const fileRes = await fetch(`${GH}/contents/${t.path}`, { headers: ghH() });
+        if (!fileRes.ok) await parseGhErrRes(fileRes, `Failed to read ${t.path}`);
+        const fileData = await fileRes.json();
+        const newPath  = t.path.replace(`_topics_${oldName}/`, `_topics_${newName}/`);
+        const createRes = await fetch(`${GH}/contents/${newPath}`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Rename category: move ${t.path} → ${newPath}`, content: fileData.content, branch }) });
+        if (!createRes.ok) await parseGhErrRes(createRes, `Failed to create ${newPath}`);
+        const delRes = await fetch(`${GH}/contents/${t.path}`, { method: 'DELETE', headers: ghH(),
+          body: JSON.stringify({ message: `Rename category: delete old ${t.path}`, sha: fileData.sha, branch }) });
+        if (!delRes.ok) await parseGhErrRes(delRes, `Failed to delete ${t.path}`);
+      }
+      // Update _config.yml key
+      const cfgRes = await fetch(`${GH}/contents/_config.yml`, { headers: ghH() });
+      if (cfgRes.ok) {
+        const cfgData = await cfgRes.json();
+        const cfgText = b64d(cfgData.content.replace(/\n/g, ''));
+        const newCfg  = cfgText.replace(new RegExp(`(\\n  )topics_${oldName}:(\\n    output: true)`, 'g'), `$1topics_${newName}:$2`);
+        if (newCfg !== cfgText) {
+          const r = await fetch(`${GH}/contents/_config.yml`, { method: 'PUT', headers: ghH(),
+            body: JSON.stringify({ message: `Rename category ${oldName} → ${newName} in _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
+          if (!r.ok) await parseGhErrRes(r, 'Failed to update _config.yml');
+        }
       }
     }
+    // Update research_categories.yml (key + title)
+    const catRes  = await fetch(`${GH}/contents/_data/research_categories.yml`, { headers: ghH() });
+    if (catRes.ok) {
+      const catData = await catRes.json();
+      const raw  = b64d(catData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+      let cats   = parseResCatYaml(raw);
+      const idx  = cats.findIndex(c => c.key === oldName);
+      if (idx >= 0) {
+        cats[idx] = { key: keyChanged ? newName : oldName, title: newTitle };
+      } else {
+        cats.push({ key: keyChanged ? newName : oldName, title: newTitle });
+      }
+      const r = await fetch(`${GH}/contents/_data/research_categories.yml`, { method: 'PUT', headers: ghH(),
+        body: JSON.stringify({ message: `Update category ${oldName}: key=${keyChanged?newName:oldName}, title=${newTitle}`, content: b64e(buildResCatYaml(cats)), sha: catData.sha, branch }) });
+      if (!r.ok) await parseGhErrRes(r, 'Failed to update research_categories.yml');
+    }
     const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
-      body: JSON.stringify({ title: `Rename category: ${oldName} → ${newName}`, head: branch, base: CONFIG.BASE_BRANCH,
-        body: `Category renamed via admin panel.\n\n**From:** \`_topics_${oldName}\`\n**To:** \`_topics_${newName}\`\n**Files moved:** ${topics.length}` }) });
+      body: JSON.stringify({ title: keyChanged ? `Rename category: ${oldName} → ${newName}` : `Update category label: ${newTitle}`,
+        head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Category updated via admin panel.\n\n**Key:** \`${oldName}\`${keyChanged ? ` → \`${newName}\`` : ''}\n**Display name:** ${newTitle}\n**Files moved:** ${keyChanged ? topics.length : 0}` }) });
     if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
     const pr = await prRes.json();
     progressEnd();
-    setResearchStatus('success', `\u2713 Category rename pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    setResearchStatus('success', `\u2713 Category update pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
     hideResCatRename(oldName);
   } catch(e) {
     progressEnd();
@@ -3978,6 +4041,16 @@ async function deleteResearchCategory(name) {
           body: JSON.stringify({ message: `Remove _topics_${name} collection from _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
         if (!cfgCommit.ok) await parseGhErrRes(cfgCommit, 'Failed to update _config.yml');
       }
+    }
+    // Remove from research_categories.yml
+    const catRes = await fetch(`${GH}/contents/_data/research_categories.yml`, { headers: ghH() });
+    if (catRes.ok) {
+      const catData = await catRes.json();
+      const raw  = b64d(catData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+      const cats = parseResCatYaml(raw).filter(c => c.key !== name);
+      const r = await fetch(`${GH}/contents/_data/research_categories.yml`, { method: 'PUT', headers: ghH(),
+        body: JSON.stringify({ message: `Remove category ${name} from research_categories.yml`, content: b64e(buildResCatYaml(cats)), sha: catData.sha, branch }) });
+      if (!r.ok) await parseGhErrRes(r, 'Failed to update research_categories.yml');
     }
     const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({ title: `Delete category: ${name}`, head: branch, base: CONFIG.BASE_BRANCH,
@@ -4072,10 +4145,13 @@ async function openResearchPR() {
     const brRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
-    // If this is a new custom category, also patch _config.yml
+    // If this is a new custom category, also patch _config.yml and research_categories.yml
     const isNewCustomCat = !isEditing && resCategory === 'custom';
     const customCatName  = isNewCustomCat
       ? (document.getElementById('res-cat-custom-name')?.value || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
+      : null;
+    const customCatTitle = isNewCustomCat
+      ? ((document.getElementById('res-cat-custom-title')?.value || '').trim() || customCatName)
       : null;
     if (isNewCustomCat && customCatName) {
       const cfgRes = await fetch(`${GH}/contents/_config.yml`, { headers: ghH() });
@@ -4088,6 +4164,19 @@ async function openResearchPR() {
           const cfgCommit = await fetch(`${GH}/contents/_config.yml`, { method: 'PUT', headers: ghH(),
             body: JSON.stringify({ message: `Register _topics_${customCatName} collection in _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
           if (!cfgCommit.ok) await parseGhErrRes(cfgCommit, 'Failed to update _config.yml');
+        }
+      }
+      // Add to research_categories.yml
+      const catRes = await fetch(`${GH}/contents/_data/research_categories.yml`, { headers: ghH() });
+      if (catRes.ok) {
+        const catData = await catRes.json();
+        const raw  = b64d(catData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+        const cats = parseResCatYaml(raw);
+        if (!cats.find(c => c.key === customCatName)) {
+          cats.push({ key: customCatName, title: customCatTitle });
+          const r = await fetch(`${GH}/contents/_data/research_categories.yml`, { method: 'PUT', headers: ghH(),
+            body: JSON.stringify({ message: `Add category ${customCatName} to research_categories.yml`, content: b64e(buildResCatYaml(cats)), sha: catData.sha, branch }) });
+          if (!r.ok) await parseGhErrRes(r, 'Failed to update research_categories.yml');
         }
       }
     }
