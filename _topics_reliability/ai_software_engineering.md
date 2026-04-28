@@ -1,6 +1,6 @@
 ---
-title:  AI for Software Engineering
-subtitle:
+title: AI for Software Engineering
+subtitle: 
 
 description: |
 
@@ -15,6 +15,4 @@ no-link: false
 last-updated: 2016-11-11
 ---
 
-
 Inserire una descrizione qui...
-
