@@ -101,13 +101,32 @@
   .pr-note { font-size: 12px; color: var(--muted); margin-left: 6px; }
 
   /* ── EXISTING ENTRIES (collapsible) ── */
-  .existing-toggle { font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; margin-top: 32px; display: flex; align-items: center; gap: 8px; user-select: none; }
-  .existing-toggle:hover { color: var(--text); }
-  .existing-toggle .arrow { display: inline-block; transition: transform .2s; }
+  /* ── EXPANDABLE ACCORDION SECTIONS ── */
+  .existing-toggle {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    cursor: pointer; margin-top: 16px;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border); border-left: 3px solid var(--border-h);
+    border-radius: 6px;
+    transition: background .15s, border-color .15s, box-shadow .12s;
+  }
+  .existing-toggle:hover { background: var(--surface2); border-color: var(--border-h); box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .existing-toggle.open { border-radius: 6px 6px 0 0; background: var(--surface2); border-color: var(--border-h); border-bottom-color: transparent; }
+  .existing-toggle .arrow { display: inline-block; transition: transform .2s; order: 99; margin-left: auto; font-size: 9px; color: var(--dim); }
+  .existing-toggle .arrow::before { content: '\25B6'; }
   .existing-toggle.open .arrow { transform: rotate(90deg); }
+  /* Semantic left-border accent by type */
+  #ex-toggle, [id$="-ex-toggle"]                    { border-left-color: var(--info); }
+  #pub-pending-toggle, [id$="-pending-toggle"]       { border-left-color: var(--warn); }
+  #res-cat-toggle                                    { border-left-color: var(--accent); }
 
-  .existing-list { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .existing-list { display: none; margin-top: 0; border: 1px solid var(--border-h); border-top: none; border-radius: 0 0 6px 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   .existing-list.open { display: block; }
+  .ex-filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .ex-filter-bar .ex-search { border: 1px solid var(--border); border-radius: 4px; flex: 1; min-width: 140px; width: auto; background: #fff; padding: 7px 10px; }
+  .ex-filter-bar .ex-search:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(26,133,214,0.10); }
   .ex-search { width: 100%; background: var(--surface); border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; padding: 10px 14px; outline: none; }
   .ex-search:focus { background: #fff; }
   .ex-search::placeholder { color: var(--dim); }
@@ -304,15 +323,15 @@
 
     <!-- Existing entries (read-only browse) -->
     <div class="existing-toggle" id="ex-toggle" onclick="toggleExisting()">
-      <span class="arrow">▶</span>
+      <span class="arrow"></span>
       <span id="ex-toggle-label">Browse existing entries</span>
     </div>
     <div class="existing-list" id="existing-list">
-      <input class="ex-search" id="ex-search" placeholder="Filter…" oninput="renderExisting()" />
+      <div class="ex-filter-bar"><input class="ex-search" id="ex-search" placeholder="Filter…" oninput="renderExisting()" /></div>
       <div id="ex-items"></div>
     </div>
     <div class="existing-toggle" id="pub-pending-toggle" onclick="togglePubPending()" style="margin-top:8px">
-      <span class="arrow">▶</span>
+      <span class="arrow"></span>
       <span id="pub-pending-label">Browse publications pending approval</span>
     </div>
     <div class="existing-list" id="pub-pending-list">
@@ -354,14 +373,14 @@
         </div>
       </div>
       <div class="existing-toggle" id="thesis-ex-toggle" onclick="toggleThesisExisting()">
-        <span class="arrow">▶</span>
+        <span class="arrow"></span>
         <span id="thesis-ex-label">Browse current proposals</span>
       </div>
       <div class="existing-list" id="thesis-existing-list">
         <div id="thesis-ex-items"></div>
       </div>
       <div class="existing-toggle" id="thesis-pending-toggle" onclick="toggleThesisPending()" style="margin-top:8px">
-        <span class="arrow">▶</span>
+        <span class="arrow"></span>
         <span id="thesis-pending-label">Browse proposals pending approval</span>
       </div>
       <div class="existing-list" id="thesis-pending-list">
@@ -496,7 +515,7 @@
       </div>
       <!-- Browse / edit / delete existing posts -->
       <div class="existing-toggle" id="posts-ex-toggle" onclick="togglePostsExisting()" style="margin-top:16px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="posts-ex-label">Browse existing posts</span>
       </div>
       <div class="existing-list" id="posts-existing-list">
@@ -504,7 +523,7 @@
       </div>
       <!-- Pending posts PRs -->
       <div class="existing-toggle" id="posts-pending-toggle" onclick="togglePostsPending()" style="margin-top:8px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="posts-pending-label">Browse posts pending approval</span>
       </div>
       <div class="existing-list" id="posts-pending-list">
@@ -644,17 +663,17 @@
 
       <!-- Browse existing projects -->
       <div class="existing-toggle" id="proj-ex-toggle" onclick="toggleProjectsExisting()" style="margin-top:16px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="proj-ex-label">Browse existing projects</span>
       </div>
       <div class="existing-list" id="proj-existing-list">
-        <input class="ex-search" id="proj-search" placeholder="Filter…" oninput="filterProjectsList()" />
+        <div class="ex-filter-bar"><input class="ex-search" id="proj-search" placeholder="Filter…" oninput="filterProjectsList()" /></div>
         <div id="proj-ex-items"></div>
       </div>
 
       <!-- Pending PRs -->
       <div class="existing-toggle" id="proj-pending-toggle" onclick="toggleProjectsPending()" style="margin-top:8px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="proj-pending-label">Browse projects pending approval</span>
       </div>
       <div class="existing-list" id="proj-pending-list">
@@ -697,7 +716,7 @@
               <button id="res-cat-realtime"    class="level-tab active" onclick="setResCategory('realtime')">Real-Time</button>
               <button id="res-cat-reliability" class="level-tab"        onclick="setResCategory('reliability')">Reliability</button>
               <button id="res-cat-security"    class="level-tab"        onclick="setResCategory('security')">Security</button>
-              <button id="res-cat-custom"      class="level-tab"        onclick="setResCategory('custom')">Custom…</button>
+              <button id="res-cat-custom"      class="level-tab"        onclick="setResCategory('custom')">+ Category</button>
             </div>
             <div id="res-cat-custom-wrap" style="display:none;margin-top:8px">
               <input type="text" id="res-cat-custom-name" class="text-input" placeholder="folder key, e.g. cybersecurity" style="font-size:13px;padding:5px 8px;margin-bottom:6px" oninput="updateResNote()" />
@@ -766,26 +785,26 @@
 
       <!-- Browse existing topics -->
       <div class="existing-toggle" id="res-ex-toggle" onclick="toggleResearchExisting()" style="margin-top:16px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="res-ex-label">Browse existing research topics</span>
       </div>
       <div class="existing-list" id="res-existing-list">
-        <input class="ex-search" id="res-search" placeholder="Filter…" oninput="filterResearchList()" />
+        <div class="ex-filter-bar"><input class="ex-search" id="res-search" placeholder="Filter…" oninput="filterResearchList()" /></div>
         <div id="res-ex-items"></div>
       </div>
 
       <!-- Manage categories -->
       <div class="existing-toggle" id="res-cat-toggle" onclick="toggleResCatMgmt()" style="margin-top:8px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="res-cat-toggle-label">Manage categories</span>
       </div>
-      <div class="existing-list" id="res-cat-mgmt-panel" style="display:none">
+      <div class="existing-list" id="res-cat-mgmt-panel">
         <div id="res-cat-mgmt-items"></div>
       </div>
 
       <!-- Pending PRs -->
       <div class="existing-toggle" id="res-pending-toggle" onclick="toggleResearchPending()" style="margin-top:8px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="res-pending-label">Browse research topics pending approval</span>
       </div>
       <div class="existing-list" id="res-pending-list">
@@ -805,29 +824,26 @@
         </div>
         <div class="card-body">
 
-          <!-- Slug + Role -->
+          <!-- Slug (hidden, auto-generated from name) + Display Name + Role -->
+          <div style="display:none">
+            <input type="text" id="ppl-slug" oninput="onPplSlugManual()" />
+          </div>
           <div class="form-row">
-            <div class="form-group" style="flex:1;margin-bottom:0">
-              <label class="field-label">Slug <span style="font-weight:400;color:var(--muted)">(YAML key, e.g. mario-rossi)</span></label>
-              <input type="text" id="ppl-slug" class="text-input" placeholder="firstname-lastname" oninput="onPplSlugInput()" />
+            <div class="form-group" style="flex:2;margin-bottom:0">
+              <label class="field-label">Display Name</label>
+              <input type="text" id="ppl-name" class="text-input" placeholder="Full name as displayed on the site" oninput="onPplNameInput()" />
             </div>
             <div class="form-group" style="flex:1;margin-bottom:0">
               <label class="field-label">Role</label>
               <select id="ppl-role" class="people-select" style="width:100%;padding:9px 10px;font-size:13px" onchange="(function(){const t = !!(document.getElementById('ppl-slug')?.value.trim()) || !!(document.getElementById('ppl-name')?.value.trim()); markDirty('people', editingPerson !== null || t);})()">
                 <option value="">— select role —</option>
                 <option value="faculty">Faculty</option>
-                <option value="postdoc">Postdoc</option>
+                <option value="postdoc">Postdoc or Research Fellow</option>
                 <option value="phd_student">PhD Student</option>
                 <option value="visiting_researchers">Visiting Researcher</option>
                 <option value="former_researchers">Former Researcher</option>
               </select>
             </div>
-          </div>
-
-          <!-- Display name -->
-          <div class="form-group" style="margin-top:14px">
-            <label class="field-label">Display Name</label>
-            <input type="text" id="ppl-name" class="text-input" placeholder="Full name as displayed on the site" oninput="onPplSlugInput()" />
           </div>
 
           <!-- Webpage -->
@@ -870,13 +886,13 @@
 
       <!-- Browse existing -->
       <div class="existing-toggle" id="ppl-ex-toggle" onclick="togglePeopleExisting()" style="margin-top:16px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="ppl-ex-label">Browse existing people</span>
       </div>
       <div class="existing-list" id="ppl-existing-list">
-        <div style="display:flex;gap:8px;align-items:center;padding-bottom:4px;flex-wrap:wrap">
+        <div class="ex-filter-bar">
           <input class="ex-search" id="ppl-search" placeholder="Filter by name or role…" oninput="filterPeopleList()" style="flex:1;min-width:160px" />
-          <select id="ppl-role-filter" style="font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--fg)" onchange="filterPeopleList()">
+          <select id="ppl-role-filter" style="font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--text)" onchange="filterPeopleList()">
             <option value="">All roles</option>
             <option value="faculty">Faculty</option>
             <option value="postdoc">Postdoc</option>
@@ -890,7 +906,7 @@
 
       <!-- Pending PRs -->
       <div class="existing-toggle" id="ppl-pending-toggle" onclick="togglePeoplePending()" style="margin-top:8px">
-        <span class="arrow">&#9658;</span>
+        <span class="arrow"></span>
         <span id="ppl-pending-label">Browse people changes pending approval</span>
       </div>
       <div class="existing-list" id="ppl-pending-list">
@@ -1227,7 +1243,7 @@ document.addEventListener('input', function(e) {
     const t = !!(document.getElementById('res-title')?.value.trim()) || !!(document.getElementById('res-body')?.value.trim());
     markDirty('research', editingResearch !== null || t);
   }
-  if (['ppl-slug','ppl-name','ppl-webpage','ppl-image','ppl-bio'].includes(id)) {
+  if (['ppl-name','ppl-webpage','ppl-image','ppl-bio'].includes(id)) {
     const t = !!(document.getElementById('ppl-slug')?.value.trim()) || !!(document.getElementById('ppl-name')?.value.trim());
     markDirty('people', editingPerson !== null || t);
   }
@@ -1238,7 +1254,7 @@ document.addEventListener('input', function(e) {
 function buildTabs() {
   // Primary bar: Publications | Thesis Proposals | Posts
   const bar = document.getElementById('tab-bar');
-  [['publications','Publications'],['thesis','Thesis Proposals'],['posts','Posts'],['projects','Projects'],['research','Research'],['people','People']].forEach(([id,label]) => {
+  [['people','People'],['posts','Posts'],['projects','Projects'],['publications','Publications'],['research','Research'],['thesis','Thesis Proposals']].forEach(([id,label]) => {
     const t = document.createElement('div');
     t.id = `tab-${id}`; t.className = 'tab'; t.textContent = label;
     t.onclick = () => switchPrimary(id);
@@ -2827,6 +2843,7 @@ const peopleData = { entries: [], raw: '', sha: '', loaded: false, pendingUpdate
 let pplExOpen = false, pplPendingOpen = false;
 let editingPerson = null; // slug string when editing
 let pplImageFile = null;  // File object if user picked a new image
+let pplSlugLocked = false; // true once user manually edits the slug field
 
 // ── State toggles ──────────────────────────────────────────────────────────────
 function setProjStatus(s) {
@@ -3849,12 +3866,19 @@ function renderResearchList(filter) {
       `<div class="proj-row-btns" id="res-row-btns-${idx}">` +
         `<button class="btn-ex btn-ex-edit" onclick="editResearch(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx},${esc(JSON.stringify(t.category))})">Edit</button>` +
         `<button class="btn-ex" style="border:1px solid var(--warn);color:var(--warn)" onclick="toggleResearchVisibility(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx},${t.visible})">${t.visible ? 'Hide' : 'Show'}</button>` +
+        `<button class="btn-ex" style="border:1px solid var(--accent);color:var(--accent)" onclick="showResMoveConfirm(${idx},${esc(JSON.stringify(t.category))})">Move</button>` +
         `<button class="btn-ex btn-ex-del" onclick="showResDeleteConfirm(${idx})">Delete</button>` +
       `</div>` +
       `<div class="proj-confirm" id="res-row-confirm-${idx}">` +
         `<span class="post-ex-confirm-msg">Delete this topic?</span>` +
         `<button class="btn-ex btn-ex-confirm-yes" onclick="deleteResearch(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx})">Yes, delete</button>` +
         `<button class="btn-ex btn-ex-cancel" onclick="hideResDeleteConfirm(${idx})">Cancel</button>` +
+      `</div>` +
+      `<div class="proj-confirm" id="res-row-move-${idx}">` +
+        `<span class="post-ex-confirm-msg" style="white-space:nowrap">Move to:</span>` +
+        `<select id="res-row-move-sel-${idx}" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)"></select>` +
+        `<button class="btn-ex btn-ex-confirm-yes" onclick="moveResearch(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx})">Move</button>` +
+        `<button class="btn-ex btn-ex-cancel" onclick="hideResMoveConfirm(${idx})">Cancel</button>` +
       `</div>` +
       `</div>`;
   }).join('');
@@ -3925,10 +3949,8 @@ function hideResCatRename(name) {
 let resCatMgmtOpen = false;
 function toggleResCatMgmt() {
   resCatMgmtOpen = !resCatMgmtOpen;
-  const panel = document.getElementById('res-cat-mgmt-panel');
-  const arrow = document.querySelector('#res-cat-toggle .arrow');
-  panel.style.display = resCatMgmtOpen ? 'block' : 'none';
-  if (arrow) arrow.innerHTML = resCatMgmtOpen ? '&#9660;' : '&#9658;';
+  document.getElementById('res-cat-toggle').classList.toggle('open', resCatMgmtOpen);
+  document.getElementById('res-cat-mgmt-panel').classList.toggle('open', resCatMgmtOpen);
   if (resCatMgmtOpen && !researchState.loaded) loadResearchList();
 }
 
@@ -4074,6 +4096,80 @@ function showResDeleteConfirm(idx) {
 function hideResDeleteConfirm(idx) {
   document.getElementById(`res-row-btns-${idx}`).style.display = 'flex';
   document.getElementById(`res-row-confirm-${idx}`).style.display = 'none';
+}
+function showResMoveConfirm(idx, currentCat) {
+  const sel = document.getElementById(`res-row-move-sel-${idx}`);
+  if (sel) {
+    sel.innerHTML = '';
+    const builtins = ['realtime', 'reliability', 'security'];
+    const all = [...new Set([...builtins, ...(researchState.extraCategories || [])])];
+    all.filter(k => k !== currentCat).forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = researchState.catLabels?.[k] || (k.charAt(0).toUpperCase() + k.slice(1));
+      sel.appendChild(opt);
+    });
+  }
+  document.getElementById(`res-row-btns-${idx}`).style.display = 'none';
+  document.getElementById(`res-row-move-${idx}`).style.display = 'flex';
+}
+function hideResMoveConfirm(idx) {
+  document.getElementById(`res-row-btns-${idx}`).style.display = 'flex';
+  document.getElementById(`res-row-move-${idx}`).style.display = 'none';
+}
+async function moveResearch(path, sha, idx) {
+  const sel = document.getElementById(`res-row-move-sel-${idx}`);
+  const targetCat = sel ? sel.value : '';
+  if (!targetCat) { setResearchStatus('error', 'Please select a target category.'); return; }
+  const fileName = path.replace(/^.*\//, '');
+  const newPath = `_topics_${targetCat}/${fileName}`;
+  const slug = fileName.replace(/\.md$/, '');
+  const row = idx !== undefined ? document.getElementById(`res-row-${idx}`) : null;
+  hideResMoveConfirm(idx);
+  if (row) {
+    row.classList.add('is-deleting');
+    const b = document.createElement('span'); b.className = 'post-ex-badge deleting'; b.textContent = 'Moving\u2026';
+    const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', b);
+  }
+  progressStart();
+  try {
+    const fileRes = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
+    if (!fileRes.ok) await parseGhErrRes(fileRes, 'Failed to fetch topic');
+    const fileData = await fileRes.json();
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch = `move-topic-${slug}-${Date.now()}`;
+    const brRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    const putRes = await fetch(`${GH}/contents/${newPath}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({ message: `Move topic ${slug} to _topics_${targetCat}`, content: fileData.content.replace(/\n/g, ''), branch }) });
+    if (!putRes.ok) await parseGhErrRes(putRes, 'Failed to create topic in new location');
+    const delRes = await fetch(`${GH}/contents/${path}`, { method: 'DELETE', headers: ghH(),
+      body: JSON.stringify({ message: `Remove topic ${slug} from old category`, sha: fileData.sha, branch }) });
+    if (!delRes.ok) await parseGhErrRes(delRes, 'Failed to delete topic from old location');
+    const catLabel = researchState.catLabels?.[targetCat] || targetCat;
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `Move topic: ${slug} \u2192 ${targetCat}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Topic moved via admin panel.\n\n**From:** \`${path}\`\n**To:** \`${newPath}\`\n**New category:** ${catLabel}` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    researchState.pendingUpdate.add(path);
+    setResearchStatus('success', `\u2713 Move pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) {
+      row.classList.remove('is-deleting'); row.classList.add('pending-update');
+      const b = row.querySelector('.post-ex-badge.deleting');
+      if (b) { b.className = 'post-ex-badge pending-update'; b.textContent = 'Move Pending'; }
+      const btns = document.getElementById(`res-row-btns-${idx}`); if (btns) btns.style.display = 'none';
+    }
+  } catch(e) {
+    progressEnd();
+    if (row) { row.classList.remove('is-deleting'); const b = row.querySelector('.post-ex-badge.deleting'); if (b) b.remove(); }
+    const btns = document.getElementById(`res-row-btns-${idx}`); if (btns) btns.style.display = 'flex';
+    setResearchStatus('error', `Failed to move topic: ${esc(e.message)}`);
+  }
 }
 
 // ── Edit research topic ────────────────────────────────────────────────────────
@@ -4352,6 +4448,21 @@ function onPplSlugInput() {
   const name = document.getElementById('ppl-name').value.trim();
   document.getElementById('ppl-pr-btn').disabled = !(slug && name);
 }
+function onPplSlugManual() {
+  pplSlugLocked = true;
+  onPplSlugInput();
+}
+function onPplNameInput() {
+  if (!pplSlugLocked && !editingPerson) {
+    const raw = document.getElementById('ppl-name').value;
+    const slug = raw.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim().replace(/\s+/g, '-');
+    document.getElementById('ppl-slug').value = slug;
+  }
+  onPplSlugInput();
+}
 
 function onPplImageSelect(input) {
   const file = input.files[0];
@@ -4391,6 +4502,8 @@ function resetPeopleForm() {
   ['ppl-slug','ppl-name','ppl-role','ppl-webpage','ppl-image','ppl-bio'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
+  pplSlugLocked = false;
+  const slugEl = document.getElementById('ppl-slug'); if (slugEl) slugEl.readOnly = false;
   pplImageFile = null;
   const preview = document.getElementById('ppl-img-preview');
   if (preview) { preview.src = ''; preview.style.display = 'none'; }
@@ -4680,35 +4793,58 @@ async function deletePerson(slug) {
 // ── Browse / Pending toggles ───────────────────────────────────────────────────
 function togglePeopleExisting() {
   pplExOpen = !pplExOpen;
-  const list = document.getElementById('ppl-existing-list');
-  const arrow = document.querySelector('#ppl-ex-toggle .arrow');
-  list.style.display  = pplExOpen ? 'block' : 'none';
-  if (arrow) arrow.innerHTML = pplExOpen ? '&#9660;' : '&#9658;';
+  document.getElementById('ppl-ex-toggle').classList.toggle('open', pplExOpen);
+  document.getElementById('ppl-existing-list').classList.toggle('open', pplExOpen);
   if (pplExOpen) loadPeopleData();
 }
 function togglePeoplePending() {
   pplPendingOpen = !pplPendingOpen;
-  const list  = document.getElementById('ppl-pending-list');
-  const arrow = document.querySelector('#ppl-pending-toggle .arrow');
-  list.style.display = pplPendingOpen ? 'block' : 'none';
-  if (arrow) arrow.innerHTML = pplPendingOpen ? '&#9660;' : '&#9658;';
+  document.getElementById('ppl-pending-toggle').classList.toggle('open', pplPendingOpen);
+  document.getElementById('ppl-pending-list').classList.toggle('open', pplPendingOpen);
   if (pplPendingOpen) loadPeoplePending();
 }
 async function loadPeoplePending() {
   const container = document.getElementById('ppl-pending-items');
+  const lbl = document.getElementById('ppl-pending-label');
   container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>';
   try {
     const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
     if (!prRes.ok) throw new Error(`${prRes.status}`);
     const prs    = await prRes.json();
     const pplPRs = prs.filter(pr => /^(add|edit|delete)-person-/.test(pr.head.ref));
-    if (!pplPRs.length) { container.innerHTML = '<div class="ex-empty">No pending people changes.</div>'; return; }
-    container.innerHTML = pplPRs.map(pr =>
-      `<div class="proj-row"><span class="proj-name"><a href="${pr.html_url}" target="_blank">${esc(pr.title)}</a></span>` +
-      `<span style="font-size:11px;color:var(--muted);margin-left:8px">#${pr.number}</span></div>`
-    ).join('');
+    if (!pplPRs.length) {
+      lbl.textContent = 'Browse people changes pending approval (0)';
+      container.innerHTML = '<div class="ex-empty">No people changes pending approval.</div>'; return;
+    }
+    lbl.textContent = `Browse people changes pending approval (${pplPRs.length})`;
+    const results = await Promise.all(pplPRs.map(async pr => {
+      try {
+        const fRes  = await fetch(`${GH}/pulls/${pr.number}/files`, { headers: ghH() });
+        const files = fRes.ok ? (await fRes.json()).filter(f => f.filename.match(/^_data\/people\.yml$|^img\/people\//)) : [];
+        return { pr, files };
+      } catch { return { pr, files: [] }; }
+    }));
+    const kindColorMap = { add: 'var(--success)', edit: 'var(--warn)', delete: 'var(--danger)' };
+    container.innerHTML = results.map(({ pr, files }) => {
+      const kindM  = pr.head.ref.match(/^(add|edit|delete)-person-/);
+      const kind   = kindM ? kindM[1] : '';
+      const kColor = kindColorMap[kind] || 'var(--accent)';
+      const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
+        `<span><span style="font-size:10px;font-weight:700;color:${kColor};border:1px solid ${kColor};padding:1px 6px;border-radius:3px;margin-right:6px;text-transform:uppercase">${esc(kind)}</span>` +
+        `<a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
+        `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
+      const statusIcon = { added: '\uff0b', modified: '\u270e', removed: '\u2715' };
+      const statusCol  = { added: 'var(--success)', modified: 'var(--warn)', removed: 'var(--danger)' };
+      const rows = files.map(f =>
+        `<div class="post-ex-item" style="pointer-events:none">` +
+        `<span style="color:${statusCol[f.status]||'var(--muted)'};font-family:var(--mono);font-size:13px;flex-shrink:0;width:20px">${statusIcon[f.status]||'\u00b7'}</span>` +
+        `<span class="post-ex-name">${esc(f.filename)}</span>` +
+        `</div>`
+      );
+      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No files changed.</div>');
+    }).join('<div style="border-top:2px solid var(--border,#e2e8f0);margin:4px 0"></div>');
   } catch(e) {
-    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load: ${esc(e.message)}</div>`;
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
   }
 }
 
