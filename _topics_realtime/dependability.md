@@ -1,6 +1,6 @@
 ---
 title: Dependability Assessment of Critical Systems
-subtitle: "description: |"
+subtitle: 
 
 description: |
 
