@@ -130,9 +130,13 @@
   .ex-search { width: 100%; background: var(--surface); border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; padding: 10px 14px; outline: none; }
   .ex-search:focus { background: #fff; }
   .ex-search::placeholder { color: var(--dim); }
-  .ex-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); transition: background .1s; }
+  .ex-item { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); transition: background .1s; }
   .ex-item:last-child { border-bottom: none; }
   .ex-item:hover { background: var(--surface); }
+  .ex-item.is-editing { background: rgba(217,119,6,0.06); border-left: 3px solid var(--warn); padding-left: 11px; }
+  .ex-item.is-deleting { background: rgba(220,38,38,0.04); border-left: 3px solid var(--danger); opacity: .6; pointer-events: none; padding-left: 11px; }
+  .ex-item.pending-delete { background: rgba(220,38,38,0.04); border-left: 3px solid var(--danger); padding-left: 11px; }
+  .ex-item.pending-delete .ex-title { text-decoration: line-through; color: var(--muted); }
   .ex-key { font-family: var(--mono); font-size: 10px; color: var(--accent); min-width: 160px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ex-title { font-size: 13px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ex-year { font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; }
@@ -300,7 +304,7 @@
 
     <div class="card">
       <div class="card-head">
-        <div class="card-title">Paste BibTeX entry</div>
+        <div class="card-title" id="pub-card-title">Paste BibTeX entry</div>
         <div class="card-hint">
           Paste one or more <code>@article{…}</code> entries. They will be prepended to
           <code id="file-hint">—</code> and a pull request will be opened for review.
@@ -315,6 +319,7 @@
         <div class="actions">
           <button class="btn-pr" id="pr-btn" onclick="openPR()" disabled>Save</button>
           <button class="btn-clear" onclick="clearInput()">Clear</button>
+          <button class="btn-clear" id="pub-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditBib()">Cancel Edit</button>
           <span class="pr-note" id="pr-note"></span>
           <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+⏎</kbd>
         </div>
@@ -936,6 +941,7 @@ const state = {};
 BIB_FILES.forEach(f => { state[f.id] = { raw: '', sha: '', entries: [], loaded: false, draft: '' }; });
 let activeTab = BIB_FILES[0].id;
 let exOpen = false;
+let editingBibKey = null;
 
 // ── Thesis Proposals state ──
 const THESIS_FILE  = '_teaching/thesis_proposals.md';
@@ -1349,7 +1355,7 @@ async function openPR() {
 
   // Check for duplicate keys
   const existingKeys = new Set(s.entries.map(e => e.key));
-  const dupes = newEntries.filter(e => existingKeys.has(e.key)).map(e => e.key);
+  const dupes = newEntries.filter(e => existingKeys.has(e.key) && e.key !== editingBibKey).map(e => e.key);
   if (dupes.length) {
     setStatus('error', `Duplicate key(s) already in file: ${dupes.join(', ')}`);
     return;
@@ -1376,8 +1382,10 @@ async function openPR() {
       throw new Error(`${label}: ${details}`);
     };
 
-    // Prepend new entry + blank line to existing raw content
-    const updatedRaw = newBib.trim() + '\n\n' + s.raw.trim() + '\n';
+    // Prepend new entry (or replace existing if editing) + existing raw content
+    const updatedRaw = editingBibKey
+      ? newBib.trim() + '\n\n' + removeBibEntry(s.raw, editingBibKey).trimEnd() + '\n'
+      : newBib.trim() + '\n\n' + s.raw.trim() + '\n';
 
     // 1. get base SHA
     const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
@@ -1385,15 +1393,20 @@ async function openPR() {
     const baseSha = (await baseRes.json()).object.sha;
 
     // 2. create branch
-    const branch = `publications-${activeTab}-${Date.now()}`;
+    const branch = editingBibKey
+      ? `edit-publication-${activeTab}-${Date.now()}`
+      : `publications-${activeTab}-${Date.now()}`;
     const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
 
     // 3. commit updated file
+    const commitMsg = editingBibKey
+      ? `Edit ${editingBibKey} in ${file.path}`
+      : `Add ${newEntries.map(e => e.key).join(', ')} to ${file.path}`;
     const commitRes = await fetch(`${GH}/contents/${file.path}`, { method: 'PUT', headers: ghH(),
       body: JSON.stringify({
-        message: `Add ${newEntries.map(e => e.key).join(', ')} to ${file.path}`,
+        message: commitMsg,
         content: b64e(updatedRaw),
         sha: s.sha,
         branch,
@@ -1403,12 +1416,18 @@ async function openPR() {
 
     // 4. open PR
     const keyList = newEntries.map(e => `\`${e.key}\``).join(', ');
+    const prTitle = editingBibKey
+      ? `Edit ${editingBibKey} in ${file.label || file.id}`
+      : `Add ${newEntries.length === 1 ? newEntries[0].key : newEntries.length + ' entries'} to ${file.label || file.id}`;
+    const prBody = editingBibKey
+      ? `Publication edited via admin panel.\n\n**File:** \`${file.path}\`\n**Key:** \`${editingBibKey}\`\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``
+      : `New publication(s) added via admin panel.\n\n**File:** \`${file.path}\`\n**Entries:** ${keyList}\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``;
     const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({
-        title: `Add ${newEntries.length === 1 ? newEntries[0].key : newEntries.length + ' entries'} to ${file.label || file.id}`,
+        title: prTitle,
         head: branch,
         base: CONFIG.BASE_BRANCH,
-        body: `New publication(s) added via admin panel.\n\n**File:** \`${file.path}\`\n**Entries:** ${keyList}\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``,
+        body: prBody,
       })
     });
     if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
@@ -1416,6 +1435,11 @@ async function openPR() {
     if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
     progressEnd();
     setStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    editingBibKey = null;
+    document.getElementById('pub-card-title').textContent = 'Paste BibTeX entry';
+    document.getElementById('pr-btn').textContent = 'Save';
+    document.getElementById('pub-cancel-edit-btn').style.display = 'none';
+    document.querySelectorAll('.ex-item.is-editing').forEach(el => el.classList.remove('is-editing'));
     document.getElementById('bib-input').value = '';
     document.getElementById('bib-input').className = 'bib-input';
     document.getElementById('val-hint').textContent = '';
@@ -1511,12 +1535,116 @@ function renderExisting() {
     container.innerHTML = `<div class="ex-empty">No matches.</div>`; return;
   }
 
-  container.innerHTML = filtered.map(e => `
-    <div class="ex-item">
+  container.innerHTML = filtered.map((e, i) => `
+    <div class="ex-item" id="bib-row-${i}">
       <span class="ex-key">@${e.type} ${esc(e.key)}</span>
       <span class="ex-title">${esc(e.fields.title || '—')}</span>
       <span class="ex-year">${esc(e.fields.year || '')}</span>
+      <div id="bib-row-btns-${i}" style="display:flex;gap:6px;margin-left:auto;flex-shrink:0">
+        <button class="btn-ex btn-ex-edit" onclick="editBibEntry(${esc(JSON.stringify(e.key))},${i})">Edit</button>
+        <button class="btn-ex btn-ex-del" onclick="showBibDeleteConfirm(${i})">Delete</button>
+      </div>
+      <div class="proj-confirm" id="bib-row-confirm-${i}" style="width:100%;margin-top:4px;padding-left:0">
+        <span style="font-size:12px;color:var(--danger)">Delete <b>${esc(e.key)}</b>?</span>
+        <button class="btn-ex btn-ex-confirm-yes" onclick="deleteBibEntry(${esc(JSON.stringify(e.key))},${i})">Yes, delete</button>
+        <button class="btn-ex btn-ex-cancel" onclick="hideBibDeleteConfirm(${i})">Cancel</button>
+      </div>
     </div>`).join('');
+}
+
+function extractRawBibEntry(raw, key) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('@\\w+\\s*\\{\\s*' + escaped + '\\s*,[^@]*', 'g');
+  const m = re.exec(raw);
+  return m ? m[0].trimEnd() : null;
+}
+function removeBibEntry(raw, key) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('\\n?@\\w+\\s*\\{\\s*' + escaped + '\\s*,[^@]*', 'g');
+  return raw.replace(re, '').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+async function editBibEntry(key, idx) {
+  const s = state[activeTab];
+  if (!s.loaded) return;
+  const raw = extractRawBibEntry(s.raw, key);
+  if (!raw) { setStatus('error', `Could not extract entry for key "${esc(key)}"`); return; }
+  document.getElementById('bib-input').value = raw;
+  editingBibKey = key;
+  document.getElementById('pub-card-title').textContent = 'Edit BibTeX entry';
+  document.getElementById('pr-btn').textContent = 'Save Changes';
+  document.getElementById('pub-cancel-edit-btn').style.display = 'inline-block';
+  document.getElementById('pr-note').innerHTML = `editing <code>${esc(key)}</code>`;
+  validateInput();
+  document.querySelectorAll('.ex-item.is-editing').forEach(el => el.classList.remove('is-editing'));
+  const row = document.getElementById(`bib-row-${idx}`);
+  if (row) row.classList.add('is-editing');
+  document.querySelector('#pub-section .card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function cancelEditBib() {
+  editingBibKey = null;
+  clearInput();
+  document.getElementById('pub-card-title').textContent = 'Paste BibTeX entry';
+  document.getElementById('pr-btn').textContent = 'Save';
+  document.getElementById('pub-cancel-edit-btn').style.display = 'none';
+  document.querySelectorAll('.ex-item.is-editing').forEach(el => el.classList.remove('is-editing'));
+}
+function showBibDeleteConfirm(idx) {
+  document.getElementById(`bib-row-btns-${idx}`).style.display = 'none';
+  document.getElementById(`bib-row-confirm-${idx}`).style.display = 'flex';
+}
+function hideBibDeleteConfirm(idx) {
+  document.getElementById(`bib-row-btns-${idx}`).style.display = 'flex';
+  document.getElementById(`bib-row-confirm-${idx}`).style.display = 'none';
+}
+async function deleteBibEntry(key, idx) {
+  const s = state[activeTab];
+  const file = BIB_FILES.find(f => f.id === activeTab);
+  const row = document.getElementById(`bib-row-${idx}`);
+  if (row) row.classList.add('is-deleting');
+  hideBibDeleteConfirm(idx);
+  progressStart();
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try { const b = await res.json(); if (b && b.message) details += ` — ${b.message}`; } catch(_) {}
+      throw new Error(`${label}: ${details}`);
+    };
+    const updatedRaw = removeBibEntry(s.raw, key);
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch = `delete-publication-${activeTab}-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+    const commitRes = await fetch(`${GH}/contents/${file.path}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({
+        message: `Delete ${key} from ${file.path}`,
+        content: b64e(updatedRaw),
+        sha: s.sha,
+        branch,
+      })
+    });
+    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file update');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `Delete ${key} from ${file.label || file.id}`,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: `Publication deleted via admin panel.\n\n**File:** \`${file.path}\`\n**Key:** \`${key}\``,
+      })
+    });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    progressEnd();
+    setStatus('success', `✓ Delete PR opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) { row.classList.remove('is-deleting'); row.classList.add('pending-delete'); }
+    state[activeTab].loaded = false;
+  } catch(e) {
+    progressEnd();
+    if (row) row.classList.remove('is-deleting');
+    setStatus('error', `Failed: ${e.message}`);
+  }
 }
 
 let pubPendingOpen = false;
@@ -1535,7 +1663,7 @@ async function loadPubPending() {
     const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
     if (!prRes.ok) throw new Error(`${prRes.status}`);
     const prs = await prRes.json();
-    const pubPRs = prs.filter(pr => /^publications-(journal|conference|book|editorial)-\d{10,}$/.test(pr.head.ref));
+    const pubPRs = prs.filter(pr => /^(?:publications|edit-publication|delete-publication)-(journal|conference|book|editorial)-\d{10,}$/.test(pr.head.ref));
     if (!pubPRs.length) {
       lbl.textContent = 'Browse publications pending approval (0)';
       container.innerHTML = '<div class="ex-empty">No publications pending approval.</div>'; return;
@@ -1543,7 +1671,7 @@ async function loadPubPending() {
     lbl.textContent = `Browse publications pending approval (${pubPRs.length})`;
     const results = await Promise.all(pubPRs.map(async pr => {
       const branch = pr.head.ref;
-      const typeM = branch.match(/^publications-(\w+)-/);
+      const typeM = branch.match(/^(?:publications|edit-publication|delete-publication)-(\w+)-/);
       const bibType = typeM ? typeM[1] : '?';
       const file = BIB_FILES.find(f => f.id === bibType);
       try {
@@ -2026,9 +2154,61 @@ function renderThesisExisting() {
     container.innerHTML = `<div class="ex-empty">No thesis proposals available.</div>`; return;
   }
   container.innerHTML = entries.filter(e => e.proposals && e.proposals.length).map(e =>
-    `<div class="ex-course">${esc(e.course)}</div>` +
+    `<div class="ex-course" style="display:flex;align-items:center;justify-content:space-between;padding-right:10px">` +
+    `<span>${esc(e.course)}</span>` +
+    `<button class="btn-ex btn-ex-del" style="font-size:10px;padding:1px 8px" onclick="deleteThesisCourse(${esc(JSON.stringify(e.course))})">&#x2715; Delete all</button>` +
+    `</div>` +
     e.proposals.map(p => `<div class="ex-proposal">\u00b7 ${esc(p)}</div>`).join('')
   ).join('');
+}
+
+async function deleteThesisCourse(course) {
+  if (!confirm(`Delete ALL proposals for course "${course}"?`)) return;
+  const data = JSON.parse(JSON.stringify(thesisState.data));
+  const list = data.thesis_proposals[activeLevel];
+  const entry = list.find(e => e.course === course);
+  if (!entry) return;
+  entry.proposals = [];
+  const updatedContent = serializeThesisFile(data);
+  progressStart();
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try { const body = await res.json(); if (body && body.message) details += ` \u2014 ${body.message}`; } catch(_) {}
+      throw new Error(`${label}: ${details}`);
+    };
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch = `thesis-delete-proposals-${activeLevel}-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+    const commitRes = await fetch(`${GH}/contents/${THESIS_FILE}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({
+        message: `Clear ${activeLevel.toUpperCase()} proposals for "${course}"`,
+        content: b64e(updatedContent),
+        sha: thesisState.sha,
+        branch,
+      })
+    });
+    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file update');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `Clear ${activeLevel.toUpperCase()} proposals for "${course}"`,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: `All thesis proposals for "${course}" (${activeLevel.toUpperCase()}) cleared via admin panel.`,
+      })
+    });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    progressEnd();
+    setThesisStatus('success', `\u2713 PR opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+  } catch(e) {
+    progressEnd();
+    setThesisStatus('error', `Failed: ${e.message}`);
+  }
 }
 
 let thesisPendingOpen = false;
@@ -2047,7 +2227,7 @@ async function loadThesisPending() {
     const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
     if (!prRes.ok) throw new Error(`${prRes.status}`);
     const prs = await prRes.json();
-    const thesisPRs = prs.filter(pr => /^thesis-proposals-(msc|bsc)-\d{10,}$/.test(pr.head.ref));
+    const thesisPRs = prs.filter(pr => /^(?:thesis-proposals|thesis-delete-proposals?)-(msc|bsc)-\d{10,}$/.test(pr.head.ref));
     if (!thesisPRs.length) {
       lbl.textContent = 'Browse proposals pending approval (0)';
       container.innerHTML = '<div class="ex-empty">No proposals pending approval.</div>'; return;
@@ -2056,7 +2236,7 @@ async function loadThesisPending() {
     // For each PR, fetch the file from that branch and parse proposals
     const results = await Promise.all(thesisPRs.map(async pr => {
       const branch = pr.head.ref;
-      const lvlM = branch.match(/^thesis-proposals-(msc|bsc)-/);
+      const lvlM = branch.match(/^(?:thesis-proposals|thesis-delete-proposals?)-(msc|bsc)-/);
       const lvl = lvlM ? lvlM[1] : '?';
       try {
         const fRes = await fetch(`${GH}/contents/${THESIS_FILE}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });

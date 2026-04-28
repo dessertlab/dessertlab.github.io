@@ -125,18 +125,16 @@ layout: default
 <p class="teaching-proposals-tba">No thesis proposals available.</p>
 {% else %}
 {% for entry in tp.thesis_proposals.msc %}
-<div class="teaching-proposals-course">
-  <div class="teaching-proposals-course-name">{{ entry.course }}</div>
-  {% if entry.proposals %}
-  <ul class="teaching-proposals-list">
-    {% for proposal in entry.proposals %}
-    <li>{{ proposal }}</li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p class="teaching-proposals-tba">Proposals coming soon.</p>
+  {% if entry.proposals and entry.proposals.size > 0 %}
+    <div class="teaching-proposals-course">
+      <div class="teaching-proposals-course-name">{{ entry.course }}</div>
+      <ul class="teaching-proposals-list">
+        {% for proposal in entry.proposals %}
+        <li>{{ proposal }}</li>
+        {% endfor %}
+      </ul>
+    </div>
   {% endif %}
-</div>
 {% endfor %}
 {% endif %}
 {% endif %}
@@ -148,18 +146,16 @@ layout: default
 <p class="teaching-proposals-tba">No thesis proposals available.</p>
 {% else %}
 {% for entry in tp.thesis_proposals.bsc %}
-<div class="teaching-proposals-course">
-  <div class="teaching-proposals-course-name">{{ entry.course }}</div>
-  {% if entry.proposals %}
-  <ul class="teaching-proposals-list">
-    {% for proposal in entry.proposals %}
-    <li>{{ proposal }}</li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p class="teaching-proposals-tba">Proposals coming soon.</p>
+  {% if entry.proposals and entry.proposals.size > 0 %}
+    <div class="teaching-proposals-course">
+      <div class="teaching-proposals-course-name">{{ entry.course }}</div>
+      <ul class="teaching-proposals-list">
+        {% for proposal in entry.proposals %}
+        <li>{{ proposal }}</li>
+        {% endfor %}
+      </ul>
+    </div>
   {% endif %}
-</div>
 {% endfor %}
 {% endif %}
 {% endif %}
