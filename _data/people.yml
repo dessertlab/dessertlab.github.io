@@ -453,3 +453,9 @@ cristiano-di-flora:
    image: /img/people/foto_former_cristiano_di_flora.jpeg
    bio: Now at Weir Minerals, Finland
 
+giggino-quattro:
+   display_name: "Giggino Quattro"
+   webpage: "google.com"
+   role: postdoc
+   image: /img/people/board2p.png
+   bio: Bello uajone
