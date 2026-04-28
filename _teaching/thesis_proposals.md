@@ -28,6 +28,7 @@ thesis_proposals:
   bsc:
     - course: Advanced Computer Programming
       proposals:
+        - hgfhgf
     - course: Elementi di Informatica
       proposals:
     - course: Fondamenti di Informatica
