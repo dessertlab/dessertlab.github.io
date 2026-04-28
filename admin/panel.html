@@ -4168,16 +4168,15 @@ async function openResearchPR() {
       }
       // Add to research_categories.yml
       const catRes = await fetch(`${GH}/contents/_data/research_categories.yml`, { headers: ghH() });
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        const raw  = b64d(catData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
-        const cats = parseResCatYaml(raw);
-        if (!cats.find(c => c.key === customCatName)) {
-          cats.push({ key: customCatName, title: customCatTitle });
-          const r = await fetch(`${GH}/contents/_data/research_categories.yml`, { method: 'PUT', headers: ghH(),
-            body: JSON.stringify({ message: `Add category ${customCatName} to research_categories.yml`, content: b64e(buildResCatYaml(cats)), sha: catData.sha, branch }) });
-          if (!r.ok) await parseGhErrRes(r, 'Failed to update research_categories.yml');
-        }
+      if (!catRes.ok) await parseGhErrRes(catRes, 'Failed to fetch research_categories.yml');
+      const catData = await catRes.json();
+      const raw  = b64d(catData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+      const cats = parseResCatYaml(raw);
+      if (!cats.find(c => c.key === customCatName)) {
+        cats.push({ key: customCatName, title: customCatTitle });
+        const r = await fetch(`${GH}/contents/_data/research_categories.yml`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Add category ${customCatName} to research_categories.yml`, content: b64e(buildResCatYaml(cats)), sha: catData.sha, branch }) });
+        if (!r.ok) await parseGhErrRes(r, 'Failed to update research_categories.yml');
       }
     }
     const payload = { message: isEditing ? `Update topic: ${title}` : `Add topic: ${title}`, content: b64e(content), branch };
