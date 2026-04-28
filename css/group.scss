@@ -185,6 +185,18 @@ a > .fa {
         }
 }
 
+.project-dates {
+    font-size: 0.88rem;
+    color: $gray;
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+}
+.project-last-updated {
+    font-style: italic;
+}
+
 @media (min-width: 576px) {
     .project-people { column-count: 2 }
 }

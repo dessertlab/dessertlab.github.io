@@ -217,6 +217,28 @@
 
   /* ── CONFETTI ── */
   #confetti-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+
+  /* ── PROJECTS SECTION ── */
+  .proj-status-badge { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:1px 7px; border-radius:3px; flex-shrink:0; white-space:nowrap; }
+  .proj-status-badge.current { color:var(--success); border:1px solid var(--success); }
+  .proj-status-badge.past { color:var(--muted); border:1px solid var(--border-h); }
+  .proj-status-badge.hidden-badge { color:var(--warn); border:1px solid var(--warn); }
+  .proj-row { display:flex; align-items:center; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border); min-width:0; }
+  .proj-row:last-child { border-bottom:none; }
+  .proj-row:hover { background:var(--surface); }
+  .proj-row.is-editing { background:rgba(217,119,6,0.06); border-left:3px solid var(--warn); padding-left:13px; }
+  .proj-row.is-deleting { background:rgba(220,38,38,0.04); border-left:3px solid var(--danger); opacity:.6; pointer-events:none; padding-left:13px; }
+  .proj-row.pending-delete { background:rgba(220,38,38,0.04); border-left:3px solid var(--danger); padding-left:13px; }
+  .proj-row.pending-delete .proj-name { text-decoration:line-through; color:var(--muted); }
+  .proj-row.pending-update { background:rgba(217,119,6,0.06); border-left:3px solid var(--warn); padding-left:13px; }
+  .proj-name { flex:1; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .proj-row-btns { display:flex; gap:5px; flex-shrink:0; flex-wrap:wrap; }
+  .proj-confirm { display:none; align-items:center; gap:8px; flex-shrink:0; }
+  .people-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .people-select { flex:0 0 200px; background:var(--bg); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:13px; padding:9px 10px; outline:none; border-radius:4px; transition:border-color .15s; cursor:pointer; }
+  .people-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,133,214,0.10); }
+  .people-role-input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:13px; padding:9px 12px; outline:none; border-radius:4px; transition:border-color .15s; }
+  .people-role-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,133,214,0.10); }
 </style>
 </head>
 <body>
@@ -431,23 +453,23 @@
             <label class="field-label">Body <span style="font-weight:400;color:var(--muted)">(Markdown)</span></label>
             <div class="post-body-wrap">
               <div class="fmt-toolbar">
-                <button class="fmt-btn" title="Bold" onclick="fmtWrap('**','**')"><b>B</b></button>
-                <button class="fmt-btn" title="Italic" onclick="fmtWrap('_','_')"><i>I</i></button>
+                <button class="fmt-btn" title="Bold" onclick="fmtWrap('post-body','**','**')"><b>B</b></button>
+                <button class="fmt-btn" title="Italic" onclick="fmtWrap('post-body','_','_')"><i>I</i></button>
                 <div class="fmt-sep"></div>
-                <button class="fmt-btn" title="Heading 2" onclick="fmtLine('## ')">H2</button>
-                <button class="fmt-btn" title="Heading 3" onclick="fmtLine('### ')">H3</button>
+                <button class="fmt-btn" title="Heading 2" onclick="fmtLine('post-body','## ')">H2</button>
+                <button class="fmt-btn" title="Heading 3" onclick="fmtLine('post-body','### ')">H3</button>
                 <div class="fmt-sep"></div>
-                <button class="fmt-btn" title="Bullet list" onclick="fmtLine('- ')">• List</button>
-                <button class="fmt-btn" title="Numbered list" onclick="fmtLine('1. ')">1. List</button>
+                <button class="fmt-btn" title="Bullet list" onclick="fmtLine('post-body','- ')">• List</button>
+                <button class="fmt-btn" title="Numbered list" onclick="fmtLine('post-body','1. ')">1. List</button>
                 <div class="fmt-sep"></div>
-                <button class="fmt-btn" title="Link" onclick="fmtLink()">[link]</button>
-                <button class="fmt-btn" title="Code" onclick="fmtWrap('`','`')">code</button>
-                <button class="fmt-btn" title="Blockquote" onclick="fmtLine('> ')">❝</button>
+                <button class="fmt-btn" title="Link" onclick="fmtLink('post-body')">[link]</button>
+                <button class="fmt-btn" title="Code" onclick="fmtWrap('post-body','`','`')">code</button>
+                <button class="fmt-btn" title="Blockquote" onclick="fmtLine('post-body','> ')">❝</button>
                 <div class="fmt-sep"></div>
-                <button class="fmt-btn" title="Horizontal rule" onclick="fmtInsert('\n\n---\n\n')">—</button>
+                <button class="fmt-btn" title="Horizontal rule" onclick="fmtInsert('post-body','\n\n---\n\n')">—</button>
                 <div class="fmt-sep"></div>
                 <div class="emoji-wrap">
-                  <button class="fmt-btn" title="Insert emoji" onclick="toggleEmojiPicker(event)">😀</button>
+                  <button class="fmt-btn" title="Insert emoji" onclick="toggleEmojiPicker(event,'post-body')">😀</button>
                   <div class="emoji-picker" id="emoji-picker" onmousedown="event.stopPropagation()">
                     <input class="emoji-search" id="emoji-search" placeholder="Search emoji…" oninput="filterEmoji()" />
                     <div class="emoji-grid" id="emoji-grid"></div>
@@ -456,7 +478,7 @@
               </div>
               <textarea id="post-body" class="post-body"
                 placeholder="Write the full post content in Markdown…"
-                onkeydown="handlePostTab(event)" oninput="updateWordCount()"></textarea>
+                onkeydown="handleMdTab(event)" oninput="updateWordCount()"></textarea>
             </div>
             <div id="post-word-count" style="font-size:11px;color:var(--dim);text-align:right;margin-top:4px"></div>
           </div>
@@ -487,6 +509,134 @@
         <div id="posts-pending-items"></div>
       </div>
     </div><!-- /post-section -->
+
+    <!-- ── PROJECTS SECTION ── -->
+    <div id="project-section" style="display:none">
+      <div class="status" id="project-status"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="proj-card-title">New Project</div>
+          <div class="card-hint">Fill in the project details. A pull request will be opened to create or update the file in <code>_projects_current/</code> or <code>_projects_past/</code>.</div>
+        </div>
+        <div class="card-body">
+
+          <!-- Title + Last Updated -->
+          <div class="form-row">
+            <div class="form-group" style="flex:2;margin-bottom:0">
+              <label class="field-label">Title</label>
+              <input type="text" id="proj-title" class="text-input" placeholder="Project title…" oninput="onProjTitleInput()" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Last Updated</label>
+              <input type="date" id="proj-date" class="text-input" />
+            </div>
+          </div>
+
+          <!-- Start / End dates -->
+          <div class="form-row" style="margin-top:14px">
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Start Date <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+              <input type="date" id="proj-start-date" class="text-input" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">End Date <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+              <input type="date" id="proj-end-date" class="text-input" />
+            </div>
+          </div>
+
+          <!-- Subtitle -->
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Subtitle <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input type="text" id="proj-subtitle" class="text-input" placeholder="Short subtitle…" />
+          </div>
+
+          <!-- Status / Visibility toggles -->
+          <div class="form-row" style="margin-bottom:0;flex-wrap:wrap;gap:16px">
+            <div>
+              <label class="field-label">Status</label>
+              <div class="level-tabs" style="margin-bottom:0;gap:6px">
+                <button id="proj-status-current" class="level-tab active" onclick="setProjStatus('current')">Current</button>
+                <button id="proj-status-past"    class="level-tab"        onclick="setProjStatus('past')">Past</button>
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Visibility</label>
+              <div class="level-tabs" style="margin-bottom:0;gap:6px">
+                <button id="proj-vis-show" class="level-tab active" onclick="setProjVisible(true)">Visible</button>
+                <button id="proj-vis-hide" class="level-tab"        onclick="setProjVisible(false)">Hidden</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- People rows -->
+          <div style="margin-top:18px">
+            <label class="field-label">People <span id="proj-people-count" style="font-weight:400;color:var(--muted)"></span></label>
+            <div id="proj-people-rows"></div>
+            <button class="btn-add-proposal" style="margin-top:4px" onclick="addProjPersonRow('','')">+ Add person</button>
+            <div id="proj-people-loading" style="display:none;font-size:12px;color:var(--muted);margin-top:6px"><span class="spin"></span> Loading people list…</div>
+          </div>
+
+          <!-- Body -->
+          <div class="form-group" style="margin-top:18px;margin-bottom:0">
+            <label class="field-label">Body <span style="font-weight:400;color:var(--muted)">(Markdown — project page content)</span></label>
+            <div class="post-body-wrap">
+              <div class="fmt-toolbar">
+                <button class="fmt-btn" title="Bold"          onclick="fmtWrap('proj-body','**','**')"><b>B</b></button>
+                <button class="fmt-btn" title="Italic"        onclick="fmtWrap('proj-body','_','_')"><i>I</i></button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Heading 2"     onclick="fmtLine('proj-body','## ')">H2</button>
+                <button class="fmt-btn" title="Heading 3"     onclick="fmtLine('proj-body','### ')">H3</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Bullet list"   onclick="fmtLine('proj-body','- ')">• List</button>
+                <button class="fmt-btn" title="Numbered list" onclick="fmtLine('proj-body','1. ')">1. List</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Link"          onclick="fmtLink('proj-body')">[link]</button>
+                <button class="fmt-btn" title="Code"          onclick="fmtWrap('proj-body','`','`')">code</button>
+                <button class="fmt-btn" title="Blockquote"    onclick="fmtLine('proj-body','> ')">❝</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Horizontal rule" onclick="fmtInsert('proj-body','\n\n---\n\n')">—</button>
+                <div class="fmt-sep"></div>
+                <div class="emoji-wrap">
+                  <button class="fmt-btn" title="Insert emoji" onclick="toggleEmojiPicker(event,'proj-body')">😀</button>
+                </div>
+              </div>
+              <textarea id="proj-body" class="post-body"
+                placeholder="Write the project description in Markdown…"
+                onkeydown="handleMdTab(event)" oninput="updateProjWordCount()"></textarea>
+            </div>
+            <div id="proj-word-count" style="font-size:11px;color:var(--dim);text-align:right;margin-top:4px"></div>
+          </div>
+
+          <div class="actions" style="margin-top:18px">
+            <button class="btn-pr" id="proj-pr-btn" onclick="openProjectPR()" disabled>Save</button>
+            <button class="btn-clear" onclick="resetProjectForm();hideProjectStatus()">Reset</button>
+            <button class="btn-clear" id="proj-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditProject()">Cancel Edit</button>
+            <span class="pr-note" id="proj-pr-note">will create a new file in <code>_projects_current/</code></span>
+            <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+⏎</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browse existing projects -->
+      <div class="existing-toggle" id="proj-ex-toggle" onclick="toggleProjectsExisting()" style="margin-top:16px">
+        <span class="arrow">&#9658;</span>
+        <span id="proj-ex-label">Browse existing projects</span>
+      </div>
+      <div class="existing-list" id="proj-existing-list">
+        <input class="ex-search" id="proj-search" placeholder="Filter…" oninput="filterProjectsList()" />
+        <div id="proj-ex-items"></div>
+      </div>
+
+      <!-- Pending PRs -->
+      <div class="existing-toggle" id="proj-pending-toggle" onclick="toggleProjectsPending()" style="margin-top:8px">
+        <span class="arrow">&#9658;</span>
+        <span id="proj-pending-label">Browse projects pending approval</span>
+      </div>
+      <div class="existing-list" id="proj-pending-list">
+        <div id="proj-pending-items"></div>
+      </div>
+    </div><!-- /project-section -->
   </main>
 </div>
 
@@ -624,9 +774,11 @@ function doLogout(forget) {
   document.getElementById('app').style.display = 'none';
   document.getElementById('tab-bar').innerHTML = '';
   document.getElementById('pub-level-tabs').innerHTML = '';
-  document.getElementById('post-section').style.display = 'none';
-  document.getElementById('thesis-section').style.display = 'none';
-  document.getElementById('pub-section').style.display = 'block';
+  document.getElementById('post-section').style.display    = 'none';
+  document.getElementById('thesis-section').style.display  = 'none';
+  document.getElementById('project-section').style.display = 'none';
+  document.getElementById('pub-section').style.display     = 'block';
+  projectsState.loaded = false; projectsState.current = []; projectsState.past = [];
   document.getElementById('login-screen').style.display = 'flex';
 }
 
@@ -728,7 +880,7 @@ function updateWordCount() {
 }
 
 // ════════════════════════════════ DIRTY TAB INDICATOR
-const dirtyState = { publications: false, thesis: false, posts: false };
+const dirtyState = { publications: false, thesis: false, posts: false, projects: false };
 
 function markDirty(section, dirty) {
   dirtyState[section] = dirty;
@@ -737,7 +889,7 @@ function markDirty(section, dirty) {
 }
 
 function refreshAllDirtyTabs() {
-  ['publications', 'thesis', 'posts'].forEach(section => {
+  ['publications', 'thesis', 'posts', 'projects'].forEach(section => {
     const tab = document.getElementById(`tab-${section}`);
     if (tab) tab.classList.toggle('dirty', dirtyState[section]);
   });
@@ -784,6 +936,9 @@ document.addEventListener('keydown', function(e) {
     } else if (section === 'posts') {
       const btn = document.getElementById('post-pr-btn');
       if (btn && !btn.disabled) btn.click();
+    } else if (section === 'projects') {
+      const btn = document.getElementById('proj-pr-btn');
+      if (btn && !btn.disabled) btn.click();
     }
   }
 });
@@ -794,6 +949,10 @@ document.addEventListener('input', function(e) {
   if (['bib-input','post-title','post-body'].includes(id) || e.target?.classList.contains('proposal-input')) {
     updateDirtyTab();
   }
+  if (['proj-title','proj-body','proj-subtitle'].includes(id) || e.target?.classList.contains('people-role-input')) {
+    const t = !!(document.getElementById('proj-title')?.value.trim()) || !!(document.getElementById('proj-body')?.value.trim());
+    markDirty('projects', editingProject !== null || t);
+  }
 });
 
 
@@ -801,7 +960,7 @@ document.addEventListener('input', function(e) {
 function buildTabs() {
   // Primary bar: Publications | Thesis Proposals | Posts
   const bar = document.getElementById('tab-bar');
-  [['publications','Publications'],['thesis','Thesis Proposals'],['posts','Posts']].forEach(([id,label]) => {
+  [['publications','Publications'],['thesis','Thesis Proposals'],['posts','Posts'],['projects','Projects']].forEach(([id,label]) => {
     const t = document.createElement('div');
     t.id = `tab-${id}`; t.className = 'tab'; t.textContent = label;
     t.onclick = () => switchPrimary(id);
@@ -820,23 +979,24 @@ function buildTabs() {
 
 function switchPrimary(section) {
   sessionStorage.setItem('active_tab', section);
-  ['publications','thesis','posts'].forEach(id => {
+  ['publications','thesis','posts','projects'].forEach(id => {
     document.getElementById(`tab-${id}`).classList.toggle('active', id === section);
   });
   refreshAllDirtyTabs();
-  document.getElementById('pub-section').style.display    = section === 'publications' ? 'block' : 'none';
-  document.getElementById('thesis-section').style.display = section === 'thesis'       ? 'block' : 'none';
-  document.getElementById('post-section').style.display   = section === 'posts'        ? 'block' : 'none';
+  document.getElementById('pub-section').style.display     = section === 'publications' ? 'block' : 'none';
+  document.getElementById('thesis-section').style.display  = section === 'thesis'       ? 'block' : 'none';
+  document.getElementById('post-section').style.display    = section === 'posts'        ? 'block' : 'none';
+  document.getElementById('project-section').style.display = section === 'projects'     ? 'block' : 'none';
   // Fade-in the active section
-  const activeSection = document.getElementById(
-    section === 'publications' ? 'pub-section' : section === 'thesis' ? 'thesis-section' : 'post-section'
-  );
+  const sectionIdMap = { publications:'pub-section', thesis:'thesis-section', posts:'post-section', projects:'project-section' };
+  const activeSection = document.getElementById(sectionIdMap[section] || 'pub-section');
   activeSection.classList.remove('section-enter');
   void activeSection.offsetWidth; // force reflow
   activeSection.classList.add('section-enter');
 
   if (section === 'thesis') { hideStatus(); loadThesisData(); }
   else if (section === 'posts') { hideStatus(); initPostForm(); }
+  else if (section === 'projects') { hideProjectStatus(); }
   else { switchTab(activeTab && BIB_FILES.find(f => f.id === activeTab) ? activeTab : BIB_FILES[0].id); }
 }
 function switchTab(id) {
@@ -1885,8 +2045,8 @@ function resetPostForm() {
 }
 
 // ── Markdown toolbar ───────────────────────────────────────────────────────────
-function fmtWrap(before, after) {
-  const ta = document.getElementById('post-body');
+function fmtWrap(id, before, after) {
+  const ta = document.getElementById(id);
   const s = ta.selectionStart, e = ta.selectionEnd;
   const sel = ta.value.substring(s, e) || 'text';
   ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
@@ -1895,8 +2055,8 @@ function fmtWrap(before, after) {
   ta.focus();
 }
 
-function fmtLine(prefix) {
-  const ta = document.getElementById('post-body');
+function fmtLine(id, prefix) {
+  const ta = document.getElementById(id);
   const s = ta.selectionStart;
   const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
   ta.value = ta.value.substring(0, lineStart) + prefix + ta.value.substring(lineStart);
@@ -1904,27 +2064,26 @@ function fmtLine(prefix) {
   ta.focus();
 }
 
-function fmtInsert(text) {
-  const ta = document.getElementById('post-body');
+function fmtInsert(id, text) {
+  const ta = document.getElementById(id);
   const s = ta.selectionStart;
   ta.value = ta.value.substring(0, s) + text + ta.value.substring(s);
   ta.selectionStart = ta.selectionEnd = s + text.length;
   ta.focus();
 }
 
-function fmtLink() {
-  const ta = document.getElementById('post-body');
+function fmtLink(id) {
+  const ta = document.getElementById(id);
   const s = ta.selectionStart, e = ta.selectionEnd;
   const sel = ta.value.substring(s, e) || 'link text';
   const insertion = `[${sel}](url)`;
   ta.value = ta.value.substring(0, s) + insertion + ta.value.substring(e);
-  // select "url" so user can type right away
   const urlStart = s + sel.length + 3;
   ta.selectionStart = urlStart; ta.selectionEnd = urlStart + 3;
   ta.focus();
 }
 
-function handlePostTab(e) {
+function handleMdTab(e) {
   if (e.key !== 'Tab') return;
   e.preventDefault();
   const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
@@ -1983,10 +2142,16 @@ function filterEmoji() {
 // Build grid once at script load so it's ready instantly
 buildEmojiGrid(EMOJIS);
 
-function toggleEmojiPicker(e) {
+let _emojiTargetId = 'post-body';
+function toggleEmojiPicker(e, targetId) {
   e.preventDefault();
   e.stopPropagation();
+  _emojiTargetId = targetId || 'post-body';
+  // Move the picker to the clicked button's emoji-wrap (or nearest parent)
+  const btn = e.currentTarget;
+  const wrap = btn.closest('.emoji-wrap') || btn.parentElement;
   const picker = document.getElementById('emoji-picker');
+  if (!wrap.contains(picker)) wrap.appendChild(picker);
   const isOpen = picker.classList.contains('open');
   picker.classList.toggle('open', !isOpen);
   if (!isOpen) {
@@ -2001,7 +2166,7 @@ function toggleEmojiPicker(e) {
 
 function insertEmoji(emoji) {
   // Cursor position is preserved because onmousedown prevents focus loss
-  fmtInsert(emoji);
+  fmtInsert(_emojiTargetId, emoji);
   document.getElementById('emoji-picker').classList.remove('open');
 }
 
@@ -2347,6 +2512,735 @@ async function deletePost(path, sha, idx) {
     progressEnd();
     if (delRow) { delRow.classList.remove('is-deleting'); const _b = delRow.querySelector('.post-ex-badge.deleting'); if (_b) _b.remove(); }
     setPostStatus('error', `Failed: ${e.message}`);
+  }
+}
+// ════════════════════════════════ PROJECTS
+
+const projectsState = {
+  current: [], past: [], loaded: false,
+  pendingDelete: new Set(), pendingUpdate: new Set(), pendingMove: new Set(),
+};
+let projExOpen = false, projPendingOpen = false;
+let editingProject = null;   // { path, sha, idx, status }
+let projStatus  = 'current'; // 'current' | 'past'
+let projVisible = true;      // published
+// peopleList: [{id, display_name}] loaded from people.yml
+const peopleListState = { list: [], loaded: false };
+
+// ── State toggles ──────────────────────────────────────────────────────────────
+function setProjStatus(s) {
+  projStatus = s;
+  document.getElementById('proj-status-current').className = 'level-tab' + (s === 'current' ? ' active' : '');
+  document.getElementById('proj-status-past').className    = 'level-tab' + (s === 'past'    ? ' active' : '');
+  updateProjNote();
+}
+function setProjVisible(v) {
+  projVisible = v;
+  document.getElementById('proj-vis-show').className = 'level-tab' + ( v ? ' active' : '');
+  document.getElementById('proj-vis-hide').className = 'level-tab' + (!v ? ' active' : '');
+}
+
+// ── Load people list from people.yml ──────────────────────────────────────────
+const PEOPLE_FILE = '_data/people.yml';
+async function ensurePeopleLoaded() {
+  if (peopleListState.loaded) return;
+  document.getElementById('proj-people-loading').style.display = 'block';
+  try {
+    const res = await fetch(`${GH}/contents/${PEOPLE_FILE}`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const raw = b64d((await res.json()).content.replace(/\n/g, ''));
+    // Parse YAML: each top-level key is a person id; display_name is a field
+    const people = [];
+    const re = /^([\w-]+):/gm;
+    let m;
+    while ((m = re.exec(raw)) !== null) {
+      const id = m[1];
+      const block = raw.slice(m.index);
+      const dn = block.match(/^\s+display_name:\s*"?([^"\n]+)"?/m);
+      if (dn) people.push({ id, display_name: dn[1].trim() });
+    }
+    people.sort((a, b) => a.display_name.localeCompare(b.display_name));
+    peopleListState.list   = people;
+    peopleListState.loaded = true;
+    // Refresh any already-rendered selects
+    document.querySelectorAll('#proj-people-rows .people-select').forEach(sel => {
+      const cur = sel.value;
+      populatePeopleSelect(sel);
+      sel.value = cur;
+    });
+  } catch(e) {
+    console.warn('Could not load people.yml:', e.message);
+  } finally {
+    document.getElementById('proj-people-loading').style.display = 'none';
+  }
+}
+
+function populatePeopleSelect(sel) {
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— select person —</option>';
+  peopleListState.list.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.display_name;
+    sel.appendChild(opt);
+  });
+  if (cur) sel.value = cur;
+}
+
+function onProjTitleInput() {
+  const hasTitle = !!document.getElementById('proj-title').value.trim();
+  document.getElementById('proj-pr-btn').disabled = !hasTitle;
+  markDirty('projects', editingProject !== null || hasTitle || !!document.getElementById('proj-body').value.trim());
+  updateProjNote();
+}
+function updateProjNote() {
+  if (editingProject) return;
+  const title  = document.getElementById('proj-title').value.trim();
+  const folder = projStatus === 'current' ? '_projects_current' : '_projects_past';
+  if (!title) { document.getElementById('proj-pr-note').innerHTML = `will create a new file in <code>${folder}/</code>`; return; }
+  const slug = buildSlug(title);
+  document.getElementById('proj-pr-note').innerHTML = `will create <code>${folder}/${slug}.md</code>`;
+}
+function updateProjWordCount() {
+  const body = document.getElementById('proj-body').value.trim();
+  const el   = document.getElementById('proj-word-count');
+  if (!el) return;
+  if (!body) { el.textContent = ''; return; }
+  const words = body.split(/\s+/).filter(Boolean).length;
+  el.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+}
+
+// ── People rows ────────────────────────────────────────────────────────────────
+function addProjPersonRow(id, role) {
+  const rows = document.getElementById('proj-people-rows');
+  const row  = document.createElement('div');
+  row.className = 'people-row';
+
+  const sel = document.createElement('select');
+  sel.className = 'people-select';
+  populatePeopleSelect(sel);
+  if (id) sel.value = id;
+  // If the id isn't in the list (e.g. loaded before list ready), add a placeholder option
+  if (id && !sel.value) {
+    const opt = document.createElement('option');
+    opt.value = id; opt.textContent = id; sel.appendChild(opt); sel.value = id;
+  }
+  sel.onchange = updateProjPeopleCount;
+
+  const roleInp = document.createElement('input');
+  roleInp.type = 'text'; roleInp.className = 'people-role-input';
+  roleInp.placeholder = 'Role (e.g. Principal Investigator)'; roleInp.value = role;
+  roleInp.oninput = updateProjPeopleCount;
+
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove-row'; btn.textContent = '\u00d7'; btn.title = 'Remove';
+  btn.onclick = () => { row.remove(); updateProjPeopleCount(); };
+
+  row.appendChild(sel); row.appendChild(roleInp); row.appendChild(btn);
+  rows.appendChild(row);
+  // Kick off loading the people list if not yet done
+  ensurePeopleLoaded();
+  updateProjPeopleCount();
+}
+function updateProjPeopleCount() {
+  const n = [...document.querySelectorAll('#proj-people-rows .people-select')].filter(s => s.value).length;
+  document.getElementById('proj-people-count').textContent = n ? `(${n})` : '';
+}
+function getProjPeople() {
+  const sels  = [...document.querySelectorAll('#proj-people-rows .people-select')];
+  const roles = [...document.querySelectorAll('#proj-people-rows .people-role-input')];
+  return sels.map((s, i) => ({ id: s.value.trim(), role: (roles[i]?.value || '').trim() })).filter(p => p.id);
+}
+
+// ── Markdown toolbar ───────────────────────────────────────────────────────────
+// ── Front-matter helpers ───────────────────────────────────────────────────────
+function buildProjectFM(title, subtitle, people, visible, lastUpdated, startDate, endDate) {
+  let fm = '---\n';
+  fm += `title: ${yScalar(title)}\n`;
+  fm += `subtitle: ${subtitle ? yScalar(subtitle) : ''}\n`;
+  fm += '\ndescription: |\n\n';
+  if (people.length) {
+    fm += 'people:\n';
+    people.forEach(p => { fm += `  - ${p.id}\n`; });
+    fm += '\nproj-roles:\n';
+    people.forEach(p => { fm += `  - ${p.role || ''}\n`; });
+    fm += '\n';
+  } else {
+    fm += 'people:\nproj-roles:\n\n';
+  }
+  fm += 'layout: project\n';
+  fm += `no-link: false\n`;
+  fm += `last-updated: ${lastUpdated}\n`;
+  if (startDate) fm += `start-date: ${startDate}\n`;
+  if (endDate)   fm += `end-date: ${endDate}\n`;
+  if (!visible) fm += 'published: false\n';
+  fm += '---\n';
+  return fm;
+}
+
+function parseProjectFile(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) return null;
+  const fm   = m[1];
+  const body = m[2].trim();
+  const getF = (key) => {
+    const r = new RegExp(`^${key}:\\s*(.*)$`, 'm');
+    const mm = fm.match(r);
+    return mm ? mm[1].replace(/^["']|["']$/g, '').trim() : '';
+  };
+  const title       = getF('title');
+  const subtitle    = getF('subtitle');
+  const lastUpdated = getF('last-updated');
+  const startDate   = getF('start-date');
+  const endDate     = getF('end-date');
+  const visible     = getF('published') !== 'false';
+  const peopleM = fm.match(/^people:\r?\n((?:[ \t]+-[^\n]*\n?)*)/m);
+  const rolesM  = fm.match(/^proj-roles:\r?\n((?:[ \t]+-[^\n]*\n?)*)/m);
+  const pList = peopleM ? peopleM[1].split('\n').filter(l => /^\s+-/.test(l)).map(l => l.replace(/^\s+-\s*/, '').trim()) : [];
+  const rList = rolesM  ? rolesM[1].split('\n').filter(l => /^\s+-/.test(l)).map(l => l.replace(/^\s+-\s*/, '').trim()) : [];
+  const people = pList.map((id, i) => ({ id, role: rList[i] || '' }));
+  return { title, subtitle, people, lastUpdated, startDate, endDate, visible, body };
+}
+
+// ── Status bar ─────────────────────────────────────────────────────────────────
+let _projTimer = null;
+function setProjectStatus(t, h) {
+  clearTimeout(_projTimer);
+  const b = document.getElementById('project-status');
+  b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block';
+  if (t === 'success') { _projTimer = setTimeout(hideProjectStatus, 6000); launchConfetti(); }
+}
+function hideProjectStatus() { clearTimeout(_projTimer); const b = document.getElementById('project-status'); if (b) b.style.display = 'none'; }
+
+// ── Reset / cancel ─────────────────────────────────────────────────────────────
+function resetProjectForm() {
+  if (editingProject && editingProject.idx !== undefined) {
+    const row = document.getElementById(`proj-row-${editingProject.idx}`);
+    if (row) {
+      row.classList.remove('is-editing');
+      const b = row.querySelector('.post-ex-badge.editing'); if (b) b.remove();
+    }
+  }
+  document.getElementById('proj-title').value      = '';
+  document.getElementById('proj-subtitle').value   = '';
+  document.getElementById('proj-body').value       = '';
+  document.getElementById('proj-date').value       = new Date().toISOString().split('T')[0];
+  document.getElementById('proj-start-date').value = '';
+  document.getElementById('proj-end-date').value   = '';
+  document.getElementById('proj-people-rows').innerHTML = '';
+  updateProjPeopleCount(); updateProjWordCount();
+  setProjStatus('current'); setProjVisible(true);
+  editingProject = null;
+  document.getElementById('proj-pr-btn').disabled = true;
+  document.getElementById('proj-card-title').textContent = 'New Project';
+  document.getElementById('proj-pr-btn').textContent = 'Save';
+  document.getElementById('proj-cancel-edit-btn').style.display = 'none';
+  document.getElementById('proj-pr-note').innerHTML = `will create a new file in <code>_projects_current/</code>`;
+  markDirty('projects', false);
+}
+function cancelEditProject() { resetProjectForm(); hideProjectStatus(); }
+
+// ── GitHub error helper ────────────────────────────────────────────────────────
+async function parseGhErrProj(res, label) {
+  let d = `${res.status} ${res.statusText}`;
+  try { const b = await res.json(); if (b && b.message) d += ` — ${b.message}`; } catch(_) {}
+  throw new Error(`${label}: ${d}`);
+}
+
+// ── Load projects list ─────────────────────────────────────────────────────────
+async function loadProjectsList() {
+  const container = document.getElementById('proj-ex-items');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  progressStart();
+  try {
+    const [curRes, pastRes] = await Promise.all([
+      fetch(`${GH}/contents/_projects_current`, { headers: ghH() }),
+      fetch(`${GH}/contents/_projects_past`,    { headers: ghH() }),
+    ]);
+    const curItems  = curRes.ok  ? await curRes.json()  : [];
+    const pastItems = pastRes.ok ? await pastRes.json() : [];
+
+    const fetchProj = async (item, status) => {
+      try {
+        const r = await fetch(item.download_url);
+        const text = await r.text();
+        const parsed = parseProjectFile(text);
+        return { ...item, status, title: parsed?.title || item.name.replace(/\.md$/, ''), subtitle: parsed?.subtitle || '', visible: parsed?.visible !== false, noLink: !!parsed?.noLink, parsed };
+      } catch { return { ...item, status, title: item.name.replace(/\.md$/, ''), subtitle: '', visible: true, noLink: false, parsed: null }; }
+    };
+    const curProjs  = await Promise.all(curItems.filter(i => i.type === 'file' && i.name.endsWith('.md')).map(i => fetchProj(i, 'current')));
+    const pastProjs = await Promise.all(pastItems.filter(i => i.type === 'file' && i.name.endsWith('.md')).map(i => fetchProj(i, 'past')));
+    projectsState.current = curProjs.sort((a, b) => a.title.localeCompare(b.title));
+    projectsState.past    = pastProjs.sort((a, b) => a.title.localeCompare(b.title));
+
+    // Detect pending states from open PRs (best-effort)
+    projectsState.pendingDelete = new Set();
+    projectsState.pendingUpdate = new Set();
+    projectsState.pendingMove   = new Set();
+    try {
+      const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+      if (prRes.ok) {
+        const prs = await prRes.json();
+        const projPRs = prs.filter(pr => /^(new|edit|delete|move|toggle)-project-/.test(pr.head.ref));
+        await Promise.all(projPRs.map(async pr => {
+          try {
+            const fRes = await fetch(`${GH}/pulls/${pr.number}/files`, { headers: ghH() });
+            if (!fRes.ok) return;
+            const files = await fRes.json();
+            files.forEach(f => {
+              if (!f.filename.match(/^_projects_(current|past)\//)) return;
+              if (f.status === 'removed') projectsState.pendingDelete.add(f.filename);
+              else if (f.status === 'modified') projectsState.pendingUpdate.add(f.filename);
+              else if (f.status === 'added' && pr.head.ref.startsWith('move-project-')) projectsState.pendingMove.add(f.filename);
+            });
+          } catch {}
+        }));
+      }
+    } catch {}
+
+    projectsState.loaded = true;
+    progressEnd();
+    renderProjectsList();
+  } catch(e) {
+    progressEnd();
+    document.getElementById('proj-ex-items').innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load projects: ${esc(e.message)}</div>`;
+  }
+}
+
+function filterProjectsList() { renderProjectsList(document.getElementById('proj-search').value); }
+
+function renderProjectsList(filter) {
+  const container = document.getElementById('proj-ex-items');
+  const lbl = document.getElementById('proj-ex-label');
+  const q   = (filter || document.getElementById('proj-search')?.value || '').toLowerCase();
+
+  if (!projectsState.loaded) {
+    container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>'; return;
+  }
+
+  // Merge: current (idx 0…n-1) then past (idx n…n+m-1)
+  const all = [
+    ...projectsState.current.map((p, i) => ({ ...p, globalIdx: i })),
+    ...projectsState.past.map((p, i)    => ({ ...p, globalIdx: projectsState.current.length + i })),
+  ];
+  lbl.textContent = `Browse existing projects (${all.length})`;
+
+  const visible = q ? all.filter(p => (p.title + ' ' + p.subtitle + ' ' + p.name).toLowerCase().includes(q)) : all;
+  if (!visible.length) { container.innerHTML = '<div class="ex-empty">No projects found.</div>'; return; }
+
+  container.innerHTML = visible.map(p => {
+    const idx     = p.globalIdx;
+    const isCur   = p.status === 'current';
+    const hiddenB = !p.visible ? `<span class="proj-status-badge hidden-badge" style="margin-left:4px">Hidden</span>` : '';
+    const subSpan = p.subtitle ? ` <span style="font-size:11px;color:var(--muted)">— ${esc(p.subtitle)}</span>` : '';
+    return `<div class="proj-row" id="proj-row-${idx}">` +
+      `<span class="proj-status-badge ${isCur ? 'current' : 'past'}">${isCur ? 'Current' : 'Past'}</span>` +
+      `<span class="proj-name" title="${esc(p.path)}">${esc(p.title)}${subSpan}${hiddenB}</span>` +
+      `<div class="proj-row-btns" id="proj-row-btns-${idx}">` +
+        `<button class="btn-ex btn-ex-edit" onclick="editProject(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))},${idx},${esc(JSON.stringify(p.status))})">Edit</button>` +
+        `<button class="btn-ex" style="border:1px solid var(--info);color:var(--info)" onclick="moveProject(${idx},${esc(JSON.stringify(p.status))},${esc(JSON.stringify(p.sha))})">${isCur ? '→ Past' : '→ Current'}</button>` +
+        `<button class="btn-ex" style="border:1px solid var(--warn);color:var(--warn)" onclick="toggleProjectVisibility(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))},${idx},${p.visible})">${p.visible ? 'Hide' : 'Show'}</button>` +
+        `<button class="btn-ex btn-ex-del" onclick="showProjDeleteConfirm(${idx})">Delete</button>` +
+      `</div>` +
+      `<div class="proj-confirm" id="proj-row-confirm-${idx}">` +
+        `<span class="post-ex-confirm-msg">Delete this project?</span>` +
+        `<button class="btn-ex btn-ex-confirm-yes" onclick="deleteProject(${esc(JSON.stringify(p.path))},${esc(JSON.stringify(p.sha))},${idx})">Yes, delete</button>` +
+        `<button class="btn-ex btn-ex-cancel" onclick="hideProjDeleteConfirm(${idx})">Cancel</button>` +
+      `</div>` +
+      `</div>`;
+  }).join('');
+
+  // Re-apply persistent pending badges
+  all.forEach(p => {
+    const row = document.getElementById(`proj-row-${p.globalIdx}`);
+    if (!row) return;
+    const addBadge = (cls, text) => {
+      const b = document.createElement('span');
+      b.className = `post-ex-badge ${cls}`; b.textContent = text;
+      const nameEl = row.querySelector('.proj-name'); if (nameEl) nameEl.insertAdjacentElement('afterend', b);
+    };
+    if (projectsState.pendingDelete.has(p.path)) {
+      row.classList.add('pending-delete'); addBadge('pending-delete', 'Delete Pending');
+      const btns = document.getElementById(`proj-row-btns-${p.globalIdx}`); if (btns) btns.style.display = 'none';
+    } else if (projectsState.pendingMove.has(p.path)) {
+      row.classList.add('pending-update'); addBadge('pending-update', 'Move Pending');
+    } else if (projectsState.pendingUpdate.has(p.path)) {
+      row.classList.add('pending-update'); addBadge('pending-update', 'Update Pending');
+    }
+  });
+}
+
+function showProjDeleteConfirm(idx) {
+  document.getElementById(`proj-row-btns-${idx}`).style.display = 'none';
+  document.getElementById(`proj-row-confirm-${idx}`).style.display = 'flex';
+}
+function hideProjDeleteConfirm(idx) {
+  document.getElementById(`proj-row-btns-${idx}`).style.display = 'flex';
+  document.getElementById(`proj-row-confirm-${idx}`).style.display = 'none';
+}
+
+// ── Edit project ───────────────────────────────────────────────────────────────
+async function editProject(path, sha, idx, status) {
+  progressStart();
+  setProjectStatus('info', '<span class="spin"></span> Loading project…');
+  try {
+    const res  = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    const text = b64d(data.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+    const parsed = parseProjectFile(text);
+    if (!parsed) throw new Error('Could not parse project front matter.');
+
+    document.getElementById('proj-title').value      = parsed.title;
+    document.getElementById('proj-subtitle').value   = parsed.subtitle || '';
+    document.getElementById('proj-date').value       = parsed.lastUpdated || new Date().toISOString().split('T')[0];
+    document.getElementById('proj-start-date').value = parsed.startDate || '';
+    document.getElementById('proj-end-date').value   = parsed.endDate   || '';
+    document.getElementById('proj-body').value       = parsed.body;
+    document.getElementById('proj-people-rows').innerHTML = '';
+    (parsed.people || []).forEach(p => addProjPersonRow(p.id, p.role));
+    updateProjPeopleCount(); updateProjWordCount();
+    setProjStatus(status); setProjVisible(parsed.visible);
+    // Ensure people list is loaded so the dropdowns populate correctly
+    await ensurePeopleLoaded();
+
+    document.querySelectorAll('.proj-row.is-editing').forEach(el => {
+      el.classList.remove('is-editing');
+      const b = el.querySelector('.post-ex-badge.editing'); if (b) b.remove();
+    });
+    const row = document.getElementById(`proj-row-${idx}`);
+    if (row) {
+      row.classList.add('is-editing');
+      const badge = document.createElement('span');
+      badge.className = 'post-ex-badge editing'; badge.textContent = 'Editing';
+      const nameEl = row.querySelector('.proj-name'); if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+    }
+
+    editingProject = { path, sha: data.sha, idx, status };
+    document.getElementById('proj-card-title').textContent        = 'Edit Project';
+    document.getElementById('proj-pr-btn').textContent            = 'Save Changes';
+    document.getElementById('proj-cancel-edit-btn').style.display = 'inline-block';
+    document.getElementById('proj-pr-note').innerHTML             = `editing <code>${esc(path)}</code>`;
+    document.getElementById('proj-pr-btn').disabled               = false;
+    markDirty('projects', true);
+    progressEnd(); hideProjectStatus();
+    document.querySelector('#project-section .card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    progressEnd();
+    setProjectStatus('error', `Failed to load project: ${esc(e.message)}`);
+  }
+}
+
+// ── Create / Update PR ─────────────────────────────────────────────────────────
+async function openProjectPR() {
+  const title      = document.getElementById('proj-title').value.trim();
+  const subtitle   = document.getElementById('proj-subtitle').value.trim();
+  const lastUpd    = document.getElementById('proj-date').value || new Date().toISOString().split('T')[0];
+  const startDate  = document.getElementById('proj-start-date').value || '';
+  const endDate    = document.getElementById('proj-end-date').value   || '';
+  const body       = document.getElementById('proj-body').value;
+  const people     = getProjPeople();
+  if (!title) { setProjectStatus('error', 'Please enter a project title.'); return; }
+
+  const isEditing = editingProject !== null;
+  const slug      = isEditing ? editingProject.path.replace(/^.*\//, '').replace(/\.md$/, '') : buildSlug(title);
+  const folder    = isEditing ? editingProject.path.replace(/\/[^/]+$/, '') : `_projects_${projStatus}`;
+  const filePath  = isEditing ? editingProject.path : `${folder}/${slug}.md`;
+
+  const fm        = buildProjectFM(title, subtitle, people, projVisible, lastUpd, startDate, endDate);
+  const content   = fm + '\n' + body.trim() + (body.trim() ? '\n' : '');
+
+  progressStart();
+  document.getElementById('proj-pr-btn').disabled = true;
+  try {
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrProj(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    const branch = isEditing ? `edit-project-${slug}-${Date.now()}` : `new-project-${slug}-${Date.now()}`;
+    const brRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrProj(brRes, 'Failed to create branch');
+
+    const payload = { message: isEditing ? `Update project: ${title}` : `Add project: ${title}`, content: b64e(content), branch };
+    if (isEditing) payload.sha = editingProject.sha;
+    const commitRes = await fetch(`${GH}/contents/${filePath}`, { method: 'PUT', headers: ghH(), body: JSON.stringify(payload) });
+    if (!commitRes.ok) await parseGhErrProj(commitRes, isEditing ? 'Failed to update project' : 'Failed to create project');
+
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: isEditing ? `Update project: ${title}` : `Add project: ${title}`,
+        head: branch, base: CONFIG.BASE_BRANCH,
+        body: `${isEditing ? 'Project updated' : 'New project added'} via admin panel.\n\n**File:** \`${filePath}\`\n**Status:** ${isEditing ? editingProject.status : projStatus}\n**Title:** ${title}`,
+      }) });
+    if (!prRes.ok) await parseGhErrProj(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    if (!pr?.html_url) throw new Error('GitHub did not return a pull request URL.');
+    progressEnd();
+
+    if (isEditing && editingProject.idx !== undefined) {
+      projectsState.pendingUpdate.add(filePath);
+      const row = document.getElementById(`proj-row-${editingProject.idx}`);
+      if (row) {
+        row.classList.remove('is-editing'); row.classList.add('pending-update');
+        const b = row.querySelector('.post-ex-badge.editing');
+        if (b) { b.className = 'post-ex-badge pending-update'; b.textContent = 'Update Pending'; }
+        else { const nb = document.createElement('span'); nb.className = 'post-ex-badge pending-update'; nb.textContent = 'Update Pending'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', nb); }
+      }
+    }
+    setProjectStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('project-status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('proj-pr-btn').disabled = false;
+    resetProjectForm();
+  } catch(e) {
+    progressEnd();
+    setProjectStatus('error', `Failed: ${e.message}`);
+    document.getElementById('proj-pr-btn').disabled = false;
+  }
+}
+
+// ── Delete project ─────────────────────────────────────────────────────────────
+async function deleteProject(path, sha, idx) {
+  const row = idx !== undefined ? document.getElementById(`proj-row-${idx}`) : null;
+  if (row) {
+    row.classList.add('is-deleting');
+    const b = document.createElement('span'); b.className = 'post-ex-badge deleting'; b.textContent = 'Deleting…';
+    const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', b);
+  }
+  progressStart();
+  try {
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrProj(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    const slug   = path.replace(/^.*\//, '').replace(/\.md$/, '');
+    const branch = `delete-project-${slug}-${Date.now()}`;
+    const brRes  = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrProj(brRes, 'Failed to create branch');
+
+    const delRes = await fetch(`${GH}/contents/${path}`, { method: 'DELETE', headers: ghH(),
+      body: JSON.stringify({ message: `Delete project: ${slug}`, sha, branch }) });
+    if (!delRes.ok) await parseGhErrProj(delRes, 'Failed to delete file');
+
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `Delete project: ${slug}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Project deleted via admin panel.\n\n**File:** \`${path}\`` }) });
+    if (!prRes.ok) await parseGhErrProj(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    projectsState.pendingDelete.add(path);
+    setProjectStatus('success', `✓ Delete pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) {
+      row.classList.remove('is-deleting'); row.classList.add('pending-delete');
+      const b = row.querySelector('.post-ex-badge');
+      if (b) { b.className = 'post-ex-badge pending-delete'; b.textContent = 'Delete Pending'; }
+      const btns = document.getElementById(`proj-row-btns-${idx}`); if (btns) btns.style.display = 'none';
+      const conf = document.getElementById(`proj-row-confirm-${idx}`); if (conf) conf.style.display = 'none';
+    }
+  } catch(e) {
+    progressEnd();
+    if (row) { row.classList.remove('is-deleting'); const b = row.querySelector('.post-ex-badge.deleting'); if (b) b.remove(); }
+    setProjectStatus('error', `Failed: ${e.message}`);
+  }
+}
+
+// ── Move project (atomic: delete old + create new in one commit via Git Tree API) ──
+async function moveProject(idx, fromStatus, sha) {
+  const allProjs = [...projectsState.current, ...projectsState.past];
+  const proj = allProjs[idx];
+  if (!proj) return;
+
+  const toStatus  = fromStatus === 'current' ? 'past' : 'current';
+  const oldPath   = proj.path;
+  const filename  = oldPath.replace(/^.*\//, '');
+  const newPath   = `_projects_${toStatus}/${filename}`;
+  const slug      = filename.replace(/\.md$/, '');
+
+  const row = document.getElementById(`proj-row-${idx}`);
+  if (row) row.classList.add('is-deleting');
+  progressStart();
+  try {
+    // 1. Fetch current file content
+    const fileRes = await fetch(`${GH}/contents/${oldPath}`, { headers: ghH() });
+    if (!fileRes.ok) await parseGhErrProj(fileRes, 'Failed to read project file');
+    const fileData  = await fileRes.json();
+    const rawContent = b64d(fileData.content.replace(/\n/g, ''));
+
+    // 2. Get base commit + tree SHA
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrProj(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const baseCommitRes = await fetch(`${GH}/git/commits/${baseSha}`, { headers: ghH() });
+    if (!baseCommitRes.ok) await parseGhErrProj(baseCommitRes, 'Failed to read base commit');
+    const baseCommit = await baseCommitRes.json();
+
+    // 3. Create new tree: null (remove) old path, add content at new path
+    const treeRes = await fetch(`${GH}/git/trees`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        base_tree: baseCommit.tree.sha,
+        tree: [
+          { path: oldPath, mode: '100644', type: 'blob', sha: null },
+          { path: newPath, mode: '100644', type: 'blob', content: rawContent },
+        ],
+      }) });
+    if (!treeRes.ok) await parseGhErrProj(treeRes, 'Failed to create git tree');
+    const newTree = await treeRes.json();
+
+    // 4. Create commit
+    const newCommitRes = await fetch(`${GH}/git/commits`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        message: `Move project ${slug}: ${fromStatus} → ${toStatus}`,
+        tree: newTree.sha, parents: [baseSha],
+      }) });
+    if (!newCommitRes.ok) await parseGhErrProj(newCommitRes, 'Failed to create commit');
+    const newCommit = await newCommitRes.json();
+
+    // 5. Create branch pointing to new commit
+    const branch = `move-project-${slug}-${Date.now()}`;
+    const brRes  = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: newCommit.sha }) });
+    if (!brRes.ok) await parseGhErrProj(brRes, 'Failed to create branch');
+
+    // 6. Open PR
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `Move project ${slug}: ${fromStatus} → ${toStatus}`,
+        head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Project moved via admin panel.\n\n**From:** \`${oldPath}\`\n**To:** \`${newPath}\``,
+      }) });
+    if (!prRes.ok) await parseGhErrProj(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    projectsState.pendingMove.add(newPath);
+    setProjectStatus('success', `✓ Move pending (${fromStatus} → ${toStatus}): <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) {
+      row.classList.remove('is-deleting'); row.classList.add('pending-update');
+      const b = row.querySelector('.post-ex-badge');
+      if (b) { b.className = 'post-ex-badge pending-update'; b.textContent = 'Move Pending'; }
+      else { const nb = document.createElement('span'); nb.className = 'post-ex-badge pending-update'; nb.textContent = 'Move Pending'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', nb); }
+    }
+  } catch(e) {
+    progressEnd();
+    if (row) row.classList.remove('is-deleting');
+    setProjectStatus('error', `Failed to move: ${e.message}`);
+  }
+}
+
+// ── Toggle visibility (hide / show) ───────────────────────────────────────────
+async function toggleProjectVisibility(path, sha, idx, currentlyVisible) {
+  const row = document.getElementById(`proj-row-${idx}`);
+  if (row) row.classList.add('is-deleting');
+  progressStart();
+  try {
+    const fileRes = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
+    if (!fileRes.ok) await parseGhErrProj(fileRes, 'Failed to read file');
+    const fileData = await fileRes.json();
+    const text = b64d(fileData.content.replace(/\n/g, ''));
+
+    const newText = currentlyVisible
+      ? text.replace(/(no-link:[^\n]*\n)/, '$1published: false\n')   // add hidden flag
+      : text.replace(/^published:\s*false\r?\n/m, '');               // remove hidden flag
+
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrProj(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    const slug   = path.replace(/^.*\//, '').replace(/\.md$/, '');
+    const branch = `toggle-project-${slug}-${Date.now()}`;
+    const brRes  = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrProj(brRes, 'Failed to create branch');
+
+    const commitRes = await fetch(`${GH}/contents/${path}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({
+        message: `${currentlyVisible ? 'Hide' : 'Show'} project: ${slug}`,
+        content: b64e(newText), sha: fileData.sha, branch,
+      }) });
+    if (!commitRes.ok) await parseGhErrProj(commitRes, 'Failed to update file');
+
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: `${currentlyVisible ? 'Hide' : 'Show'} project: ${slug}`,
+        head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Project ${currentlyVisible ? 'hidden' : 'made visible'} via admin panel.\n\n**File:** \`${path}\``,
+      }) });
+    if (!prRes.ok) await parseGhErrProj(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    projectsState.pendingUpdate.add(path);
+    setProjectStatus('success', `✓ ${currentlyVisible ? 'Hidden' : 'Visible'} pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) {
+      row.classList.remove('is-deleting'); row.classList.add('pending-update');
+      const b = row.querySelector('.post-ex-badge');
+      if (b) { b.className = 'post-ex-badge pending-update'; b.textContent = 'Update Pending'; }
+      else { const nb = document.createElement('span'); nb.className = 'post-ex-badge pending-update'; nb.textContent = 'Update Pending'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', nb); }
+    }
+  } catch(e) {
+    progressEnd();
+    if (row) row.classList.remove('is-deleting');
+    setProjectStatus('error', `Failed: ${e.message}`);
+  }
+}
+
+// ── Browse toggle ──────────────────────────────────────────────────────────────
+function toggleProjectsExisting() {
+  projExOpen = !projExOpen;
+  document.getElementById('proj-ex-toggle').classList.toggle('open', projExOpen);
+  document.getElementById('proj-existing-list').classList.toggle('open', projExOpen);
+  if (projExOpen && !projectsState.loaded) loadProjectsList();
+  else if (projExOpen) renderProjectsList();
+}
+
+// ── Pending PRs ────────────────────────────────────────────────────────────────
+function toggleProjectsPending() {
+  projPendingOpen = !projPendingOpen;
+  document.getElementById('proj-pending-toggle').classList.toggle('open', projPendingOpen);
+  document.getElementById('proj-pending-list').classList.toggle('open', projPendingOpen);
+  if (projPendingOpen) loadProjectsPending();
+}
+
+async function loadProjectsPending() {
+  const container = document.getElementById('proj-pending-items');
+  const lbl = document.getElementById('proj-pending-label');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading…</div>';
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) throw new Error(`${prRes.status}`);
+    const prs     = await prRes.json();
+    const projPRs = prs.filter(pr => /^(new|edit|delete|move|toggle)-project-/.test(pr.head.ref));
+    if (!projPRs.length) {
+      lbl.textContent = 'Browse projects pending approval (0)';
+      container.innerHTML = '<div class="ex-empty">No projects pending approval.</div>'; return;
+    }
+    lbl.textContent = `Browse projects pending approval (${projPRs.length})`;
+    const results = await Promise.all(projPRs.map(async pr => {
+      try {
+        const fRes = await fetch(`${GH}/pulls/${pr.number}/files`, { headers: ghH() });
+        const files = fRes.ok ? (await fRes.json()).filter(f => f.filename.match(/^_projects_(current|past)\//)) : [];
+        return { pr, files };
+      } catch { return { pr, files: [] }; }
+    }));
+    const kindColorMap = { new:'var(--success)', edit:'var(--warn)', delete:'var(--danger)', move:'var(--info)', toggle:'var(--muted)' };
+    container.innerHTML = results.map(({ pr, files }) => {
+      const kindM  = pr.head.ref.match(/^(new|edit|delete|move|toggle)-project-/);
+      const kind   = kindM ? kindM[1] : '';
+      const kColor = kindColorMap[kind] || 'var(--accent)';
+      const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
+        `<span><span style="font-size:10px;font-weight:700;color:${kColor};border:1px solid ${kColor};padding:1px 6px;border-radius:3px;margin-right:6px;text-transform:uppercase">${esc(kind)}</span>` +
+        `<a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
+        `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
+      const statusIcon = { added:'＋', modified:'✎', removed:'✕' };
+      const statusCol  = { added:'var(--success)', modified:'var(--warn)', removed:'var(--danger)' };
+      const rows = files.map(f =>
+        `<div class="post-ex-item" style="pointer-events:none">` +
+        `<span style="color:${statusCol[f.status]||'var(--muted)'};font-family:var(--mono);font-size:13px;flex-shrink:0;width:20px">${statusIcon[f.status]||'·'}</span>` +
+        `<span class="post-ex-name">${esc(f.filename)}</span>` +
+        `</div>`
+      );
+      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No project files changed.</div>');
+    }).join('<div style="border-top:2px solid var(--border,#e2e8f0);margin:4px 0"></div>');
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
   }
 }
 </script>

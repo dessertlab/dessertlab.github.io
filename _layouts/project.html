@@ -4,6 +4,19 @@ layout: default
 
 {% assign project = include.project %}
 
+{% if page.start-date or page.end-date or page.last-updated %}
+<p class="project-dates">
+  {% if page.start-date %}
+    <span>&#128197; {{ page.start-date }}{% if page.end-date %} &ndash; {{ page.end-date }}{% endif %}</span>
+  {% elsif page.end-date %}
+    <span>&#128197; &ndash; {{ page.end-date }}</span>
+  {% endif %}
+  {% if page.last-updated %}
+    <span class="project-last-updated">Updated: {{ page.last-updated }}</span>
+  {% endif %}
+</p>
+{% endif %}
+
 {{ content }}
 
 <h2> People </h2>
