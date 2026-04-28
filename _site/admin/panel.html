@@ -2025,11 +2025,9 @@ function renderThesisExisting() {
   if (!entries.length || total === 0) {
     container.innerHTML = `<div class="ex-empty">No thesis proposals available.</div>`; return;
   }
-  container.innerHTML = entries.map(e =>
+  container.innerHTML = entries.filter(e => e.proposals && e.proposals.length).map(e =>
     `<div class="ex-course">${esc(e.course)}</div>` +
-    (e.proposals && e.proposals.length
-      ? e.proposals.map(p => `<div class="ex-proposal">\u00b7 ${esc(p)}</div>`).join('')
-      : '<div class="ex-proposal-none">No proposals yet.</div>')
+    e.proposals.map(p => `<div class="ex-proposal">\u00b7 ${esc(p)}</div>`).join('')
   ).join('');
 }
 
