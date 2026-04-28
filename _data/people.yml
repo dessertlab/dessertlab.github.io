@@ -455,7 +455,7 @@ cristiano-di-flora:
 
 giggino-quattro:
    display_name: "Giggino Quattro"
-   webpage: "google.com"
+   webpage: "https://www.google.com"
    role: postdoc
    image: /img/people/board2p.png
    bio: Bello uajone
