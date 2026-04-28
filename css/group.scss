@@ -185,6 +185,14 @@ a > .fa {
         }
 }
 
+.project-type {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $accent;
+    margin-bottom: 0.4rem;
+}
 .project-dates {
     font-size: 0.88rem;
     color: $gray;
@@ -195,6 +203,15 @@ a > .fa {
 }
 .project-last-updated {
     font-style: italic;
+}
+
+.project-partners {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.5rem;
 }
 
 @media (min-width: 576px) {

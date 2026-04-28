@@ -239,6 +239,8 @@
   .people-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,133,214,0.10); }
   .people-role-input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:13px; padding:9px 12px; outline:none; border-radius:4px; transition:border-color .15s; }
   .people-role-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,133,214,0.10); }
+  .partner-name-input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:13px; padding:9px 12px; outline:none; border-radius:4px; transition:border-color .15s; }
+  .partner-name-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,133,214,0.10); }
 </style>
 </head>
 <body>
@@ -545,10 +547,25 @@
             </div>
           </div>
 
-          <!-- Subtitle -->
-          <div class="form-group" style="margin-top:14px">
-            <label class="field-label">Subtitle <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-            <input type="text" id="proj-subtitle" class="text-input" placeholder="Short subtitle…" />
+          <!-- Subtitle + Type -->
+          <div class="form-row" style="margin-top:14px">
+            <div class="form-group" style="flex:2;margin-bottom:0">
+              <label class="field-label">Subtitle <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+              <input type="text" id="proj-subtitle" class="text-input" placeholder="Short subtitle…" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Type <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+              <input type="text" id="proj-type" class="text-input" placeholder="e.g. PNRR, PRIN 2022…" list="proj-type-list" />
+              <datalist id="proj-type-list">
+                <option value="PNRR">
+                <option value="PRIN 2022">
+                <option value="Horizon 2020">
+                <option value="Horizon Europe">
+                <option value="POR">
+                <option value="Accordo per l'Innovazione">
+                <option value="FRA">
+              </datalist>
+            </div>
           </div>
 
           <!-- Status / Visibility toggles -->
@@ -575,6 +592,13 @@
             <div id="proj-people-rows"></div>
             <button class="btn-add-proposal" style="margin-top:4px" onclick="addProjPersonRow('','')">+ Add person</button>
             <div id="proj-people-loading" style="display:none;font-size:12px;color:var(--muted);margin-top:6px"><span class="spin"></span> Loading people list…</div>
+          </div>
+
+          <!-- Partners rows -->
+          <div style="margin-top:18px">
+            <label class="field-label">Partners</label>
+            <div id="proj-partners-rows"></div>
+            <button class="btn-add-proposal" style="margin-top:4px" onclick="addProjPartnerRow('')">+ Add partner</button>
           </div>
 
           <!-- Body -->
@@ -949,7 +973,7 @@ document.addEventListener('input', function(e) {
   if (['bib-input','post-title','post-body'].includes(id) || e.target?.classList.contains('proposal-input')) {
     updateDirtyTab();
   }
-  if (['proj-title','proj-body','proj-subtitle'].includes(id) || e.target?.classList.contains('people-role-input')) {
+  if (['proj-title','proj-body','proj-subtitle','proj-type'].includes(id) || e.target?.classList.contains('people-role-input') || e.target?.classList.contains('partner-name-input')) {
     const t = !!(document.getElementById('proj-title')?.value.trim()) || !!(document.getElementById('proj-body')?.value.trim());
     markDirty('projects', editingProject !== null || t);
   }
@@ -2650,13 +2674,31 @@ function getProjPeople() {
   const roles = [...document.querySelectorAll('#proj-people-rows .people-role-input')];
   return sels.map((s, i) => ({ id: s.value.trim(), role: (roles[i]?.value || '').trim() })).filter(p => p.id);
 }
+function addProjPartnerRow(name) {
+  const rows = document.getElementById('proj-partners-rows');
+  const row  = document.createElement('div');
+  row.className = 'people-row';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'partner-name-input';
+  inp.placeholder = 'Partner name (e.g. Acme Corp)'; inp.value = name || '';
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove-row'; btn.textContent = '\u00d7'; btn.title = 'Remove';
+  btn.onclick = () => row.remove();
+  row.appendChild(inp); row.appendChild(btn);
+  rows.appendChild(row);
+}
+function getProjPartners() {
+  return [...document.querySelectorAll('#proj-partners-rows .partner-name-input')]
+    .map(i => i.value.trim()).filter(Boolean);
+}
 
 // ── Markdown toolbar ───────────────────────────────────────────────────────────
 // ── Front-matter helpers ───────────────────────────────────────────────────────
-function buildProjectFM(title, subtitle, people, visible, lastUpdated, startDate, endDate) {
+function buildProjectFM(title, subtitle, type, people, partners, visible, lastUpdated, startDate, endDate) {
   let fm = '---\n';
   fm += `title: ${yScalar(title)}\n`;
   fm += `subtitle: ${subtitle ? yScalar(subtitle) : ''}\n`;
+  if (type) fm += `type: ${yScalar(type)}\n`;
   fm += '\ndescription: |\n\n';
   if (people.length) {
     fm += 'people:\n';
@@ -2666,6 +2708,11 @@ function buildProjectFM(title, subtitle, people, visible, lastUpdated, startDate
     fm += '\n';
   } else {
     fm += 'people:\nproj-roles:\n\n';
+  }
+  if (partners && partners.length) {
+    fm += 'partners:\n';
+    partners.forEach(p => { fm += `  - ${yScalar(p)}\n`; });
+    fm += '\n';
   }
   fm += 'layout: project\n';
   fm += `no-link: false\n`;
@@ -2698,7 +2745,10 @@ function parseProjectFile(raw) {
   const pList = peopleM ? peopleM[1].split('\n').filter(l => /^\s+-/.test(l)).map(l => l.replace(/^\s+-\s*/, '').trim()) : [];
   const rList = rolesM  ? rolesM[1].split('\n').filter(l => /^\s+-/.test(l)).map(l => l.replace(/^\s+-\s*/, '').trim()) : [];
   const people = pList.map((id, i) => ({ id, role: rList[i] || '' }));
-  return { title, subtitle, people, lastUpdated, startDate, endDate, visible, body };
+  const partnersM = fm.match(/^partners:\r?\n((?:[ \t]+-[^\n]*\n?)*)/m);
+  const partners = partnersM ? partnersM[1].split('\n').filter(l => /^\s+-/.test(l)).map(l => l.replace(/^\s+-\s*/, '').replace(/^["']|["']$/g, '').trim()) : [];
+  const type = getF('type');
+  return { title, subtitle, type, people, partners, lastUpdated, startDate, endDate, visible, body };
 }
 
 // ── Status bar ─────────────────────────────────────────────────────────────────
@@ -2722,11 +2772,13 @@ function resetProjectForm() {
   }
   document.getElementById('proj-title').value      = '';
   document.getElementById('proj-subtitle').value   = '';
+  document.getElementById('proj-type').value       = '';
   document.getElementById('proj-body').value       = '';
   document.getElementById('proj-date').value       = new Date().toISOString().split('T')[0];
   document.getElementById('proj-start-date').value = '';
   document.getElementById('proj-end-date').value   = '';
   document.getElementById('proj-people-rows').innerHTML = '';
+  document.getElementById('proj-partners-rows').innerHTML = '';
   updateProjPeopleCount(); updateProjWordCount();
   setProjStatus('current'); setProjVisible(true);
   editingProject = null;
@@ -2892,12 +2944,15 @@ async function editProject(path, sha, idx, status) {
 
     document.getElementById('proj-title').value      = parsed.title;
     document.getElementById('proj-subtitle').value   = parsed.subtitle || '';
+    document.getElementById('proj-type').value       = parsed.type || '';
     document.getElementById('proj-date').value       = parsed.lastUpdated || new Date().toISOString().split('T')[0];
     document.getElementById('proj-start-date').value = parsed.startDate || '';
     document.getElementById('proj-end-date').value   = parsed.endDate   || '';
     document.getElementById('proj-body').value       = parsed.body;
     document.getElementById('proj-people-rows').innerHTML = '';
+    document.getElementById('proj-partners-rows').innerHTML = '';
     (parsed.people || []).forEach(p => addProjPersonRow(p.id, p.role));
+    (parsed.partners || []).forEach(p => addProjPartnerRow(p));
     updateProjPeopleCount(); updateProjWordCount();
     setProjStatus(status); setProjVisible(parsed.visible);
     // Ensure people list is loaded so the dropdowns populate correctly
@@ -2934,11 +2989,13 @@ async function editProject(path, sha, idx, status) {
 async function openProjectPR() {
   const title      = document.getElementById('proj-title').value.trim();
   const subtitle   = document.getElementById('proj-subtitle').value.trim();
+  const type       = document.getElementById('proj-type').value.trim();
   const lastUpd    = document.getElementById('proj-date').value || new Date().toISOString().split('T')[0];
   const startDate  = document.getElementById('proj-start-date').value || '';
   const endDate    = document.getElementById('proj-end-date').value   || '';
   const body       = document.getElementById('proj-body').value;
   const people     = getProjPeople();
+  const partners   = getProjPartners();
   if (!title) { setProjectStatus('error', 'Please enter a project title.'); return; }
 
   const isEditing = editingProject !== null;
@@ -2946,7 +3003,7 @@ async function openProjectPR() {
   const folder    = isEditing ? editingProject.path.replace(/\/[^/]+$/, '') : `_projects_${projStatus}`;
   const filePath  = isEditing ? editingProject.path : `${folder}/${slug}.md`;
 
-  const fm        = buildProjectFM(title, subtitle, people, projVisible, lastUpd, startDate, endDate);
+  const fm        = buildProjectFM(title, subtitle, type, people, partners, projVisible, lastUpd, startDate, endDate);
   const content   = fm + '\n' + body.trim() + (body.trim() ? '\n' : '');
 
   progressStart();

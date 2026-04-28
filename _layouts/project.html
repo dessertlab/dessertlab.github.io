@@ -4,6 +4,10 @@ layout: default
 
 {% assign project = include.project %}
 
+{% if page.type %}
+<p class="project-type">{{ page.type }}</p>
+{% endif %}
+
 {% if page.start-date or page.end-date or page.last-updated %}
 <p class="project-dates">
   {% if page.start-date %}
@@ -32,5 +36,11 @@ layout: default
 
 </section>
 
-
-
+{% if page.partners and page.partners.size > 0 %}
+<h2>Partners</h2>
+<ul class="project-partners">
+  {% for partner in page.partners %}
+    <li>{{ partner }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
