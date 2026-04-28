@@ -13,7 +13,6 @@ thesis_proposals:
     - course: AI Systems Engineering
       proposals:
         - fdsfds
-        - fdsfdsf
     - course: Distributed Systems and IoT
       proposals:
     - course: Laboratorio di Programmazione
