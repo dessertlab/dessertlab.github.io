@@ -661,6 +661,241 @@
         <div id="proj-pending-items"></div>
       </div>
     </div><!-- /project-section -->
+
+    <div id="research-section" style="display:none">
+      <div class="status" id="research-status"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="res-card-title">New Research Topic</div>
+          <div class="card-hint">Fill in the topic details. A pull request will be opened to create or update the file in the selected category folder (<code>_topics_realtime/</code>, <code>_topics_reliability/</code>, or <code>_topics_security/</code>).</div>
+        </div>
+        <div class="card-body">
+
+          <!-- Title + Last Updated -->
+          <div class="form-row">
+            <div class="form-group" style="flex:2;margin-bottom:0">
+              <label class="field-label">Title</label>
+              <input type="text" id="res-title" class="text-input" placeholder="Research topic title…" oninput="onResTitleInput()" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Last Updated</label>
+              <input type="date" id="res-date" class="text-input" />
+            </div>
+          </div>
+
+          <!-- Subtitle -->
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Subtitle <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input type="text" id="res-subtitle" class="text-input" placeholder="Short subtitle…" />
+          </div>
+
+          <!-- Category toggle -->
+          <div style="margin-top:14px">
+            <label class="field-label">Category</label>
+            <div class="level-tabs" id="res-cat-tabs" style="margin-bottom:0;gap:6px">
+              <button id="res-cat-realtime"    class="level-tab active" onclick="setResCategory('realtime')">Real-Time</button>
+              <button id="res-cat-reliability" class="level-tab"        onclick="setResCategory('reliability')">Reliability</button>
+              <button id="res-cat-security"    class="level-tab"        onclick="setResCategory('security')">Security</button>
+              <button id="res-cat-custom"      class="level-tab"        onclick="setResCategory('custom')">Custom…</button>
+            </div>
+            <div id="res-cat-custom-wrap" style="display:none;margin-top:8px">
+              <input type="text" id="res-cat-custom-name" class="text-input" placeholder="folder name, e.g. cybersecurity" style="font-size:13px;padding:5px 8px" oninput="updateResNote()" />
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">Will use <code>_topics_&lt;name&gt;/</code> — lowercase, no spaces. <strong>_config.yml will also be updated.</strong></div>
+            </div>
+          </div>
+
+          <!-- Visibility toggle -->
+          <div style="margin-top:14px">
+            <label class="field-label">Visibility</label>
+            <div class="level-tabs" style="margin-bottom:0;gap:6px">
+              <button id="res-vis-show" class="level-tab active" onclick="setResVisible(true)">Visible</button>
+              <button id="res-vis-hide" class="level-tab"        onclick="setResVisible(false)">Hidden</button>
+            </div>
+          </div>
+
+          <!-- People rows -->
+          <div style="margin-top:18px">
+            <label class="field-label">People <span id="res-people-count" style="font-weight:400;color:var(--muted)"></span></label>
+            <div id="res-people-rows"></div>
+            <button class="btn-add-proposal" style="margin-top:4px" onclick="addResPersonRow('','')">+ Add person</button>
+            <div id="res-people-loading" style="display:none;font-size:12px;color:var(--muted);margin-top:6px"><span class="spin"></span> Loading people list…</div>
+          </div>
+
+          <!-- Body -->
+          <div class="form-group" style="margin-top:18px;margin-bottom:0">
+            <label class="field-label">Body <span style="font-weight:400;color:var(--muted)">(Markdown — topic page content)</span></label>
+            <div class="post-body-wrap">
+              <div class="fmt-toolbar">
+                <button class="fmt-btn" title="Bold"          onclick="fmtWrap('res-body','**','**')"><b>B</b></button>
+                <button class="fmt-btn" title="Italic"        onclick="fmtWrap('res-body','_','_')"><i>I</i></button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Heading 2"     onclick="fmtLine('res-body','## ')">H2</button>
+                <button class="fmt-btn" title="Heading 3"     onclick="fmtLine('res-body','### ')">H3</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Bullet list"   onclick="fmtLine('res-body','- ')">&#8226; List</button>
+                <button class="fmt-btn" title="Numbered list" onclick="fmtLine('res-body','1. ')">1. List</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Link"          onclick="fmtLink('res-body')">[link]</button>
+                <button class="fmt-btn" title="Code"          onclick="fmtWrap('res-body','`','`')">code</button>
+                <button class="fmt-btn" title="Blockquote"    onclick="fmtLine('res-body','> ')">&#10077;</button>
+                <div class="fmt-sep"></div>
+                <button class="fmt-btn" title="Horizontal rule" onclick="fmtInsert('res-body','\n\n---\n\n')">&#8212;</button>
+                <div class="fmt-sep"></div>
+                <div class="emoji-wrap">
+                  <button class="fmt-btn" title="Insert emoji" onclick="toggleEmojiPicker(event,'res-body')">&#128512;</button>
+                </div>
+              </div>
+              <textarea id="res-body" class="post-body"
+                placeholder="Write the research topic description in Markdown…"
+                onkeydown="handleMdTab(event)" oninput="updateResWordCount()"></textarea>
+            </div>
+            <div id="res-word-count" style="font-size:11px;color:var(--dim);text-align:right;margin-top:4px"></div>
+          </div>
+
+          <div class="actions" style="margin-top:18px">
+            <button class="btn-pr" id="res-pr-btn" onclick="openResearchPR()" disabled>Save</button>
+            <button class="btn-clear" onclick="resetResearchForm();hideResearchStatus()">Reset</button>
+            <button class="btn-clear" id="res-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditResearch()">Cancel Edit</button>
+            <span class="pr-note" id="res-pr-note">will create a new file in <code>_topics_realtime/</code></span>
+            <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+&#8629;</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browse existing topics -->
+      <div class="existing-toggle" id="res-ex-toggle" onclick="toggleResearchExisting()" style="margin-top:16px">
+        <span class="arrow">&#9658;</span>
+        <span id="res-ex-label">Browse existing research topics</span>
+      </div>
+      <div class="existing-list" id="res-existing-list">
+        <input class="ex-search" id="res-search" placeholder="Filter…" oninput="filterResearchList()" />
+        <div id="res-ex-items"></div>
+      </div>
+
+      <!-- Manage categories -->
+      <div class="existing-toggle" id="res-cat-toggle" onclick="toggleResCatMgmt()" style="margin-top:8px">
+        <span class="arrow">&#9658;</span>
+        <span id="res-cat-toggle-label">Manage categories</span>
+      </div>
+      <div class="existing-list" id="res-cat-mgmt-panel" style="display:none">
+        <div id="res-cat-mgmt-items"></div>
+      </div>
+
+      <!-- Pending PRs -->
+      <div class="existing-toggle" id="res-pending-toggle" onclick="toggleResearchPending()" style="margin-top:8px">
+        <span class="arrow">&#9658;</span>
+        <span id="res-pending-label">Browse research topics pending approval</span>
+      </div>
+      <div class="existing-list" id="res-pending-list">
+        <div id="res-pending-items"></div>
+      </div>
+    </div><!-- /research-section -->
+
+    <!-- ══════════════════════════════════ PEOPLE SECTION -->
+    <div id="people-section" style="display:none">
+      <div id="people-status" class="status" style="display:none"></div>
+
+      <!-- Form card -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="ppl-card-title">Add Person</div>
+          <div class="card-hint">Fill in the person details. A pull request will be opened to update <code>_data/people.yml</code>.</div>
+        </div>
+        <div class="card-body">
+
+          <!-- Slug + Role -->
+          <div class="form-row">
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Slug <span style="font-weight:400;color:var(--muted)">(YAML key, e.g. mario-rossi)</span></label>
+              <input type="text" id="ppl-slug" class="text-input" placeholder="firstname-lastname" oninput="onPplSlugInput()" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Role</label>
+              <select id="ppl-role" class="people-select" style="width:100%;padding:9px 10px;font-size:13px" onchange="(function(){const t = !!(document.getElementById('ppl-slug')?.value.trim()) || !!(document.getElementById('ppl-name')?.value.trim()); markDirty('people', editingPerson !== null || t);})()">
+                <option value="">— select role —</option>
+                <option value="faculty">Faculty</option>
+                <option value="postdoc">Postdoc</option>
+                <option value="phd_student">PhD Student</option>
+                <option value="visiting_researchers">Visiting Researcher</option>
+                <option value="former_researchers">Former Researcher</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Display name -->
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Display Name</label>
+            <input type="text" id="ppl-name" class="text-input" placeholder="Full name as displayed on the site" oninput="onPplSlugInput()" />
+          </div>
+
+          <!-- Webpage -->
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Webpage URL <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input type="url" id="ppl-webpage" class="text-input" placeholder="https://…" />
+          </div>
+
+          <!-- Photo -->
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <img id="ppl-img-preview" src="" alt="" style="display:none;width:56px;height:56px;object-fit:cover;border-radius:50%;border:1px solid var(--border);flex-shrink:0;margin-top:2px" />
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;gap:6px;align-items:center">
+                  <input type="text" id="ppl-image" class="text-input" placeholder="/img/people/name.jpg" oninput="onPplImagePathInput()" style="flex:1;min-width:0" />
+                  <label class="btn-clear" style="cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:12px" for="ppl-img-file">&#128247; Browse…</label>
+                  <input type="file" id="ppl-img-file" accept="image/*" style="display:none" onchange="onPplImageSelect(this)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bio -->
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Bio / Title <span style="font-weight:400;color:var(--muted)">(optional — e.g. "PhD Student", "Now at…")</span></label>
+            <input type="text" id="ppl-bio" class="text-input" placeholder="Short bio or current position" />
+          </div>
+
+          <!-- Actions -->
+          <div class="actions" style="margin-top:18px">
+            <button class="btn-pr" id="ppl-pr-btn" onclick="openPeoplePR()" disabled>Save</button>
+            <button class="btn-clear" onclick="resetPeopleForm();hidePeopleStatus()">Reset</button>
+            <button class="btn-clear" id="ppl-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditPerson()">Cancel Edit</button>
+            <span class="pr-note" id="ppl-pr-note">will update <code>_data/people.yml</code></span>
+            <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+&#8629;</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browse existing -->
+      <div class="existing-toggle" id="ppl-ex-toggle" onclick="togglePeopleExisting()" style="margin-top:16px">
+        <span class="arrow">&#9658;</span>
+        <span id="ppl-ex-label">Browse existing people</span>
+      </div>
+      <div class="existing-list" id="ppl-existing-list">
+        <div style="display:flex;gap:8px;align-items:center;padding-bottom:4px;flex-wrap:wrap">
+          <input class="ex-search" id="ppl-search" placeholder="Filter by name or role…" oninput="filterPeopleList()" style="flex:1;min-width:160px" />
+          <select id="ppl-role-filter" style="font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--fg)" onchange="filterPeopleList()">
+            <option value="">All roles</option>
+            <option value="faculty">Faculty</option>
+            <option value="postdoc">Postdoc</option>
+            <option value="phd_student">PhD Student</option>
+            <option value="visiting_researchers">Visiting</option>
+            <option value="former_researchers">Former</option>
+          </select>
+        </div>
+        <div id="ppl-ex-items"></div>
+      </div>
+
+      <!-- Pending PRs -->
+      <div class="existing-toggle" id="ppl-pending-toggle" onclick="togglePeoplePending()" style="margin-top:8px">
+        <span class="arrow">&#9658;</span>
+        <span id="ppl-pending-label">Browse people changes pending approval</span>
+      </div>
+      <div class="existing-list" id="ppl-pending-list">
+        <div id="ppl-pending-items"></div>
+      </div>
+    </div><!-- /people-section -->
   </main>
 </div>
 
@@ -800,9 +1035,13 @@ function doLogout(forget) {
   document.getElementById('pub-level-tabs').innerHTML = '';
   document.getElementById('post-section').style.display    = 'none';
   document.getElementById('thesis-section').style.display  = 'none';
-  document.getElementById('project-section').style.display = 'none';
-  document.getElementById('pub-section').style.display     = 'block';
+  document.getElementById('project-section').style.display  = 'none';
+  document.getElementById('research-section').style.display = 'none';
+  document.getElementById('people-section').style.display   = 'none';
+  document.getElementById('pub-section').style.display      = 'block';
   projectsState.loaded = false; projectsState.current = []; projectsState.past = [];
+  researchState.loaded = false; researchState.realtime = []; researchState.reliability = []; researchState.security = []; researchState.extra = {}; researchState.extraCategories = [];
+  peopleData.entries = []; peopleData.raw = ''; peopleData.sha = ''; peopleData.loaded = false; peopleData.pendingUpdate = false;
   document.getElementById('login-screen').style.display = 'flex';
 }
 
@@ -904,7 +1143,7 @@ function updateWordCount() {
 }
 
 // ════════════════════════════════ DIRTY TAB INDICATOR
-const dirtyState = { publications: false, thesis: false, posts: false, projects: false };
+const dirtyState = { publications: false, thesis: false, posts: false, projects: false, research: false, people: false };
 
 function markDirty(section, dirty) {
   dirtyState[section] = dirty;
@@ -913,7 +1152,7 @@ function markDirty(section, dirty) {
 }
 
 function refreshAllDirtyTabs() {
-  ['publications', 'thesis', 'posts', 'projects'].forEach(section => {
+  ['publications', 'thesis', 'posts', 'projects', 'research', 'people'].forEach(section => {
     const tab = document.getElementById(`tab-${section}`);
     if (tab) tab.classList.toggle('dirty', dirtyState[section]);
   });
@@ -963,6 +1202,12 @@ document.addEventListener('keydown', function(e) {
     } else if (section === 'projects') {
       const btn = document.getElementById('proj-pr-btn');
       if (btn && !btn.disabled) btn.click();
+    } else if (section === 'research') {
+      const btn = document.getElementById('res-pr-btn');
+      if (btn && !btn.disabled) btn.click();
+    } else if (section === 'people') {
+      const btn = document.getElementById('ppl-pr-btn');
+      if (btn && !btn.disabled) btn.click();
     }
   }
 });
@@ -977,6 +1222,14 @@ document.addEventListener('input', function(e) {
     const t = !!(document.getElementById('proj-title')?.value.trim()) || !!(document.getElementById('proj-body')?.value.trim());
     markDirty('projects', editingProject !== null || t);
   }
+  if (['res-title','res-body','res-subtitle'].includes(id)) {
+    const t = !!(document.getElementById('res-title')?.value.trim()) || !!(document.getElementById('res-body')?.value.trim());
+    markDirty('research', editingResearch !== null || t);
+  }
+  if (['ppl-slug','ppl-name','ppl-webpage','ppl-image','ppl-bio'].includes(id)) {
+    const t = !!(document.getElementById('ppl-slug')?.value.trim()) || !!(document.getElementById('ppl-name')?.value.trim());
+    markDirty('people', editingPerson !== null || t);
+  }
 });
 
 
@@ -984,7 +1237,7 @@ document.addEventListener('input', function(e) {
 function buildTabs() {
   // Primary bar: Publications | Thesis Proposals | Posts
   const bar = document.getElementById('tab-bar');
-  [['publications','Publications'],['thesis','Thesis Proposals'],['posts','Posts'],['projects','Projects']].forEach(([id,label]) => {
+  [['publications','Publications'],['thesis','Thesis Proposals'],['posts','Posts'],['projects','Projects'],['research','Research'],['people','People']].forEach(([id,label]) => {
     const t = document.createElement('div');
     t.id = `tab-${id}`; t.className = 'tab'; t.textContent = label;
     t.onclick = () => switchPrimary(id);
@@ -1003,16 +1256,18 @@ function buildTabs() {
 
 function switchPrimary(section) {
   sessionStorage.setItem('active_tab', section);
-  ['publications','thesis','posts','projects'].forEach(id => {
+  ['publications','thesis','posts','projects','research','people'].forEach(id => {
     document.getElementById(`tab-${id}`).classList.toggle('active', id === section);
   });
   refreshAllDirtyTabs();
   document.getElementById('pub-section').style.display     = section === 'publications' ? 'block' : 'none';
   document.getElementById('thesis-section').style.display  = section === 'thesis'       ? 'block' : 'none';
   document.getElementById('post-section').style.display    = section === 'posts'        ? 'block' : 'none';
-  document.getElementById('project-section').style.display = section === 'projects'     ? 'block' : 'none';
+  document.getElementById('project-section').style.display  = section === 'projects'  ? 'block' : 'none';
+  document.getElementById('research-section').style.display = section === 'research'  ? 'block' : 'none';
+  document.getElementById('people-section').style.display   = section === 'people'    ? 'block' : 'none';
   // Fade-in the active section
-  const sectionIdMap = { publications:'pub-section', thesis:'thesis-section', posts:'post-section', projects:'project-section' };
+  const sectionIdMap = { publications:'pub-section', thesis:'thesis-section', posts:'post-section', projects:'project-section', research:'research-section', people:'people-section' };
   const activeSection = document.getElementById(sectionIdMap[section] || 'pub-section');
   activeSection.classList.remove('section-enter');
   void activeSection.offsetWidth; // force reflow
@@ -1021,6 +1276,8 @@ function switchPrimary(section) {
   if (section === 'thesis') { hideStatus(); loadThesisData(); }
   else if (section === 'posts') { hideStatus(); initPostForm(); }
   else if (section === 'projects') { hideProjectStatus(); }
+  else if (section === 'research') { hideResearchStatus(); }
+  else if (section === 'people')   { hidePeopleStatus(); }
   else { switchTab(activeTab && BIB_FILES.find(f => f.id === activeTab) ? activeTab : BIB_FILES[0].id); }
 }
 function switchTab(id) {
@@ -2551,6 +2808,22 @@ let projVisible = true;      // published
 // peopleList: [{id, display_name}] loaded from people.yml
 const peopleListState = { list: [], loaded: false };
 
+// ════════════════════════════════ RESEARCH STATE
+const researchState = {
+  realtime: [], reliability: [], security: [], extra: {}, extraCategories: [], loaded: false,
+  pendingDelete: new Set(), pendingUpdate: new Set(),
+};
+let resExOpen = false, resPendingOpen = false;
+let editingResearch = null;  // { path, sha, idx, category }
+let resCategory = 'realtime';
+let resVisible  = true;
+
+// ════════════════════════════════ PEOPLE STATE
+const peopleData = { entries: [], raw: '', sha: '', loaded: false, pendingUpdate: false };
+let pplExOpen = false, pplPendingOpen = false;
+let editingPerson = null; // slug string when editing
+let pplImageFile = null;  // File object if user picked a new image
+
 // ── State toggles ──────────────────────────────────────────────────────────────
 function setProjStatus(s) {
   projStatus = s;
@@ -2569,6 +2842,8 @@ const PEOPLE_FILE = '_data/people.yml';
 async function ensurePeopleLoaded() {
   if (peopleListState.loaded) return;
   document.getElementById('proj-people-loading').style.display = 'block';
+  const resLoadEl = document.getElementById('res-people-loading');
+  if (resLoadEl) resLoadEl.style.display = 'block';
   try {
     const res = await fetch(`${GH}/contents/${PEOPLE_FILE}`, { headers: ghH() });
     if (!res.ok) throw new Error(`${res.status}`);
@@ -2587,7 +2862,7 @@ async function ensurePeopleLoaded() {
     peopleListState.list   = people;
     peopleListState.loaded = true;
     // Refresh any already-rendered selects
-    document.querySelectorAll('#proj-people-rows .people-select').forEach(sel => {
+    document.querySelectorAll('#proj-people-rows .people-select, #res-people-rows .people-select').forEach(sel => {
       const cur = sel.value;
       populatePeopleSelect(sel);
       sel.value = cur;
@@ -2596,6 +2871,8 @@ async function ensurePeopleLoaded() {
     console.warn('Could not load people.yml:', e.message);
   } finally {
     document.getElementById('proj-people-loading').style.display = 'none';
+    const resLoadEl2 = document.getElementById('res-people-loading');
+    if (resLoadEl2) resLoadEl2.style.display = 'none';
   }
 }
 
@@ -3239,6 +3516,1114 @@ async function toggleProjectVisibility(path, sha, idx, currentlyVisible) {
   }
 }
 
+// ════════════════════════════════ RESEARCH FUNCTIONS
+
+// ── State toggles ──────────────────────────────────────────────────────────────
+function setResCategory(cat) {
+  resCategory = cat;
+  document.querySelectorAll('#res-cat-tabs button').forEach(btn => {
+    btn.className = 'level-tab' + (btn.id === `res-cat-${cat}` ? ' active' : '');
+  });
+  const customWrap = document.getElementById('res-cat-custom-wrap');
+  if (customWrap) customWrap.style.display = cat === 'custom' ? 'block' : 'none';
+  if (cat === 'custom') setTimeout(() => document.getElementById('res-cat-custom-name')?.focus(), 50);
+  updateResNote();
+}
+function renderResCatButtons() {
+  const tabs = document.getElementById('res-cat-tabs');
+  if (!tabs) return;
+  tabs.querySelectorAll('.res-extra-cat-btn').forEach(b => b.remove());
+  const customBtn = document.getElementById('res-cat-custom');
+  researchState.extraCategories.forEach(name => {
+    if (document.getElementById(`res-cat-${name}`)) return;
+    const btn = document.createElement('button');
+    btn.id = `res-cat-${name}`;
+    btn.className = 'level-tab res-extra-cat-btn';
+    btn.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    btn.onclick = () => setResCategory(name);
+    tabs.insertBefore(btn, customBtn);
+  });
+}
+function setResVisible(v) {
+  resVisible = v;
+  document.getElementById('res-vis-show').className = 'level-tab' + ( v ? ' active' : '');
+  document.getElementById('res-vis-hide').className = 'level-tab' + (!v ? ' active' : '');
+}
+
+function onResTitleInput() {
+  const hasTitle = !!document.getElementById('res-title').value.trim();
+  document.getElementById('res-pr-btn').disabled = !hasTitle;
+  markDirty('research', editingResearch !== null || hasTitle || !!document.getElementById('res-body').value.trim());
+  updateResNote();
+}
+function getResFolder() {
+  if (resCategory === 'custom') {
+    const v = (document.getElementById('res-cat-custom-name')?.value || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
+    return v ? `_topics_${v}` : '_topics_custom';
+  }
+  return `_topics_${resCategory}`;
+}
+function updateResNote() {
+  if (editingResearch) return;
+  const title  = document.getElementById('res-title').value.trim();
+  const folder = getResFolder();
+  if (!title) { document.getElementById('res-pr-note').innerHTML = `will create a new file in <code>${folder}/</code>`; return; }
+  const slug = buildSlug(title);
+  document.getElementById('res-pr-note').innerHTML = `will create <code>${folder}/${slug}.md</code>`;
+}
+function updateResWordCount() {
+  const body = document.getElementById('res-body').value.trim();
+  const el   = document.getElementById('res-word-count');
+  if (!el) return;
+  if (!body) { el.textContent = ''; return; }
+  const words = body.split(/\s+/).filter(Boolean).length;
+  el.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+}
+
+// ── People rows ────────────────────────────────────────────────────────────────
+function addResPersonRow(id, role) {
+  const rows = document.getElementById('res-people-rows');
+  const row  = document.createElement('div');
+  row.className = 'people-row';
+  const sel = document.createElement('select');
+  sel.className = 'people-select';
+  populatePeopleSelect(sel);
+  if (id) sel.value = id;
+  if (id && !sel.value) {
+    const opt = document.createElement('option');
+    opt.value = id; opt.textContent = id; sel.appendChild(opt); sel.value = id;
+  }
+  sel.onchange = updateResPeopleCount;
+  const roleInp = document.createElement('input');
+  roleInp.type = 'text'; roleInp.className = 'people-role-input';
+  roleInp.placeholder = 'Role (optional)'; roleInp.value = role;
+  roleInp.oninput = updateResPeopleCount;
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove-row'; btn.textContent = '\u00d7'; btn.title = 'Remove';
+  btn.onclick = () => { row.remove(); updateResPeopleCount(); };
+  row.appendChild(sel); row.appendChild(roleInp); row.appendChild(btn);
+  rows.appendChild(row);
+  ensurePeopleLoaded();
+  updateResPeopleCount();
+}
+function updateResPeopleCount() {
+  const n = [...document.querySelectorAll('#res-people-rows .people-select')].filter(s => s.value).length;
+  document.getElementById('res-people-count').textContent = n ? `(${n})` : '';
+}
+function getResPeople() {
+  const sels  = [...document.querySelectorAll('#res-people-rows .people-select')];
+  const roles = [...document.querySelectorAll('#res-people-rows .people-role-input')];
+  return sels.map((s, i) => ({ id: s.value.trim(), role: (roles[i]?.value || '').trim() })).filter(p => p.id);
+}
+
+// ── Front-matter helpers ───────────────────────────────────────────────────────
+function buildResearchFM(title, subtitle, people, visible, lastUpdated) {
+  let fm = '---\n';
+  fm += `title: ${yScalar(title)}\n`;
+  fm += `subtitle: ${subtitle ? yScalar(subtitle) : ''}\n`;
+  fm += '\ndescription: |\n\n';
+  if (people.length) {
+    fm += 'people:\n';
+    people.forEach(p => { fm += `  - ${p.id}\n`; });
+    fm += '\n';
+  } else {
+    fm += 'people:\n\n';
+  }
+  fm += 'layout: topic\n';
+  fm += 'no-link: false\n';
+  fm += `last-updated: ${lastUpdated}\n`;
+  if (!visible) fm += 'published: false\n';
+  fm += '---\n';
+  return fm;
+}
+function parseResearchFile(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) return null;
+  const fm   = m[1];
+  const body = m[2].trim();
+  const getF = (key) => {
+    const r  = new RegExp(`^${key}:\\s*(.*)$`, 'm');
+    const mm = fm.match(r);
+    return mm ? mm[1].replace(/^["']|["']$/g, '').trim() : '';
+  };
+  const title       = getF('title');
+  const subtitle    = getF('subtitle');
+  const lastUpdated = getF('last-updated');
+  const visible     = getF('published') !== 'false';
+  const peopleM = fm.match(/^people:\r?\n((?:[ \t]+-[^\n]*\n?)*)/m);
+  const pList   = peopleM ? peopleM[1].split('\n').filter(l => /^\s+-/.test(l)).map(l => l.replace(/^\s+-\s*/, '').trim()) : [];
+  const people  = pList.map(id => ({ id, role: '' }));
+  return { title, subtitle, people, lastUpdated, visible, body };
+}
+
+// ── Status bar ─────────────────────────────────────────────────────────────────
+let _resTimer = null;
+function setResearchStatus(t, h) {
+  clearTimeout(_resTimer);
+  const b = document.getElementById('research-status');
+  b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block';
+  if (t === 'success') { _resTimer = setTimeout(hideResearchStatus, 6000); launchConfetti(); }
+}
+function hideResearchStatus() { clearTimeout(_resTimer); const b = document.getElementById('research-status'); if (b) b.style.display = 'none'; }
+
+// ── Reset / cancel ─────────────────────────────────────────────────────────────
+function resetResearchForm() {
+  if (editingResearch && editingResearch.idx !== undefined) {
+    const row = document.getElementById(`res-row-${editingResearch.idx}`);
+    if (row) { row.classList.remove('is-editing'); const b = row.querySelector('.post-ex-badge.editing'); if (b) b.remove(); }
+  }
+  document.getElementById('res-title').value    = '';
+  document.getElementById('res-subtitle').value = '';
+  document.getElementById('res-body').value     = '';
+  document.getElementById('res-date').value     = new Date().toISOString().split('T')[0];
+  document.getElementById('res-people-rows').innerHTML = '';
+  updateResPeopleCount(); updateResWordCount();
+  setResCategory('realtime'); setResVisible(true);
+  const customName = document.getElementById('res-cat-custom-name'); if (customName) customName.value = '';
+  editingResearch = null;
+  document.getElementById('res-pr-btn').disabled = true;
+  document.getElementById('res-card-title').textContent = 'New Research Topic';
+  document.getElementById('res-pr-btn').textContent = 'Save';
+  document.getElementById('res-cancel-edit-btn').style.display = 'none';
+  document.getElementById('res-pr-note').innerHTML = `will create a new file in <code>_topics_realtime/</code>`;
+  markDirty('research', false);
+}
+function cancelEditResearch() { resetResearchForm(); hideResearchStatus(); }
+
+// ── GitHub error helper ────────────────────────────────────────────────────────
+async function parseGhErrRes(res, label) {
+  let d = `${res.status} ${res.statusText}`;
+  try { const b = await res.json(); if (b && b.message) d += ` — ${b.message}`; } catch(_) {}
+  throw new Error(`${label}: ${d}`);
+}
+
+// ── Load research topics list ──────────────────────────────────────────────────
+async function loadResearchList() {
+  const container = document.getElementById('res-ex-items');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>';
+  progressStart();
+  try {
+    const fetchTopic = async (item, category) => {
+      try {
+        const r = await fetch(item.download_url);
+        const text = await r.text();
+        const parsed = parseResearchFile(text);
+        return { ...item, category, title: parsed?.title || item.name.replace(/\.md$/, ''), subtitle: parsed?.subtitle || '', visible: parsed?.visible !== false, parsed };
+      } catch { return { ...item, category, title: item.name.replace(/\.md$/, ''), subtitle: '', visible: true, parsed: null }; }
+    };
+    // Fetch known categories + repo root (to discover extras) in parallel
+    const [rtRes, rlRes, secRes, rootRes] = await Promise.all([
+      fetch(`${GH}/contents/_topics_realtime`,    { headers: ghH() }),
+      fetch(`${GH}/contents/_topics_reliability`, { headers: ghH() }),
+      fetch(`${GH}/contents/_topics_security`,    { headers: ghH() }),
+      fetch(`${GH}/contents`,                     { headers: ghH() }),
+    ]);
+    const rtItems  = rtRes.ok  ? await rtRes.json()  : [];
+    const rlItems  = rlRes.ok  ? await rlRes.json()  : [];
+    const secItems = secRes.ok ? await secRes.json() : [];
+    const rootItems = rootRes.ok ? await rootRes.json() : [];
+    // Discover extra _topics_* folders beyond the three defaults
+    const knownCats = new Set(['realtime','reliability','security']);
+    const extraFolders = Array.isArray(rootItems)
+      ? rootItems.filter(i => i.type === 'dir' && /^_topics_/.test(i.name))
+          .map(i => i.name.replace(/^_topics_/, ''))
+          .filter(name => !knownCats.has(name))
+      : [];
+    // Load all in parallel
+    const rtTopics  = await Promise.all(rtItems.filter(i => i.type === 'file' && i.name.endsWith('.md')).map(i => fetchTopic(i, 'realtime')));
+    const rlTopics  = await Promise.all(rlItems.filter(i => i.type === 'file' && i.name.endsWith('.md')).map(i => fetchTopic(i, 'reliability')));
+    const secTopics = await Promise.all(secItems.filter(i => i.type === 'file' && i.name.endsWith('.md')).map(i => fetchTopic(i, 'security')));
+    const extraResults = await Promise.all(extraFolders.map(async name => {
+      try {
+        const r = await fetch(`${GH}/contents/_topics_${name}`, { headers: ghH() });
+        const items = r.ok ? await r.json() : [];
+        const topics = await Promise.all(items.filter(i => i.type === 'file' && i.name.endsWith('.md')).map(i => fetchTopic(i, name)));
+        return { name, topics: topics.sort((a, b) => a.title.localeCompare(b.title)) };
+      } catch { return { name, topics: [] }; }
+    }));
+    researchState.realtime    = rtTopics.sort((a, b) => a.title.localeCompare(b.title));
+    researchState.reliability = rlTopics.sort((a, b) => a.title.localeCompare(b.title));
+    researchState.security    = secTopics.sort((a, b) => a.title.localeCompare(b.title));
+    researchState.extra = {};
+    researchState.extraCategories = extraResults.map(r => r.name);
+    extraResults.forEach(r => { researchState.extra[r.name] = r.topics; });
+    renderResCatButtons();
+    researchState.pendingDelete = new Set();
+    researchState.pendingUpdate = new Set();
+    try {
+      const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+      if (prRes.ok) {
+        const prs    = await prRes.json();
+        const resPRs = prs.filter(pr => /^(new|edit|delete|toggle)-topic-/.test(pr.head.ref));
+        await Promise.all(resPRs.map(async pr => {
+          try {
+            const fRes = await fetch(`${GH}/pulls/${pr.number}/files`, { headers: ghH() });
+            if (!fRes.ok) return;
+            const files = await fRes.json();
+            files.forEach(f => {
+              if (!f.filename.match(/^_topics_[a-z0-9_-]+\//)) return;
+              if (f.status === 'removed') researchState.pendingDelete.add(f.filename);
+              else researchState.pendingUpdate.add(f.filename);
+            });
+          } catch {}
+        }));
+      }
+    } catch {}
+    researchState.loaded = true;
+    progressEnd();
+    renderResearchList();
+  } catch(e) {
+    progressEnd();
+    document.getElementById('res-ex-items').innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load topics: ${esc(e.message)}</div>`;
+  }
+}
+
+function filterResearchList() { renderResearchList(document.getElementById('res-search').value); }
+
+function renderResearchList(filter) {
+  const container = document.getElementById('res-ex-items');
+  const lbl = document.getElementById('res-ex-label');
+  const q   = (filter || document.getElementById('res-search')?.value || '').toLowerCase();
+  if (!researchState.loaded) { container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>'; return; }
+  const catLabel = { realtime:'Real-Time', reliability:'Reliability', security:'Security' };
+  const catCls   = { realtime:'current', reliability:'past', security:'' };
+  const base = [
+    ...researchState.realtime,
+    ...researchState.reliability,
+    ...researchState.security,
+    ...researchState.extraCategories.flatMap(n => researchState.extra[n] || []),
+  ];
+  const all = base.map((t, i) => ({ ...t, globalIdx: i }));
+  lbl.textContent = `Browse existing research topics (${all.length})`;
+  const visible = q ? all.filter(t => (t.title + ' ' + t.subtitle + ' ' + t.name).toLowerCase().includes(q)) : all;
+  if (!visible.length) { container.innerHTML = '<div class="ex-empty">No topics found.</div>'; return; }
+  container.innerHTML = visible.map(t => {
+    const idx     = t.globalIdx;
+    const hiddenB = !t.visible ? `<span class="proj-status-badge hidden-badge" style="margin-left:4px">Hidden</span>` : '';
+    const subSpan = t.subtitle ? ` <span style="font-size:11px;color:var(--muted)">— ${esc(t.subtitle)}</span>` : '';
+    const cls     = catCls[t.category] || '';
+    const secStyle = t.category === 'security' ? 'background:var(--accent-faint,#e8f0fe);color:var(--accent)' : '';
+    return `<div class="proj-row" id="res-row-${idx}">` +
+      `<span class="proj-status-badge ${cls}" style="${secStyle}">${esc(catLabel[t.category]||t.category)}</span>` +
+      `<span class="proj-name" title="${esc(t.path)}">${esc(t.title)}${subSpan}${hiddenB}</span>` +
+      `<div class="proj-row-btns" id="res-row-btns-${idx}">` +
+        `<button class="btn-ex btn-ex-edit" onclick="editResearch(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx},${esc(JSON.stringify(t.category))})">Edit</button>` +
+        `<button class="btn-ex" style="border:1px solid var(--warn);color:var(--warn)" onclick="toggleResearchVisibility(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx},${t.visible})">${t.visible ? 'Hide' : 'Show'}</button>` +
+        `<button class="btn-ex btn-ex-del" onclick="showResDeleteConfirm(${idx})">Delete</button>` +
+      `</div>` +
+      `<div class="proj-confirm" id="res-row-confirm-${idx}">` +
+        `<span class="post-ex-confirm-msg">Delete this topic?</span>` +
+        `<button class="btn-ex btn-ex-confirm-yes" onclick="deleteResearch(${esc(JSON.stringify(t.path))},${esc(JSON.stringify(t.sha))},${idx})">Yes, delete</button>` +
+        `<button class="btn-ex btn-ex-cancel" onclick="hideResDeleteConfirm(${idx})">Cancel</button>` +
+      `</div>` +
+      `</div>`;
+  }).join('');
+  all.forEach(t => {
+    const row = document.getElementById(`res-row-${t.globalIdx}`);
+    if (!row) return;
+    const addBadge = (cls, text) => { const b = document.createElement('span'); b.className = `post-ex-badge ${cls}`; b.textContent = text; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', b); };
+    if (researchState.pendingDelete.has(t.path)) {
+      row.classList.add('pending-delete'); addBadge('pending-delete', 'Delete Pending');
+      const btns = document.getElementById(`res-row-btns-${t.globalIdx}`); if (btns) btns.style.display = 'none';
+    } else if (researchState.pendingUpdate.has(t.path)) {
+      row.classList.add('pending-update'); addBadge('pending-update', 'Update Pending');
+    }
+  });
+  // Render category management panel
+  const mgmtItems = document.getElementById('res-cat-mgmt-items');
+  if (mgmtItems) {
+    const builtinCats = ['realtime','reliability','security'];
+    const catLabel = { realtime:'Real-Time', reliability:'Reliability', security:'Security' };
+    const allCats = [...builtinCats, ...researchState.extraCategories];
+    mgmtItems.innerHTML = allCats.map(name => {
+      const label    = catLabel[name] || (name.charAt(0).toUpperCase() + name.slice(1));
+      const topics   = name === 'realtime' ? researchState.realtime : name === 'reliability' ? researchState.reliability : name === 'security' ? researchState.security : (researchState.extra[name] || []);
+      const count    = topics.length;
+      const isCustom = !builtinCats.includes(name);
+      const delBtn = `<button class="btn-ex btn-ex-del" onclick="showResCatDeleteConfirm(${esc(JSON.stringify(name))})" title="Delete entire category">Delete</button>`;
+      const renameBtn = `<button class="btn-ex btn-ex-edit" onclick="showResCatRename(${esc(JSON.stringify(name))})" title="Rename category">Rename</button>`;
+      return `<div class="proj-row" id="res-cat-row-${name}" style="padding:6px 10px;flex-wrap:wrap;gap:6px">` +
+        `<span class="proj-name" style="font-size:13px">${esc(label)} <span style="font-size:11px;color:var(--muted)">(${count} topic${count!==1?'s':''})</span></span>` +
+        `<div class="proj-row-btns" id="res-cat-row-btns-${name}">${renameBtn}${delBtn}</div>` +
+        `<div class="proj-confirm" id="res-cat-confirm-${name}">` +
+          `<span class="post-ex-confirm-msg">Delete all ${count} topic${count!==1?'s':''} + remove from _config.yml?</span>` +
+          `<button class="btn-ex btn-ex-confirm-yes" onclick="deleteResearchCategory(${esc(JSON.stringify(name))})">Yes, delete</button>` +
+          `<button class="btn-ex btn-ex-cancel" onclick="hideResCatDeleteConfirm(${esc(JSON.stringify(name))})">Cancel</button>` +
+        `</div>` +
+        `<div class="proj-confirm" id="res-cat-rename-${name}" style="width:100%;flex-wrap:wrap;gap:6px;align-items:center">` +
+          `<input id="res-cat-rename-input-${name}" class="ex-search" style="flex:1;min-width:100px;margin:0" placeholder="New category name" value="${esc(name)}" />` +
+          `<button class="btn-ex btn-ex-confirm-yes" onclick="renameResearchCategory(${esc(JSON.stringify(name))})">Rename</button>` +
+          `<button class="btn-ex btn-ex-cancel" onclick="hideResCatRename(${esc(JSON.stringify(name))})">Cancel</button>` +
+        `</div>` +
+        `</div>`;
+    }).join('');
+  }
+}
+
+function showResCatDeleteConfirm(name) {
+  document.getElementById(`res-cat-row-btns-${name}`).style.display = 'none';
+  document.getElementById(`res-cat-confirm-${name}`).style.display = 'flex';
+}
+function hideResCatDeleteConfirm(name) {
+  document.getElementById(`res-cat-row-btns-${name}`).style.display = 'flex';
+  document.getElementById(`res-cat-confirm-${name}`).style.display = 'none';
+}
+function showResCatRename(name) {
+  document.getElementById(`res-cat-row-btns-${name}`).style.display = 'none';
+  document.getElementById(`res-cat-rename-${name}`).style.display = 'flex';
+  const inp = document.getElementById(`res-cat-rename-input-${name}`);
+  if (inp) { inp.value = name; inp.focus(); inp.select(); }
+}
+function hideResCatRename(name) {
+  document.getElementById(`res-cat-row-btns-${name}`).style.display = 'flex';
+  document.getElementById(`res-cat-rename-${name}`).style.display = 'none';
+}
+
+let resCatMgmtOpen = false;
+function toggleResCatMgmt() {
+  resCatMgmtOpen = !resCatMgmtOpen;
+  const panel = document.getElementById('res-cat-mgmt-panel');
+  const arrow = document.querySelector('#res-cat-toggle .arrow');
+  panel.style.display = resCatMgmtOpen ? 'block' : 'none';
+  if (arrow) arrow.innerHTML = resCatMgmtOpen ? '&#9660;' : '&#9658;';
+  if (resCatMgmtOpen && !researchState.loaded) loadResearchList();
+}
+
+async function renameResearchCategory(oldName) {
+  const inp = document.getElementById(`res-cat-rename-input-${oldName}`);
+  const newName = (inp?.value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  if (!newName || newName === oldName) { hideResCatRename(oldName); return; }
+  const builtinMap = { realtime: researchState.realtime, reliability: researchState.reliability, security: researchState.security };
+  const topics = builtinMap[oldName] ?? researchState.extra[oldName] ?? [];
+  progressStart();
+  setResearchStatus('info', `<span class="spin"></span> Renaming category <strong>${esc(oldName)}</strong> → <strong>${esc(newName)}</strong>…`);
+  try {
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch  = `rename-category-${oldName}-to-${newName}-${Date.now()}`;
+    const brRes   = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    // Read each file content and re-create under new path, then delete the old
+    for (const t of topics) {
+      const fileRes = await fetch(`${GH}/contents/${t.path}`, { headers: ghH() });
+      if (!fileRes.ok) await parseGhErrRes(fileRes, `Failed to read ${t.path}`);
+      const fileData = await fileRes.json();
+      const newPath  = t.path.replace(`_topics_${oldName}/`, `_topics_${newName}/`);
+      // Create file at new path
+      const createRes = await fetch(`${GH}/contents/${newPath}`, { method: 'PUT', headers: ghH(),
+        body: JSON.stringify({ message: `Rename category: move ${t.path} → ${newPath}`, content: fileData.content, branch }) });
+      if (!createRes.ok) await parseGhErrRes(createRes, `Failed to create ${newPath}`);
+      // Delete old file
+      const delRes = await fetch(`${GH}/contents/${t.path}`, { method: 'DELETE', headers: ghH(),
+        body: JSON.stringify({ message: `Rename category: delete old ${t.path}`, sha: fileData.sha, branch }) });
+      if (!delRes.ok) await parseGhErrRes(delRes, `Failed to delete ${t.path}`);
+    }
+    // Update _config.yml: replace topics_oldName with topics_newName
+    const cfgRes = await fetch(`${GH}/contents/_config.yml`, { headers: ghH() });
+    if (cfgRes.ok) {
+      const cfgData = await cfgRes.json();
+      const cfgText = b64d(cfgData.content.replace(/\n/g, ''));
+      const newCfg  = cfgText.replace(new RegExp(`(\\n  )topics_${oldName}:(\\n    output: true)`, 'g'), `$1topics_${newName}:$2`);
+      if (newCfg !== cfgText) {
+        const cfgCommit = await fetch(`${GH}/contents/_config.yml`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Rename category ${oldName} → ${newName} in _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
+        if (!cfgCommit.ok) await parseGhErrRes(cfgCommit, 'Failed to update _config.yml');
+      }
+    }
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `Rename category: ${oldName} → ${newName}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Category renamed via admin panel.\n\n**From:** \`_topics_${oldName}\`\n**To:** \`_topics_${newName}\`\n**Files moved:** ${topics.length}` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    setResearchStatus('success', `\u2713 Category rename pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    hideResCatRename(oldName);
+  } catch(e) {
+    progressEnd();
+    setResearchStatus('error', `Failed: ${e.message}`);
+    hideResCatRename(oldName);
+  }
+}
+
+async function deleteResearchCategory(name) {
+  const builtinMap = { realtime: researchState.realtime, reliability: researchState.reliability, security: researchState.security };
+  const topics = builtinMap[name] ?? researchState.extra[name] ?? [];
+  progressStart();
+  setResearchStatus('info', `<span class="spin"></span> Deleting category <strong>${esc(name)}</strong> (${topics.length} files + _config.yml)…`);
+  try {
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch  = `delete-category-${name}-${Date.now()}`;
+    const brRes   = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    // Delete each topic file
+    for (const t of topics) {
+      const delRes = await fetch(`${GH}/contents/${t.path}`, { method: 'DELETE', headers: ghH(),
+        body: JSON.stringify({ message: `Delete topic: ${t.name}`, sha: t.sha, branch }) });
+      if (!delRes.ok) await parseGhErrRes(delRes, `Failed to delete ${t.path}`);
+    }
+    // Remove collection from _config.yml
+    const cfgRes = await fetch(`${GH}/contents/_config.yml`, { headers: ghH() });
+    if (cfgRes.ok) {
+      const cfgData = await cfgRes.json();
+      const cfgText = b64d(cfgData.content.replace(/\n/g, ''));
+      const collKey = `topics_${name}`;
+      const newCfg  = cfgText.replace(new RegExp(`\\n  ${collKey}:\\n    output: true`, 'g'), '');
+      if (newCfg !== cfgText) {
+        const cfgCommit = await fetch(`${GH}/contents/_config.yml`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Remove _topics_${name} collection from _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
+        if (!cfgCommit.ok) await parseGhErrRes(cfgCommit, 'Failed to update _config.yml');
+      }
+    }
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `Delete category: ${name}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Category \`_topics_${name}\` deleted via admin panel.\n\n**Files removed:** ${topics.length}\n**_config.yml:** collection entry removed.` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    topics.forEach(t => researchState.pendingDelete.add(t.path));
+    setResearchStatus('success', `\u2713 Category deletion pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    renderResearchList();
+  } catch(e) {
+    progressEnd();
+    setResearchStatus('error', `Failed: ${e.message}`);
+  }
+}
+
+function showResDeleteConfirm(idx) {
+  document.getElementById(`res-row-btns-${idx}`).style.display = 'none';
+  document.getElementById(`res-row-confirm-${idx}`).style.display = 'flex';
+}
+function hideResDeleteConfirm(idx) {
+  document.getElementById(`res-row-btns-${idx}`).style.display = 'flex';
+  document.getElementById(`res-row-confirm-${idx}`).style.display = 'none';
+}
+
+// ── Edit research topic ────────────────────────────────────────────────────────
+async function editResearch(path, sha, idx, category) {
+  progressStart();
+  setResearchStatus('info', '<span class="spin"></span> Loading topic\u2026');
+  try {
+    const res  = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    const text = b64d(data.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+    const parsed = parseResearchFile(text);
+    if (!parsed) throw new Error('Could not parse topic front matter.');
+    document.getElementById('res-title').value    = parsed.title;
+    document.getElementById('res-subtitle').value = parsed.subtitle || '';
+    document.getElementById('res-date').value     = parsed.lastUpdated || new Date().toISOString().split('T')[0];
+    document.getElementById('res-body').value     = parsed.body;
+    document.getElementById('res-people-rows').innerHTML = '';
+    (parsed.people || []).forEach(p => addResPersonRow(p.id, p.role));
+    updateResPeopleCount(); updateResWordCount();
+    setResCategory(category); setResVisible(parsed.visible);
+    await ensurePeopleLoaded();
+    document.querySelectorAll('.proj-row.is-editing').forEach(el => {
+      el.classList.remove('is-editing');
+      const b = el.querySelector('.post-ex-badge.editing'); if (b) b.remove();
+    });
+    const row = document.getElementById(`res-row-${idx}`);
+    if (row) {
+      row.classList.add('is-editing');
+      const badge = document.createElement('span'); badge.className = 'post-ex-badge editing'; badge.textContent = 'Editing';
+      const nameEl = row.querySelector('.proj-name'); if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+    }
+    editingResearch = { path, sha: data.sha, idx, category };
+    document.getElementById('res-card-title').textContent        = 'Edit Research Topic';
+    document.getElementById('res-pr-btn').textContent            = 'Save Changes';
+    document.getElementById('res-cancel-edit-btn').style.display = 'inline-block';
+    document.getElementById('res-pr-note').innerHTML             = `editing <code>${esc(path)}</code>`;
+    document.getElementById('res-pr-btn').disabled               = false;
+    markDirty('research', true);
+    progressEnd(); hideResearchStatus();
+    document.querySelector('#research-section .card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    progressEnd();
+    setResearchStatus('error', `Failed to load topic: ${esc(e.message)}`);
+  }
+}
+
+// ── Create / Update PR ─────────────────────────────────────────────────────────
+async function openResearchPR() {
+  const title    = document.getElementById('res-title').value.trim();
+  const subtitle = document.getElementById('res-subtitle').value.trim();
+  const lastUpd  = document.getElementById('res-date').value || new Date().toISOString().split('T')[0];
+  const body     = document.getElementById('res-body').value;
+  const people   = getResPeople();
+  if (!title) { setResearchStatus('error', 'Please enter a topic title.'); return; }
+  const isEditing = editingResearch !== null;
+  const slug      = isEditing ? editingResearch.path.replace(/^.*\//, '').replace(/\.md$/, '') : buildSlug(title);
+  const folder    = isEditing ? editingResearch.path.replace(/\/[^\/]+$/, '') : getResFolder();
+  const filePath  = isEditing ? editingResearch.path : `${folder}/${slug}.md`;
+  const fm      = buildResearchFM(title, subtitle, people, resVisible, lastUpd);
+  const content = fm + '\n' + body.trim() + (body.trim() ? '\n' : '');
+  progressStart();
+  document.getElementById('res-pr-btn').disabled = true;
+  try {
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch = isEditing ? `edit-topic-${slug}-${Date.now()}` : `new-topic-${slug}-${Date.now()}`;
+    const brRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    // If this is a new custom category, also patch _config.yml
+    const isNewCustomCat = !isEditing && resCategory === 'custom';
+    const customCatName  = isNewCustomCat
+      ? (document.getElementById('res-cat-custom-name')?.value || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
+      : null;
+    if (isNewCustomCat && customCatName) {
+      const cfgRes = await fetch(`${GH}/contents/_config.yml`, { headers: ghH() });
+      if (cfgRes.ok) {
+        const cfgData = await cfgRes.json();
+        const cfgText = b64d(cfgData.content.replace(/\n/g, ''));
+        const collKey = `topics_${customCatName}`;
+        if (!cfgText.includes(`${collKey}:`)) {
+          const newCfg  = cfgText.replace(/(collections:\s*\n(?:[\s\S]*?))(?=\n[^\s]|$)/, (m) => m.trimEnd() + `\n  ${collKey}:\n    output: true\n`);
+          const cfgCommit = await fetch(`${GH}/contents/_config.yml`, { method: 'PUT', headers: ghH(),
+            body: JSON.stringify({ message: `Register _topics_${customCatName} collection in _config.yml`, content: b64e(newCfg), sha: cfgData.sha, branch }) });
+          if (!cfgCommit.ok) await parseGhErrRes(cfgCommit, 'Failed to update _config.yml');
+        }
+      }
+    }
+    const payload = { message: isEditing ? `Update topic: ${title}` : `Add topic: ${title}`, content: b64e(content), branch };
+    if (isEditing) payload.sha = editingResearch.sha;
+    const commitRes = await fetch(`${GH}/contents/${filePath}`, { method: 'PUT', headers: ghH(), body: JSON.stringify(payload) });
+    if (!commitRes.ok) await parseGhErrRes(commitRes, isEditing ? 'Failed to update topic' : 'Failed to create topic');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: isEditing ? `Update topic: ${title}` : `Add topic: ${title}`,
+        head: branch, base: CONFIG.BASE_BRANCH,
+        body: `${isEditing ? 'Topic updated' : 'New topic added'} via admin panel.\n\n**File:** \`${filePath}\`\n**Category:** ${resCategory}\n**Title:** ${title}`,
+      }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    if (!pr?.html_url) throw new Error('GitHub did not return a pull request URL.');
+    progressEnd();
+    if (isEditing && editingResearch.idx !== undefined) {
+      researchState.pendingUpdate.add(filePath);
+      const row = document.getElementById(`res-row-${editingResearch.idx}`);
+      if (row) {
+        row.classList.remove('is-editing'); row.classList.add('pending-update');
+        const b = row.querySelector('.post-ex-badge.editing');
+        if (b) { b.className = 'post-ex-badge pending-update'; b.textContent = 'Update Pending'; }
+        else { const nb = document.createElement('span'); nb.className = 'post-ex-badge pending-update'; nb.textContent = 'Update Pending'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', nb); }
+      }
+    }
+    setResearchStatus('success', `\u2713 Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('research-status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('res-pr-btn').disabled = false;
+    resetResearchForm();
+  } catch(e) {
+    progressEnd();
+    setResearchStatus('error', `Failed: ${e.message}`);
+    document.getElementById('res-pr-btn').disabled = false;
+  }
+}
+
+// ── Delete research topic ──────────────────────────────────────────────────────
+async function deleteResearch(path, sha, idx) {
+  const row = idx !== undefined ? document.getElementById(`res-row-${idx}`) : null;
+  if (row) { row.classList.add('is-deleting'); const b = document.createElement('span'); b.className = 'post-ex-badge deleting'; b.textContent = 'Deleting\u2026'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', b); }
+  progressStart();
+  try {
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const slug   = path.replace(/^.*\//, '').replace(/\.md$/, '');
+    const branch = `delete-topic-${slug}-${Date.now()}`;
+    const brRes  = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    const delRes = await fetch(`${GH}/contents/${path}`, { method: 'DELETE', headers: ghH(),
+      body: JSON.stringify({ message: `Delete topic: ${slug}`, sha, branch }) });
+    if (!delRes.ok) await parseGhErrRes(delRes, 'Failed to delete file');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `Delete topic: ${slug}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Topic deleted via admin panel.\n\n**File:** \`${path}\`` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    researchState.pendingDelete.add(path);
+    setResearchStatus('success', `\u2713 Delete pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) {
+      row.classList.remove('is-deleting'); row.classList.add('pending-delete');
+      const b = row.querySelector('.post-ex-badge');
+      if (b) { b.className = 'post-ex-badge pending-delete'; b.textContent = 'Delete Pending'; }
+      const btns = document.getElementById(`res-row-btns-${idx}`); if (btns) btns.style.display = 'none';
+      const conf = document.getElementById(`res-row-confirm-${idx}`); if (conf) conf.style.display = 'none';
+    }
+  } catch(e) {
+    progressEnd();
+    if (row) { row.classList.remove('is-deleting'); const b = row.querySelector('.post-ex-badge.deleting'); if (b) b.remove(); }
+    setResearchStatus('error', `Failed: ${e.message}`);
+  }
+}
+
+// ── Toggle visibility ──────────────────────────────────────────────────────────
+async function toggleResearchVisibility(path, sha, idx, currentlyVisible) {
+  const row = document.getElementById(`res-row-${idx}`);
+  if (row) row.classList.add('is-deleting');
+  progressStart();
+  try {
+    const fileRes = await fetch(`${GH}/contents/${path}`, { headers: ghH() });
+    if (!fileRes.ok) await parseGhErrRes(fileRes, 'Failed to read file');
+    const fileData = await fileRes.json();
+    const text = b64d(fileData.content.replace(/\n/g, ''));
+    const newText = currentlyVisible
+      ? text.replace(/(no-link:[^\n]*\n)/, '$1published: false\n')
+      : text.replace(/^published:\s*false\r?\n/m, '');
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const slug   = path.replace(/^.*\//, '').replace(/\.md$/, '');
+    const branch = `toggle-topic-${slug}-${Date.now()}`;
+    const brRes  = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    const commitRes = await fetch(`${GH}/contents/${path}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({ message: `${currentlyVisible ? 'Hide' : 'Show'} topic: ${slug}`, content: b64e(newText), sha: fileData.sha, branch }) });
+    if (!commitRes.ok) await parseGhErrRes(commitRes, 'Failed to update file');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `${currentlyVisible ? 'Hide' : 'Show'} topic: ${slug}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Topic ${currentlyVisible ? 'hidden' : 'made visible'} via admin panel.\n\n**File:** \`${path}\`` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    researchState.pendingUpdate.add(path);
+    setResearchStatus('success', `\u2713 ${currentlyVisible ? 'Hidden' : 'Visible'} pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) {
+      row.classList.remove('is-deleting'); row.classList.add('pending-update');
+      const b = row.querySelector('.post-ex-badge');
+      if (b) { b.className = 'post-ex-badge pending-update'; b.textContent = 'Update Pending'; }
+      else { const nb = document.createElement('span'); nb.className = 'post-ex-badge pending-update'; nb.textContent = 'Update Pending'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', nb); }
+    }
+  } catch(e) {
+    progressEnd();
+    if (row) row.classList.remove('is-deleting');
+    setResearchStatus('error', `Failed: ${e.message}`);
+  }
+}
+
+// ════════════════════════════════ PEOPLE FUNCTIONS
+
+// ── YAML helpers ───────────────────────────────────────────────────────────────
+function parsePeopleYaml(raw) {
+  // Parse the flat YAML map into an array of entry objects preserving order
+  const entries = [];
+  const blocks  = raw.split(/\n(?=[^\s#])/);
+  for (const block of blocks) {
+    const slugM = block.match(/^([a-zA-Z0-9_-]+):\s*\n/);
+    if (!slugM) continue;
+    const slug  = slugM[1];
+    const getField = (key) => {
+      const m = block.match(new RegExp(`\\n   ${key}:\\s*"?([^"\\n]*)"?`));
+      return m ? m[1].trim() : '';
+    };
+    entries.push({
+      slug,
+      display_name: getField('display_name'),
+      webpage:      getField('webpage'),
+      role:         getField('role'),
+      bio:          getField('bio'),
+      image:        getField('image'),
+      raw: block,
+    });
+  }
+  return entries;
+}
+
+function buildPersonYamlBlock(slug, display_name, role, webpage, image, bio) {
+  let s = `${slug}:\n`;
+  s += `   display_name: "${display_name}"\n`;
+  if (webpage) s += `   webpage: "${webpage}"\n`;
+  s += `   role: ${role}\n`;
+  if (image) s += `   image: ${image}\n`;
+  s += `   bio: ${bio ? bio : ''}\n`;
+  return s;
+}
+
+// ── Status ─────────────────────────────────────────────────────────────────────
+let _pplTimer = null;
+function setPeopleStatus(t, h) {
+  clearTimeout(_pplTimer);
+  const b = document.getElementById('people-status');
+  b.className = `status ${t}`; b.innerHTML = h; b.style.display = 'block';
+  if (t === 'success') { _pplTimer = setTimeout(hidePeopleStatus, 6000); launchConfetti(); }
+}
+function hidePeopleStatus() { clearTimeout(_pplTimer); const b = document.getElementById('people-status'); if (b) b.style.display = 'none'; }
+
+// ── Form helpers ───────────────────────────────────────────────────────────────
+function onPplSlugInput() {
+  const slug = document.getElementById('ppl-slug').value.trim();
+  const name = document.getElementById('ppl-name').value.trim();
+  document.getElementById('ppl-pr-btn').disabled = !(slug && name);
+}
+
+function onPplImageSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  pplImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('ppl-img-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    // Auto-fill path if not already set
+    const pathEl = document.getElementById('ppl-image');
+    if (!pathEl.value.trim()) {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase();
+      pathEl.value = `/img/people/${safeName}`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function onPplImagePathInput() {
+  // If user manually clears the path, also clear the preview/file
+  const val = document.getElementById('ppl-image').value.trim();
+  if (!val) {
+    pplImageFile = null;
+    const preview = document.getElementById('ppl-img-preview');
+    preview.src = ''; preview.style.display = 'none';
+    document.getElementById('ppl-img-file').value = '';
+  }
+}
+
+function resetPeopleForm() {
+  if (editingPerson) {
+    const row = document.getElementById(`ppl-row-${CSS.escape(editingPerson)}`);
+    if (row) { row.classList.remove('is-editing'); const b = row.querySelector('.post-ex-badge.editing'); if (b) b.remove(); }
+  }
+  ['ppl-slug','ppl-name','ppl-role','ppl-webpage','ppl-image','ppl-bio'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  pplImageFile = null;
+  const preview = document.getElementById('ppl-img-preview');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  const fileInput = document.getElementById('ppl-img-file');
+  if (fileInput) fileInput.value = '';
+  editingPerson = null;
+  document.getElementById('ppl-pr-btn').disabled = true;
+  document.getElementById('ppl-pr-btn').textContent = 'Save';
+  document.getElementById('ppl-card-title').textContent = 'Add Person';
+  document.getElementById('ppl-cancel-edit-btn').style.display = 'none';
+  document.getElementById('ppl-pr-note').innerHTML = `will update <code>_data/people.yml</code>`;
+  markDirty('people', false);
+}
+function cancelEditPerson() { resetPeopleForm(); hidePeopleStatus(); }
+
+// ── Load people.yml ─────────────────────────────────────────────────────────────
+async function loadPeopleData() {
+  if (peopleData.loaded) { renderPeopleList(); return; }
+  const container = document.getElementById('ppl-ex-items');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>';
+  progressStart();
+  try {
+    const res  = await fetch(`${GH}/contents/_data/people.yml`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    peopleData.sha  = data.sha;
+    peopleData.raw  = b64d(data.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+    peopleData.entries = parsePeopleYaml(peopleData.raw);
+    // Check for pending PRs on people.yml
+    try {
+      const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+      if (prRes.ok) {
+        const prs = await prRes.json();
+        peopleData.pendingUpdate = prs.some(pr => /^(add|edit|delete)-person-/.test(pr.head.ref));
+      }
+    } catch {}
+    peopleData.loaded = true;
+    progressEnd();
+    renderPeopleList();
+  } catch(e) {
+    progressEnd();
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function filterPeopleList() { renderPeopleList(); }
+
+function renderPeopleList() {
+  const container = document.getElementById('ppl-ex-items');
+  const lbl = document.getElementById('ppl-ex-label');
+  if (!peopleData.loaded) { container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>'; return; }
+  const q    = (document.getElementById('ppl-search')?.value || '').toLowerCase();
+  const role = document.getElementById('ppl-role-filter')?.value || '';
+  const roleLabel = { faculty:'Faculty', postdoc:'Postdoc', phd_student:'PhD Student', visiting_researchers:'Visiting', former_researchers:'Former' };
+  const roleCls   = { faculty:'current', postdoc:'', phd_student:'past', visiting_researchers:'', former_researchers:'' };
+  const roleStyle = { visiting_researchers:'background:var(--accent-faint,#e8f0fe);color:var(--accent)', former_researchers:'background:#f3f4f6;color:#6b7280' };
+  let visible = peopleData.entries;
+  if (role) visible = visible.filter(p => p.role === role);
+  if (q)    visible = visible.filter(p => (p.display_name + ' ' + p.slug + ' ' + p.bio).toLowerCase().includes(q));
+  lbl.textContent = `Browse existing people (${peopleData.entries.length})`;
+  if (!visible.length) { container.innerHTML = '<div class="ex-empty">No people found.</div>'; return; }
+  container.innerHTML = visible.map(p => {
+    const safeId  = p.slug.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const rl      = roleLabel[p.role] || p.role;
+    const cls     = roleCls[p.role]  || '';
+    const sty     = roleStyle[p.role] || '';
+    const bioSpan = p.bio ? ` <span style="font-size:11px;color:var(--muted)">— ${esc(p.bio)}</span>` : '';
+    return `<div class="proj-row" id="ppl-row-${safeId}">` +
+      `<span class="proj-status-badge ${cls}" style="${sty}">${esc(rl)}</span>` +
+      `<span class="proj-name" title="${esc(p.slug)}">${esc(p.display_name)}${bioSpan}</span>` +
+      `<div class="proj-row-btns" id="ppl-row-btns-${safeId}">` +
+        `<button class="btn-ex btn-ex-edit" onclick="editPerson(${esc(JSON.stringify(p.slug))})">Edit</button>` +
+        `<button class="btn-ex btn-ex-del"  onclick="showPplDeleteConfirm(${esc(JSON.stringify(p.slug))})">Delete</button>` +
+      `</div>` +
+      `<div class="proj-confirm" id="ppl-row-confirm-${safeId}">` +
+        `<span class="post-ex-confirm-msg">Delete ${esc(p.display_name)}?</span>` +
+        `<button class="btn-ex btn-ex-confirm-yes" onclick="deletePerson(${esc(JSON.stringify(p.slug))})">Yes, delete</button>` +
+        `<button class="btn-ex btn-ex-cancel"       onclick="hidePplDeleteConfirm(${esc(JSON.stringify(p.slug))})">Cancel</button>` +
+      `</div>` +
+      `</div>`;
+  }).join('');
+  if (peopleData.pendingUpdate) {
+    const note = document.createElement('div');
+    note.className = 'ex-empty'; note.style.cssText = 'color:var(--warn);margin-top:8px';
+    note.innerHTML = '\u26a0\ufe0f A people.yml change is pending approval.';
+    container.appendChild(note);
+  }
+}
+
+function showPplDeleteConfirm(slug) {
+  const safeId = slug.replace(/[^a-zA-Z0-9_-]/g, '_');
+  document.getElementById(`ppl-row-btns-${safeId}`).style.display = 'none';
+  document.getElementById(`ppl-row-confirm-${safeId}`).style.display = 'flex';
+}
+function hidePplDeleteConfirm(slug) {
+  const safeId = slug.replace(/[^a-zA-Z0-9_-]/g, '_');
+  document.getElementById(`ppl-row-btns-${safeId}`).style.display = 'flex';
+  document.getElementById(`ppl-row-confirm-${safeId}`).style.display = 'none';
+}
+
+// ── Edit person ────────────────────────────────────────────────────────────────
+function editPerson(slug) {
+  const p = peopleData.entries.find(e => e.slug === slug);
+  if (!p) return;
+  document.querySelectorAll('.proj-row.is-editing').forEach(el => {
+    el.classList.remove('is-editing');
+    const b = el.querySelector('.post-ex-badge.editing'); if (b) b.remove();
+  });
+  document.getElementById('ppl-slug').value    = p.slug;
+  document.getElementById('ppl-slug').readOnly = true;
+  document.getElementById('ppl-name').value    = p.display_name;
+  document.getElementById('ppl-role').value    = p.role;
+  document.getElementById('ppl-webpage').value = p.webpage;
+  document.getElementById('ppl-image').value   = p.image;
+  document.getElementById('ppl-bio').value     = p.bio;
+  pplImageFile = null; // clear any pending upload when starting an edit
+  const preview = document.getElementById('ppl-img-preview');
+  if (preview && p.image) { preview.src = p.image; preview.style.display = 'block'; }
+  else if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  const fileInput = document.getElementById('ppl-img-file'); if (fileInput) fileInput.value = '';
+  const safeId = slug.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const row = document.getElementById(`ppl-row-${safeId}`);
+  if (row) {
+    row.classList.add('is-editing');
+    const badge = document.createElement('span'); badge.className = 'post-ex-badge editing'; badge.textContent = 'Editing';
+    const nameEl = row.querySelector('.proj-name'); if (nameEl) nameEl.insertAdjacentElement('afterend', badge);
+  }
+  editingPerson = slug;
+  document.getElementById('ppl-pr-btn').disabled = false;
+  document.getElementById('ppl-pr-btn').textContent = 'Save Changes';
+  document.getElementById('ppl-card-title').textContent = 'Edit Person';
+  document.getElementById('ppl-cancel-edit-btn').style.display = 'inline-block';
+  document.getElementById('ppl-pr-note').innerHTML = `editing <code>${esc(slug)}</code> in <code>_data/people.yml</code>`;
+  markDirty('people', true);
+  document.querySelector('#people-section .card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Commit helper ──────────────────────────────────────────────────────────────
+async function commitPeopleYml(newYaml, message, branchPrefix) {
+  // Re-fetch to get latest SHA before writing
+  const cfgRes = await fetch(`${GH}/contents/_data/people.yml`, { headers: ghH() });
+  if (!cfgRes.ok) await parseGhErrRes(cfgRes, 'Failed to read people.yml');
+  const cfgData = await cfgRes.json();
+  const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+  if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+  const baseSha = (await baseRes.json()).object.sha;
+  const branch  = `${branchPrefix}-${Date.now()}`;
+  const brRes   = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+    body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+  if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+  const commitRes = await fetch(`${GH}/contents/_data/people.yml`, { method: 'PUT', headers: ghH(),
+    body: JSON.stringify({ message, content: b64e(newYaml), sha: cfgData.sha, branch }) });
+  if (!commitRes.ok) await parseGhErrRes(commitRes, 'Failed to commit people.yml');
+  return { branch, baseSha };
+}
+
+// ── Save PR ────────────────────────────────────────────────────────────────────
+async function openPeoplePR() {
+  const slug    = document.getElementById('ppl-slug').value.trim();
+  const name    = document.getElementById('ppl-name').value.trim();
+  const role    = document.getElementById('ppl-role').value.trim();
+  const webpage = document.getElementById('ppl-webpage').value.trim();
+  const image   = document.getElementById('ppl-image').value.trim();
+  const bio     = document.getElementById('ppl-bio').value.trim();
+  if (!slug || !name) { setPeopleStatus('error', 'Slug and Display Name are required.'); return; }
+  const isEditing   = editingPerson !== null;
+  const newBlock    = buildPersonYamlBlock(slug, name, role, webpage, image, bio);
+  progressStart();
+  document.getElementById('ppl-pr-btn').disabled = true;
+  try {
+    // Fetch fresh YAML
+    const cfgRes  = await fetch(`${GH}/contents/_data/people.yml`, { headers: ghH() });
+    if (!cfgRes.ok) await parseGhErrRes(cfgRes, 'Failed to read people.yml');
+    const cfgData = await cfgRes.json();
+    const raw     = b64d(cfgData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+    let newYaml;
+    if (isEditing) {
+      // Replace the existing block for this slug
+      const existing = peopleData.entries.find(e => e.slug === editingPerson);
+      if (existing) {
+        newYaml = raw.replace(existing.raw, newBlock.replace(/\n$/, ''));
+      } else {
+        newYaml = raw + '\n' + newBlock;
+      }
+    } else {
+      if (raw.includes(`\n${slug}:\n`) || raw.startsWith(`${slug}:\n`)) {
+        throw new Error(`A person with slug "${slug}" already exists.`);
+      }
+      newYaml = raw.trimEnd() + '\n\n' + newBlock;
+    }
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branchPrefix = isEditing ? `edit-person-${slug}` : `add-person-${slug}`;
+    const branch = `${branchPrefix}-${Date.now()}`;
+    const brRes  = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    // Upload image if a new file was selected
+    if (pplImageFile) {
+      const imgPath = document.getElementById('ppl-image').value.trim().replace(/^\//, '');
+      const imgB64  = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = e => res(e.target.result.split(',')[1]);
+        r.onerror = rej;
+        r.readAsDataURL(pplImageFile);
+      });
+      // Check if file already exists to get its SHA
+      let imgSha;
+      try { const chk = await fetch(`${GH}/contents/${imgPath}`, { headers: ghH() }); if (chk.ok) imgSha = (await chk.json()).sha; } catch {}
+      const imgBody = { message: `Add photo for ${slug}`, content: imgB64, branch };
+      if (imgSha) imgBody.sha = imgSha;
+      const imgRes = await fetch(`${GH}/contents/${imgPath}`, { method: 'PUT', headers: ghH(), body: JSON.stringify(imgBody) });
+      if (!imgRes.ok) await parseGhErrRes(imgRes, 'Failed to upload image');
+    }
+    const commitRes = await fetch(`${GH}/contents/_data/people.yml`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({ message: isEditing ? `Edit person: ${slug}` : `Add person: ${slug}`, content: b64e(newYaml), sha: cfgData.sha, branch }) });
+    if (!commitRes.ok) await parseGhErrRes(commitRes, 'Failed to commit people.yml');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: isEditing ? `Edit person: ${name}` : `Add person: ${name}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Person ${isEditing ? 'updated' : 'added'} via admin panel.\n\n**Slug:** \`${slug}\`\n**Name:** ${name}\n**Role:** ${role}` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    peopleData.pendingUpdate = true;
+    setPeopleStatus('success', `\u2713 Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    document.getElementById('people-status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('ppl-pr-btn').disabled = false;
+    document.getElementById('ppl-slug').readOnly = false;
+    resetPeopleForm();
+    // Optimistically update local entries
+    if (isEditing) {
+      const idx = peopleData.entries.findIndex(e => e.slug === editingPerson);
+      if (idx >= 0) peopleData.entries[idx] = { ...peopleData.entries[idx], display_name: name, role, webpage, image, bio };
+    } else {
+      peopleData.entries.push({ slug, display_name: name, role, webpage, image, bio, raw: newBlock });
+    }
+    renderPeopleList();
+  } catch(e) {
+    progressEnd();
+    setPeopleStatus('error', `Failed: ${e.message}`);
+    document.getElementById('ppl-pr-btn').disabled = false;
+  }
+}
+
+// ── Delete person ──────────────────────────────────────────────────────────────
+async function deletePerson(slug) {
+  const p = peopleData.entries.find(e => e.slug === slug);
+  if (!p) return;
+  const safeId = slug.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const row = document.getElementById(`ppl-row-${safeId}`);
+  if (row) { row.classList.add('is-deleting'); }
+  progressStart();
+  try {
+    const cfgRes  = await fetch(`${GH}/contents/_data/people.yml`, { headers: ghH() });
+    if (!cfgRes.ok) await parseGhErrRes(cfgRes, 'Failed to read people.yml');
+    const cfgData = await cfgRes.json();
+    const raw     = b64d(cfgData.content.replace(/\n/g, '')).replace(/^\uFEFF/, '');
+    const newYaml = raw.replace(p.raw + '\n', '').replace(p.raw, '');
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhErrRes(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+    const branch  = `delete-person-${slug}-${Date.now()}`;
+    const brRes   = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!brRes.ok) await parseGhErrRes(brRes, 'Failed to create branch');
+    const commitRes = await fetch(`${GH}/contents/_data/people.yml`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({ message: `Delete person: ${slug}`, content: b64e(newYaml), sha: cfgData.sha, branch }) });
+    if (!commitRes.ok) await parseGhErrRes(commitRes, 'Failed to commit people.yml');
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ title: `Delete person: ${p.display_name}`, head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Person deleted via admin panel.\n\n**Slug:** \`${slug}\`\n**Name:** ${p.display_name}` }) });
+    if (!prRes.ok) await parseGhErrRes(prRes, 'Failed to open PR');
+    const pr = await prRes.json();
+    progressEnd();
+    peopleData.pendingUpdate = true;
+    setPeopleStatus('success', `\u2713 Delete pending: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    if (row) { row.classList.remove('is-deleting'); row.classList.add('pending-delete'); const b = document.createElement('span'); b.className = 'post-ex-badge pending-delete'; b.textContent = 'Delete Pending'; const ne = row.querySelector('.proj-name'); if (ne) ne.insertAdjacentElement('afterend', b); const btns = document.getElementById(`ppl-row-btns-${safeId}`); if (btns) btns.style.display = 'none'; const conf = document.getElementById(`ppl-row-confirm-${safeId}`); if (conf) conf.style.display = 'none'; }
+  } catch(e) {
+    progressEnd();
+    if (row) row.classList.remove('is-deleting');
+    setPeopleStatus('error', `Failed: ${e.message}`);
+  }
+}
+
+// ── Browse / Pending toggles ───────────────────────────────────────────────────
+function togglePeopleExisting() {
+  pplExOpen = !pplExOpen;
+  const list = document.getElementById('ppl-existing-list');
+  const arrow = document.querySelector('#ppl-ex-toggle .arrow');
+  list.style.display  = pplExOpen ? 'block' : 'none';
+  if (arrow) arrow.innerHTML = pplExOpen ? '&#9660;' : '&#9658;';
+  if (pplExOpen) loadPeopleData();
+}
+function togglePeoplePending() {
+  pplPendingOpen = !pplPendingOpen;
+  const list  = document.getElementById('ppl-pending-list');
+  const arrow = document.querySelector('#ppl-pending-toggle .arrow');
+  list.style.display = pplPendingOpen ? 'block' : 'none';
+  if (arrow) arrow.innerHTML = pplPendingOpen ? '&#9660;' : '&#9658;';
+  if (pplPendingOpen) loadPeoplePending();
+}
+async function loadPeoplePending() {
+  const container = document.getElementById('ppl-pending-items');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>';
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) throw new Error(`${prRes.status}`);
+    const prs    = await prRes.json();
+    const pplPRs = prs.filter(pr => /^(add|edit|delete)-person-/.test(pr.head.ref));
+    if (!pplPRs.length) { container.innerHTML = '<div class="ex-empty">No pending people changes.</div>'; return; }
+    container.innerHTML = pplPRs.map(pr =>
+      `<div class="proj-row"><span class="proj-name"><a href="${pr.html_url}" target="_blank">${esc(pr.title)}</a></span>` +
+      `<span style="font-size:11px;color:var(--muted);margin-left:8px">#${pr.number}</span></div>`
+    ).join('');
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed to load: ${esc(e.message)}</div>`;
+  }
+}
+
 // ── Browse toggle ──────────────────────────────────────────────────────────────
 function toggleProjectsExisting() {
   projExOpen = !projExOpen;
@@ -3248,7 +4633,69 @@ function toggleProjectsExisting() {
   else if (projExOpen) renderProjectsList();
 }
 
+// ── Browse toggle ──────────────────────────────────────────────────────────────
+function toggleResearchExisting() {
+  resExOpen = !resExOpen;
+  document.getElementById('res-ex-toggle').classList.toggle('open', resExOpen);
+  document.getElementById('res-existing-list').classList.toggle('open', resExOpen);
+  if (resExOpen && !researchState.loaded) loadResearchList();
+  else if (resExOpen) renderResearchList();
+}
+
 // ── Pending PRs ────────────────────────────────────────────────────────────────
+function toggleResearchPending() {
+  resPendingOpen = !resPendingOpen;
+  document.getElementById('res-pending-toggle').classList.toggle('open', resPendingOpen);
+  document.getElementById('res-pending-list').classList.toggle('open', resPendingOpen);
+  if (resPendingOpen) loadResearchPending();
+}
+
+async function loadResearchPending() {
+  const container = document.getElementById('res-pending-items');
+  const lbl = document.getElementById('res-pending-label');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>';
+  try {
+    const prRes = await fetch(`${GH}/pulls?state=open&per_page=100`, { headers: ghH() });
+    if (!prRes.ok) throw new Error(`${prRes.status}`);
+    const prs      = await prRes.json();
+    const topicPRs = prs.filter(pr => /^(new|edit|delete|toggle)-topic-/.test(pr.head.ref));
+    if (!topicPRs.length) {
+      lbl.textContent = 'Browse research topics pending approval (0)';
+      container.innerHTML = '<div class="ex-empty">No topics pending approval.</div>'; return;
+    }
+    lbl.textContent = `Browse research topics pending approval (${topicPRs.length})`;
+    const results = await Promise.all(topicPRs.map(async pr => {
+      try {
+        const fRes  = await fetch(`${GH}/pulls/${pr.number}/files`, { headers: ghH() });
+        const files = fRes.ok ? (await fRes.json()).filter(f => f.filename.match(/^_topics_(realtime|reliability|security)\//)) : [];
+        return { pr, files };
+      } catch { return { pr, files: [] }; }
+    }));
+    const kindColorMap = { new:'var(--success)', edit:'var(--warn)', delete:'var(--danger)', toggle:'var(--muted)' };
+    container.innerHTML = results.map(({ pr, files }) => {
+      const kindM  = pr.head.ref.match(/^(new|edit|delete|toggle)-topic-/);
+      const kind   = kindM ? kindM[1] : '';
+      const kColor = kindColorMap[kind] || 'var(--accent)';
+      const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
+        `<span><span style="font-size:10px;font-weight:700;color:${kColor};border:1px solid ${kColor};padding:1px 6px;border-radius:3px;margin-right:6px;text-transform:uppercase">${esc(kind)}</span>` +
+        `<a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
+        `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
+      const statusIcon = { added:'\uff0b', modified:'\u270e', removed:'\u2715' };
+      const statusCol  = { added:'var(--success)', modified:'var(--warn)', removed:'var(--danger)' };
+      const rows = files.map(f =>
+        `<div class="post-ex-item" style="pointer-events:none">` +
+        `<span style="color:${statusCol[f.status]||'var(--muted)'};font-family:var(--mono);font-size:13px;flex-shrink:0;width:20px">${statusIcon[f.status]||'\u00b7'}</span>` +
+        `<span class="post-ex-name">${esc(f.filename)}</span>` +
+        `</div>`
+      );
+      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No topic files changed.</div>');
+    }).join('<div style="border-top:2px solid var(--border,#e2e8f0);margin:4px 0"></div>');
+  } catch(e) {
+    container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── Projects Pending PRs ───────────────────────────────────────────────────────
 function toggleProjectsPending() {
   projPendingOpen = !projPendingOpen;
   document.getElementById('proj-pending-toggle').classList.toggle('open', projPendingOpen);
