@@ -1,6 +1,6 @@
 ---
 title: P-Mobility - Borgo 4.0
-subtitle: "description: |"
+subtitle: 
 
 description: |
 
