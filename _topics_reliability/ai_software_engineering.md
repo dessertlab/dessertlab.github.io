@@ -1,6 +1,6 @@
 ---
 title: AI for Software Engineering
-subtitle: "description: |"
+subtitle: 
 
 description: |
 
