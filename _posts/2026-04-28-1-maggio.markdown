@@ -1,0 +1,11 @@
+---
+layout: post
+title: "1 maggio"
+date: 2026-04-28 09:00:00 +0000
+shortnews: false
+categories: [events, phd school]
+icon: newspaper-o
+excerpt: "fdsfs"
+---
+
+fdsfsd
