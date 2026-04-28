@@ -44,6 +44,8 @@ collections:
     output: true
   teaching:
     output: true
+  topics_test-category:
+    output: true
 
 # Navigation bar links.
 navigation:
