@@ -1,6 +1,6 @@
 ---
 title: Model-based verification and log-based failure analysis
-subtitle:
+subtitle: 
 
 description: |
 
@@ -13,9 +13,4 @@ no-link: false
 last-updated: 2016-11-11
 ---
 
-
 Inserire una descrizione qui...
-
-
-
-
