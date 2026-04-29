@@ -1,5 +1,16 @@
 [
   {
+    "id": "improta2026reading",
+    "entry_type": "article",
+    "category": "journal",
+    "css_class": "jpaper",
+    "title": "Reading between the Lines: Context-Aware AI-based generation of software exploits",
+    "authors": "Improta, Cristina and Liguori, Pietro and Natella, Roberto and Cukic, Bojan and Cotroneo, Domenico",
+    "year": "2026",
+    "search_text": "reading between the lines: context-aware ai-based generation of software exploits improta, cristina and liguori, pietro and natella, roberto and cukic, bojan and cotroneo, domenico 2026",
+    "bibtex": "@article{improta2026reading,\n  author = {Improta, Cristina and Liguori, Pietro and Natella, Roberto and Cukic, Bojan and Cotroneo, Domenico},\n  journal = {Empirical Software Engineering},\n  number = {3},\n  pages = {60},\n  publisher = {Springer},\n  title = {Reading between the Lines: Context-Aware AI-based generation of software exploits},\n  volume = {31},\n  year = {2026}\n}"
+  },
+  {
     "id": "10994136",
     "entry_type": "inproceedings",
     "category": "conference",
@@ -33,6 +44,17 @@
     "bibtex": "@article{10.1145/3725855,\n  address = {New York, NY, USA},\n  articleno = {67},\n  author = {Pietrantuono, Roberto and Russo, Stefano},\n  doi = {10.1145/3725855},\n  issn = {2157-6904},\n  issue_date = {June 2025},\n  journal = {ACM Trans. Intell. Syst. Technol.},\n  keywords = {Abduction, Evolutionary Computation, Hypotheses generation},\n  number = {3},\n  numpages = {31},\n  publisher = {Association for Computing Machinery},\n  title = {Automatic Generation of Plausible Co-Occurring Causes for Effects Explanation or Prediction},\n  url = {https://doi.org/10.1145/3725855},\n  volume = {16},\n  year = {2025}\n}"
   },
   {
+    "id": "10.1145/3722041.3723097",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "Can Neural Decompilation Assist Vulnerability Prediction on Binary Code?",
+    "authors": "Cotroneo, Domenico and Grasso, Francesco C. and Natella, Roberto and Orbinato, Vittorio",
+    "year": "2025",
+    "search_text": "can neural decompilation assist vulnerability prediction on binary code? cotroneo, domenico and grasso, francesco c. and natella, roberto and orbinato, vittorio 2025",
+    "bibtex": "@inproceedings{10.1145/3722041.3723097,\n  abstract = {Vulnerability prediction is valuable in identifying security issues efficiently, even though it requires the source code of the target software system, which is a restrictive hypothesis. This paper presents an experimental study to predict vulnerabilities in binary code without source code or complex representations of the binary, leveraging the pivotal idea of decompiling the binary file through neural decompilation and predicting vulnerabilities through deep learning on the decompiled source code. The results outperform the state-of-the-art in both neural decompilation and vulnerability prediction, showing that it is possible to identify vulnerable programs with this approach concerning bi-class (vulnerable/non-vulnerable) and multi-class (type of vulnerability) analysis.},\n  address = {New York, NY, USA},\n  author = {Cotroneo, Domenico and Grasso, Francesco C. and Natella, Roberto and Orbinato, Vittorio},\n  booktitle = {Proceedings of the 18th European Workshop on Systems Security},\n  doi = {10.1145/3722041.3723097},\n  isbn = {9798400715631},\n  keywords = {Binary Analysis, Deep Learning, Neural Decompilation, Security, Vulnerability Prediction},\n  location = {Rotterdam, Netherlands},\n  numpages = {7},\n  pages = {26–32},\n  publisher = {Association for Computing Machinery},\n  series = {EuroSec'25},\n  title = {Can Neural Decompilation Assist Vulnerability Prediction on Binary Code?},\n  url = {https://doi.org/10.1145/3722041.3723097},\n  year = {2025}\n}"
+  },
+  {
     "id": "S0950584924002040",
     "entry_type": "article",
     "category": "journal",
@@ -44,6 +66,61 @@
     "bibtex": "@article{S0950584924002040,\n  author = {Luca Giamattei and Antonio Guerriero and Roberto Pietrantuono and Stefano Russo},\n  doi = {https://doi.org/10.1016/j.infsof.2024.107599},\n  issn = {0950-5849},\n  journal = {Information and Software Technology},\n  keywords = {Causal reasoning, Causal discovery, Causal inference, Software quality},\n  pages = {107599},\n  title = {Causal reasoning in Software Quality Assurance: A systematic review},\n  url = {https://www.sciencedirect.com/science/article/pii/S0950584924002040},\n  volume = {178},\n  year = {2025}\n}"
   },
   {
+    "id": "11091601",
+    "entry_type": "article",
+    "category": "journal",
+    "css_class": "jpaper",
+    "title": "CGP-Tuning: Structure-Aware Soft Prompt Tuning for Code Vulnerability Detection",
+    "authors": "Feng, Ruijun and Pearce, Hammond and Liguori, Pietro and Sui, Yulei",
+    "year": "2025",
+    "search_text": "cgp-tuning: structure-aware soft prompt tuning for code vulnerability detection feng, ruijun and pearce, hammond and liguori, pietro and sui, yulei 2025",
+    "bibtex": "@article{11091601,\n  abstract = { Large language models (LLMs) have been proposed as powerful tools for detecting software vulnerabilities, where task-specific fine-tuning is typically employed to provide vulnerability-specific knowledge to the LLMs. However, existing fine-tuning techniques often treat source code as plain text, losing the graph-based structural information inherent in code. Graph-enhanced soft prompt tuning addresses this by translating the structural information into contextual cues that the LLM can understand. However, current methods are primarily designed for general graph-related tasks and focus more on adjacency information, they fall short in preserving the rich semantic information (e.g., control/data flow) within code graphs. They also fail to ensure computational efficiency while capturing graph-text interactions in their cross-modal alignment module. This paper presents CGP-Tuning, a new code graph-enhanced, structure-aware soft prompt tuning method for vulnerability detection. CGP-Tuning introduces type-aware embeddings to capture the rich semantic information within code graphs, along with an efficient cross-modal alignment module that achieves linear computational costs while incorporating graph-text interactions. It is evaluated on the latest DiverseVul dataset and three advanced open-source code LLMs, CodeLlama, CodeGemma, and Qwen2.5-Coder. Experimental results show that CGP-Tuning delivers model-agnostic improvements and maintains practical inference speed, surpassing the best graph-enhanced soft prompt tuning baseline by an average of four percentage points and outperforming non-tuned zero-shot prompting by 15 percentage points. },\n  address = {Los Alamitos, CA, USA},\n  author = {Feng, Ruijun and Pearce, Hammond and Liguori, Pietro and Sui, Yulei},\n  doi = {10.1109/TSE.2025.3591934},\n  issn = {1939-3520},\n  journal = { IEEE Transactions on Software Engineering },\n  keywords = {Codes;Tuning;Source coding;Semantics;Computational efficiency;Graph neural networks;Large language models;Computational modeling;Training;Static analysis},\n  month = {September},\n  number = {09},\n  pages = {2533-2548},\n  publisher = {IEEE Computer Society},\n  title = { CGP-Tuning: Structure-Aware Soft Prompt Tuning for Code Vulnerability Detection },\n  url = {https://doi.ieeecomputersociety.org/10.1109/TSE.2025.3591934},\n  volume = {51},\n  year = {2025}\n}"
+  },
+  {
+    "id": "11121437",
+    "entry_type": "article",
+    "category": "journal",
+    "css_class": "jpaper",
+    "title": "COSMOS: A Fault Injection Framework to Assess Hardware-Assisted Hypervisors",
+    "authors": "Cinque, Marcello and Cotroneo, Domenico and De Rosa, Giuseppe and De Simone, Luigi and Farina, Giorgio",
+    "year": "2025",
+    "search_text": "cosmos: a fault injection framework to assess hardware-assisted hypervisors cinque, marcello and cotroneo, domenico and de rosa, giuseppe and de simone, luigi and farina, giorgio 2025",
+    "bibtex": "@article{11121437,\n  author = {Cinque, Marcello and Cotroneo, Domenico and De Rosa, Giuseppe and De Simone, Luigi and Farina, Giorgio},\n  doi = {10.1109/TDSC.2025.3597103},\n  journal = {IEEE Transactions on Dependable and Secure Computing},\n  keywords = {Virtual machine monitors;Virtual machines;Hardware;Software;Transient analysis;Robustness;Switches;Fault tolerant systems;Fault tolerance;Training;Cloud computing;virtualization;software fault injection;robustness;intel VT-x},\n  number = {6},\n  pages = {7448-7462},\n  title = {COSMOS: A Fault Injection Framework to Assess Hardware-Assisted Hypervisors},\n  volume = {22},\n  year = {2025}\n}"
+  },
+  {
+    "id": "Dellapenna2025CTI-HAL",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "CTI-HAL: A Human-Annotated Dataset for Cyber Threat Intelligence Analysis",
+    "authors": "Della Penna, Sofia and Natella, Roberto and Orbinato, Vittorio and Parracino, Lorenzo and Pianese, Luciano",
+    "year": "2025",
+    "search_text": "cti-hal: a human-annotated dataset for cyber threat intelligence analysis della penna, sofia and natella, roberto and orbinato, vittorio and parracino, lorenzo and pianese, luciano 2025",
+    "bibtex": "@inproceedings{Dellapenna2025CTI-HAL,\n  author = {Della Penna, Sofia and Natella, Roberto and Orbinato, Vittorio and Parracino, Lorenzo and Pianese, Luciano},\n  booktitle = {2025 IEEE European Symposium on Security and Privacy Workshops (EuroS&PW)},\n  doi = {10.1109/EuroSPW67616.2025.00014},\n  keywords = {Performance evaluation;Accuracy;Large language models;Natural languages;Blogs;Organizations;Cyber threat intelligence;Reliability;Data mining;Computer security;Cyber Threat Intelligence;MITRE ATT&CK;Advanced Persistent Threats;Large Language Models;Cybersecurity},\n  number = {},\n  pages = {69-78},\n  title = {CTI-HAL: A Human-Annotated Dataset for Cyber Threat Intelligence Analysis},\n  volume = {},\n  year = {2025}\n}"
+  },
+  {
+    "id": "improta2025detecting",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "Detecting stealthy data poisoning attacks in ai code generators",
+    "authors": "Improta, Cristina",
+    "year": "2025",
+    "search_text": "detecting stealthy data poisoning attacks in ai code generators improta, cristina 2025",
+    "bibtex": "@inproceedings{improta2025detecting,\n  author = {Improta, Cristina},\n  booktitle = {2025 IEEE 36th International Symposium on Software Reliability Engineering Workshops (ISSREW)},\n  organization = {IEEE},\n  pages = {245--252},\n  title = {Detecting stealthy data poisoning attacks in ai code generators},\n  year = {2025}\n}"
+  },
+  {
+    "id": "mastropaolo2025editorial",
+    "entry_type": "misc",
+    "category": "editorial",
+    "css_class": "vpaper",
+    "title": "Editorial of the Special Issue in the Journal of Systems and Software on Reliable and Secure Large Language Models for Software Engineering",
+    "authors": "Mastropaolo, Antonio and Liguori, Pietro and Bavota, Gabriele",
+    "year": "2025",
+    "search_text": "editorial of the special issue in the journal of systems and software on reliable and secure large language models for software engineering mastropaolo, antonio and liguori, pietro and bavota, gabriele 2025",
+    "bibtex": "@misc{mastropaolo2025editorial,\n  author = {Mastropaolo, Antonio and Liguori, Pietro and Bavota, Gabriele},\n  journal = {Journal of Systems and Software},\n  pages = {112683},\n  publisher = {Elsevier},\n  title = {Editorial of the Special Issue in the Journal of Systems and Software on Reliable and Secure Large Language Models for Software Engineering},\n  year = {2025}\n}"
+  },
+  {
     "id": "DBLP:journals/ese/ImprotaLNCC25",
     "entry_type": "article",
     "category": "journal",
@@ -53,6 +130,17 @@
     "year": "2025",
     "search_text": "enhancing robustness of ai offensive code generators via data augmentation cristina improta and pietro liguori and roberto natella and bojan cukic and domenico cotroneo 2025",
     "bibtex": "@article{DBLP:journals/ese/ImprotaLNCC25,\n  author = {Cristina Improta and\nPietro Liguori and\nRoberto Natella and\nBojan Cukic and\nDomenico Cotroneo},\n  bibsource = {dblp computer science bibliography, https://dblp.org},\n  biburl = {https://dblp.org/rec/journals/ese/ImprotaLNCC25.bib},\n  doi = {10.1007/S10664-024-10569-Y},\n  journal = {Empir. Softw. Eng.},\n  number = {1},\n  pages = {7},\n  timestamp = {Tue, 29 Oct 2024 08:50:39 +0100},\n  title = {Enhancing robustness of AI offensive code generators via data augmentation},\n  url = {https://doi.org/10.1007/s10664-024-10569-y},\n  volume = {30},\n  year = {2025}\n}"
+  },
+  {
+    "id": "cotroneo2025human",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "Human-written vs. ai-generated code: A large-scale study of defects, vulnerabilities, and complexity",
+    "authors": "Cotroneo, Domenico and Improta, Cristina and Liguori, Pietro",
+    "year": "2025",
+    "search_text": "human-written vs. ai-generated code: a large-scale study of defects, vulnerabilities, and complexity cotroneo, domenico and improta, cristina and liguori, pietro 2025",
+    "bibtex": "@inproceedings{cotroneo2025human,\n  author = {Cotroneo, Domenico and Improta, Cristina and Liguori, Pietro},\n  booktitle = {2025 IEEE 36th International Symposium on Software Reliability Engineering (ISSRE)},\n  organization = {IEEE},\n  pages = {252--263},\n  title = {Human-written vs. ai-generated code: A large-scale study of defects, vulnerabilities, and complexity},\n  year = {2025}\n}"
   },
   {
     "id": "11169585",
@@ -97,6 +185,17 @@
     "year": "2025",
     "search_text": "pyresbugs: a dataset of residual python bugs for natural language-driven fault injection cotroneo, domenico and de rosa, giuseppe and liguori, pietro 2025",
     "bibtex": "@inproceedings{cotroneo2025pyresbugs,\n  author = {Cotroneo, Domenico and De Rosa, Giuseppe and Liguori, Pietro},\n  booktitle = {2025 IEEE/ACM Second International Conference on AI Foundation Models and Software Engineering (Forge)},\n  organization = {IEEE},\n  pages = {146--150},\n  title = {PyResBugs: A Dataset of Residual Python Bugs for Natural Language-Driven Fault Injection},\n  year = {2025}\n}"
+  },
+  {
+    "id": "improta2025quality",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "Quality In, Quality Out: Investigating Training Data's Role in AI Code Generation",
+    "authors": "Improta, Cristina and Tufano, Rosalia and Liguori, Pietro and Cotroneo, Domenico and Bavota, Gabriele",
+    "year": "2025",
+    "search_text": "quality in, quality out: investigating training data's role in ai code generation improta, cristina and tufano, rosalia and liguori, pietro and cotroneo, domenico and bavota, gabriele 2025",
+    "bibtex": "@inproceedings{improta2025quality,\n  author = {Improta, Cristina and Tufano, Rosalia and Liguori, Pietro and Cotroneo, Domenico and Bavota, Gabriele},\n  booktitle = {2025 IEEE/ACM 33rd International Conference on Program Comprehension (ICPC)},\n  organization = {IEEE Computer Society},\n  pages = {454--465},\n  title = {Quality In, Quality Out: Investigating Training Data's Role in AI Code Generation},\n  year = {2025}\n}"
   },
   {
     "id": "altiero2025securing",

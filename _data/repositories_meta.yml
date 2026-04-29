@@ -93,7 +93,7 @@ repos:
     name:        'Failure-Dataset-OpenStack'
     description: 'Failure dataset containing information on the events collected in the OpenStack cloud computing platform during three different campaigns of fault-injection experiments performed with three different workloads.'
     language:    ''
-    stars:       13
+    stars:       14
     url:         'https://github.com/dessertlab/Failure-Dataset-OpenStack'
   - slug:        'dessertlab/JSSOFTWARE_Android_rejuvenation'
     owner:       'dessertlab'
@@ -106,41 +106,46 @@ repos:
     owner:       'dessertlab'
     name:        'DeepEST'
     description: ''
-    language:    ''
-    stars:       0
+    language:    'Java'
+    languages:   ['Java', 'Shell']
+    stars:       4
     url:         'https://github.com/dessertlab/DeepEST'
   - slug:        'dessertlab/Fault-Injection-Dataset'
     owner:       'dessertlab'
     name:        'Fault-Injection-Dataset'
-    description: ''
+    description: 'Failure dataset accompanying the paper  "How Bad Can a Bug Get? An Empirical Analysis of Software Failures in the OpenStack Cloud Computing Platform"'
     language:    ''
-    stars:       0
+    stars:       10
     url:         'https://github.com/dessertlab/Fault-Injection-Dataset'
   - slug:        'dessertlab/BayesianReliabilityAssessment'
     owner:       'dessertlab'
     name:        'BayesianReliabilityAssessment'
     description: ''
-    language:    ''
-    stars:       0
+    language:    'Java'
+    languages:   ['Java', 'MATLAB']
+    stars:       4
     url:         'https://github.com/dessertlab/BayesianReliabilityAssessment'
   - slug:        'dessertlab/EMART'
     owner:       'dessertlab'
     name:        'EMART'
     description: ''
-    language:    ''
+    language:    'Java'
+    languages:   ['Java']
     stars:       0
     url:         'https://github.com/dessertlab/EMART'
   - slug:        'dessertlab/fantastic_beasts'
     owner:       'dessertlab'
     name:        'fantastic_beasts'
-    description: ''
-    language:    ''
-    stars:       0
+    description: 'The Fantastic Beasts Framework is a collection of tools for fuzzing the Android OS.'
+    language:    'C'
+    languages:   ['C', 'Java', 'C++', 'Python', 'CMake', 'Shell']
+    stars:       72
     url:         'https://github.com/dessertlab/fantastic_beasts'
   - slug:        'dessertlab/MetroFunnel'
     owner:       'dessertlab'
     name:        'MetroFunnel'
-    description: ''
-    language:    ''
-    stars:       0
+    description: 'Real-time monitoring of microservices based software systems'
+    language:    'Shell'
+    languages:   ['Shell', 'Dockerfile']
+    stars:       1
     url:         'https://github.com/dessertlab/MetroFunnel'
