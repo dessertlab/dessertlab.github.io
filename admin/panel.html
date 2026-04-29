@@ -1502,7 +1502,7 @@ async function openPR() {
 
   const s = state[activeTab];
   const cat = BIB_FILES.find(f => f.id === activeTab);
-  const newEntries = parseBib(newBib);
+  const newEntries = parseBib(newBib).filter(e => !e._error);
 
   // Check for duplicate keys
   const existingKeys = new Set(s.files.map(f => f.entry?.key).filter(Boolean));
@@ -1654,6 +1654,9 @@ function validateInput() {
   }
 
   const entries = parseBib(val);
+  const badEntries = entries.filter(e => e._error);
+  const goodEntries = entries.filter(e => !e._error);
+
   if (entries.length === 0) {
     inp.className = 'bib-input invalid';
     hint.textContent = 'No valid BibTeX entries detected. Make sure your entry starts with @type{key, …}';
@@ -1661,9 +1664,31 @@ function validateInput() {
     btn.disabled = true; note.textContent = ''; return;
   }
 
+  if (badEntries.length) {
+    inp.className = 'bib-input invalid';
+    hint.textContent = '⚠ Malformed entr' + (badEntries.length > 1 ? 'ies' : 'y') + ': ' +
+      badEntries.map(e => `"${e.key}" (${e._error})`).join(', ');
+    hint.className = 'val-hint err';
+    btn.disabled = true; note.textContent = ''; return;
+  }
+
+  // Check for text outside entry boundaries
+  const covered = new Uint8Array(val.length);
+  for (const e of entries) { covered.fill(1, e._start, e._end); }
+  let junk = '';
+  for (let i = 0; i < val.length; i++) {
+    if (!covered[i] && /\S/.test(val[i])) { junk += val[i]; if (junk.length > 20) break; }
+  }
+  if (junk.trim()) {
+    inp.className = 'bib-input invalid';
+    hint.textContent = `⚠ Text found outside BibTeX entries: "${junk.trim().slice(0, 40)}…". Remove extra characters.`;
+    hint.className = 'val-hint err';
+    btn.disabled = true; note.textContent = ''; return;
+  }
+
   // Check for missing key fields
   const warnings = [];
-  entries.forEach(e => {
+  goodEntries.forEach(e => {
     if (!e.fields.title)  warnings.push(`"${e.key}" has no title`);
     if (!e.fields.author) warnings.push(`"${e.key}" has no author`);
     if (!e.fields.year)   warnings.push(`"${e.key}" has no year`);
@@ -1676,7 +1701,7 @@ function validateInput() {
     btn.disabled = false; // still allow — just warn
   } else {
     inp.className = 'bib-input valid';
-    hint.textContent = `✓ ${entries.length} valid entr${entries.length > 1 ? 'ies' : 'y'} detected: ${entries.map(e => e.key).join(', ')}`;
+    hint.textContent = `✓ ${goodEntries.length} valid entr${goodEntries.length > 1 ? 'ies' : 'y'} detected: ${goodEntries.map(e => e.key).join(', ')}`;
     hint.className = 'val-hint ok';
     btn.disabled = false;
   }
@@ -1922,14 +1947,29 @@ function safeKey(key) { return key.replace(/[^\w\-]/g, '_'); }
 
 function parseBib(raw) {
   const out = [];
-  const re = /@(\w+)\s*\{\s*([^,\s]+)\s*,([^@]*)/gs;
+  const startRe = /@(\w+)\s*\{/g;
   let m;
-  while ((m = re.exec(raw)) !== null) {
-    // Validate brace balance: body should have exactly one more } than {
-    let depth = 0;
-    for (const c of m[3]) { if (c === '{') depth++; else if (c === '}') depth--; }
-    if (depth !== -1) continue; // unbalanced — missing closing brace, skip
-    out.push({ type: m[1].toLowerCase(), key: m[2].trim(), fields: parseFields(m[3]) });
+  while ((m = startRe.exec(raw)) !== null) {
+    const type = m[1].toLowerCase();
+    if (type === 'string' || type === 'comment' || type === 'preamble') continue;
+    const pos = m.index + m[0].length;
+    const commaIdx = raw.indexOf(',', pos);
+    if (commaIdx === -1) continue;
+    const key = raw.slice(pos, commaIdx).trim();
+    if (!key || /\s/.test(key)) continue;
+    // Track brace depth to find the closing brace of the entry
+    let depth = 1, k = commaIdx + 1;
+    while (k < raw.length && depth > 0) {
+      if (raw[k] === '{') depth++;
+      else if (raw[k] === '}') depth--;
+      k++;
+    }
+    if (depth !== 0) {
+      // Unbalanced — include with error so validateInput can report it
+      out.push({ type, key, fields: {}, _start: m.index, _end: raw.length, _error: 'missing closing brace' });
+    } else {
+      out.push({ type, key, fields: parseFields(raw.slice(commaIdx + 1, k - 1)), _start: m.index, _end: k });
+    }
   }
   return out;
 }
