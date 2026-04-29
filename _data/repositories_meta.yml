@@ -4,101 +4,91 @@ repos:
   - slug:        'dessertlab/iris'
     owner:       'dessertlab'
     name:        'iris'
-    description: 'Repository linked to DSN 2023 paper "IRIS: a Record and Replay Framework to Enable Hardware-assisted Virtualization Fuzzing"'
-    language:    'C'
-    languages:   ['C', 'Python', 'Shell', 'MATLAB', 'Makefile']
-    stars:       4
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/iris'
   - slug:        'dessertlab/OpenStack-Fault-Injection-Environment'
     owner:       'dessertlab'
     name:        'OpenStack-Fault-Injection-Environment'
-    description: 'Tools to repeat the fault-injection experiments presented in the paper "How Bad Can a Bug Get? An Empirical Analysis of Software Failures in the OpenStack Cloud Computing Platform" (ESEC/FSE ''19).'
-    language:    'Shell'
-    languages:   ['Shell', 'Python']
-    stars:       7
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/OpenStack-Fault-Injection-Environment'
   - slug:        'dessertlab/DAIC'
     owner:       'dessertlab'
     name:        'DAIC'
     description: ''
-    language:    'Python'
-    languages:   ['Python', 'Shell']
+    language:    ''
     stars:       0
     url:         'https://github.com/dessertlab/DAIC'
   - slug:        'dessertlab/PySA2'
     owner:       'dessertlab'
     name:        'PySA2'
-    description: 'PySA2  is the Python Source-code Analyzer for Python 2.7 that exploits Python AST'
-    language:    'HTML'
-    languages:   ['HTML', 'Python']
-    stars:       1
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/PySA2'
   - slug:        'dessertlab/OpenStack-multi-tenant-workload'
     owner:       'dessertlab'
     name:        'OpenStack-multi-tenant-workload'
     description: ''
-    language:    'Shell'
-    languages:   ['Shell', 'Python']
-    stars:       1
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/OpenStack-multi-tenant-workload'
   - slug:        'dessertlab/k4.0s'
     owner:       'dessertlab'
     name:        'k4.0s'
-    description: 'This repo refers to the paper "Introducing k4.0s: a Model for Mixed-Criticality Container Orchestration in Industry 4.0" @ ADSN 2022'
-    language:    'Go'
-    languages:   ['Go', 'Shell', 'PowerShell', 'Makefile', 'Dockerfile', 'Python', 'Lua', 'C', 'sed', 'Ruby', 'HTML']
-    stars:       2
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/k4.0s'
   - slug:        'dessertlab/cti-to-mitre-with-nlp'
     owner:       'dessertlab'
     name:        'cti-to-mitre-with-nlp'
-    description: 'Replication package for the paper "Automatic Mapping of Unstructured Cyber Threat Intelligence: An Experimental Study" published at the IEEE International Symposium on Software Reliability Engineering (ISSRE) 2022'
-    language:    'Jupyter Notebook'
-    languages:   ['Jupyter Notebook', 'Python']
-    stars:       59
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/cti-to-mitre-with-nlp'
   - slug:        'dessertlab/DevOpsTesting'
     owner:       'dessertlab'
     name:        'DevOpsTesting'
     description: ''
-    language:    'Java'
-    languages:   ['Java']
+    language:    ''
     stars:       0
     url:         'https://github.com/dessertlab/DevOpsTesting'
   - slug:        'dessertlab/Shellcode_IA32'
     owner:       'dessertlab'
     name:        'Shellcode_IA32'
-    description: 'Shellcode_IA32 is a dataset consisting of challenging but common assembly instructions, collected from real shellcodes, with their natural language descriptions. The dataset can be used for neural machine translation tasks to automatically generate software exploits from natural language.'
+    description: ''
     language:    ''
-    stars:       42
+    stars:       0
     url:         'https://github.com/dessertlab/Shellcode_IA32'
   - slug:        'dessertlab/EVIL'
     owner:       'dessertlab'
     name:        'EVIL'
-    description: 'EVIL (Exploiting software VIa natural Language) is an approach to automatically generate software exploits in assembly/Python language from descriptions in natural language. The approach leverages Neural Machine Translation (NMT) techniques and a dataset that we developed for this work. '
-    language:    'Python'
-    languages:   ['Python', 'Shell', 'C++', 'Cython']
-    stars:       30
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/EVIL'
   - slug:        'dessertlab/thorfi'
     owner:       'dessertlab'
     name:        'thorfi'
-    description: 'ThorFI: A Novel Approach for Network Fault Injection as a Service'
-    language:    'Python'
-    languages:   ['Python', 'Makefile', 'Shell']
-    stars:       9
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/thorfi'
   - slug:        'dessertlab/Failure-Dataset-OpenStack'
     owner:       'dessertlab'
     name:        'Failure-Dataset-OpenStack'
-    description: 'Failure dataset containing information on the events collected in the OpenStack cloud computing platform during three different campaigns of fault-injection experiments performed with three different workloads.'
+    description: ''
     language:    ''
-    stars:       14
+    stars:       0
     url:         'https://github.com/dessertlab/Failure-Dataset-OpenStack'
   - slug:        'dessertlab/JSSOFTWARE_Android_rejuvenation'
     owner:       'dessertlab'
     name:        'JSSOFTWARE_Android_rejuvenation'
-    description: 'This public repository includes raw data used in the experimental analysis provided in the article "Software Micro-Rejuvenation for Android Mobile Systems".'
+    description: ''
     language:    ''
     stars:       0
     url:         'https://github.com/dessertlab/JSSOFTWARE_Android_rejuvenation'
@@ -106,46 +96,41 @@ repos:
     owner:       'dessertlab'
     name:        'DeepEST'
     description: ''
-    language:    'Java'
-    languages:   ['Java', 'Shell']
-    stars:       4
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/DeepEST'
   - slug:        'dessertlab/Fault-Injection-Dataset'
     owner:       'dessertlab'
     name:        'Fault-Injection-Dataset'
-    description: 'Failure dataset accompanying the paper  "How Bad Can a Bug Get? An Empirical Analysis of Software Failures in the OpenStack Cloud Computing Platform"'
+    description: ''
     language:    ''
-    stars:       10
+    stars:       0
     url:         'https://github.com/dessertlab/Fault-Injection-Dataset'
   - slug:        'dessertlab/BayesianReliabilityAssessment'
     owner:       'dessertlab'
     name:        'BayesianReliabilityAssessment'
     description: ''
-    language:    'Java'
-    languages:   ['Java', 'MATLAB']
-    stars:       4
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/BayesianReliabilityAssessment'
   - slug:        'dessertlab/EMART'
     owner:       'dessertlab'
     name:        'EMART'
     description: ''
-    language:    'Java'
-    languages:   ['Java']
+    language:    ''
     stars:       0
     url:         'https://github.com/dessertlab/EMART'
   - slug:        'dessertlab/fantastic_beasts'
     owner:       'dessertlab'
     name:        'fantastic_beasts'
-    description: 'The Fantastic Beasts Framework is a collection of tools for fuzzing the Android OS.'
-    language:    'C'
-    languages:   ['C', 'Java', 'C++', 'Python', 'CMake', 'Shell']
-    stars:       72
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/fantastic_beasts'
   - slug:        'dessertlab/MetroFunnel'
     owner:       'dessertlab'
     name:        'MetroFunnel'
-    description: 'Real-time monitoring of microservices based software systems'
-    language:    'Shell'
-    languages:   ['Shell', 'Dockerfile']
-    stars:       1
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/MetroFunnel'
