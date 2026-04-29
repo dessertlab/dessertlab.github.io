@@ -1552,8 +1552,9 @@ async function openPR() {
       const newKey = newEntries[0]?.key || editingBibKey;
       const singleBib = newBib.trim() + '\n';
       if (newKey === editingBibKey) {
-        // Same key — update in place; fetch fresh SHA from branch
-        const oldPath = `${cat.dir}/${editingBibKey}.bib`;
+        // Same key — update in place; use stored path or derive safe filename
+        const oldFileObj = s.files.find(f => (f.entry?.key || f.name.replace(/\.bib$/, '')) === editingBibKey);
+        const oldPath = oldFileObj ? oldFileObj.path : `${cat.dir}/${safeKey(editingBibKey)}.bib`;
         const shaRes = await fetch(`${GH}/contents/${oldPath}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
         if (!shaRes.ok) await parseGhError(shaRes, 'Failed to read file SHA from branch');
         const oldSha = (await shaRes.json()).sha;
@@ -1561,12 +1562,16 @@ async function openPR() {
           body: JSON.stringify({ message: `Edit ${editingBibKey} in ${cat.dir}`, content: b64e(singleBib), sha: oldSha, branch }) });
         if (!upRes.ok) await parseGhError(upRes, 'Failed to update file');
       } else {
-        // Key changed — create new file, delete old file
-        const newPath = `${cat.dir}/${newKey}.bib`;
+        // Key changed — create new file with safe unique name, delete old file
+        const oldFileObj2 = s.files.find(f => (f.entry?.key || f.name.replace(/\.bib$/, '')) === editingBibKey);
+        const oldPath = oldFileObj2 ? oldFileObj2.path : `${cat.dir}/${safeKey(editingBibKey)}.bib`;
+        const existingNamesForRename = new Set(s.files.filter(f => f.path !== oldPath).map(f => f.name.replace(/\.bib$/, '')));
+        let newBaseName = safeKey(newKey), newName = newBaseName, newSuffix = 2;
+        while (existingNamesForRename.has(newName)) { newName = `${newBaseName}_${newSuffix++}`; }
+        const newPath = `${cat.dir}/${newName}.bib`;
         const crRes = await fetch(`${GH}/contents/${newPath}`, { method: 'PUT', headers: ghH(),
-          body: JSON.stringify({ message: `Rename ${editingBibKey} → ${newKey} in ${cat.dir}`, content: b64e(singleBib), branch }) });
+          body: JSON.stringify({ message: `Rename ${editingBibKey} -> ${newKey} in ${cat.dir}`, content: b64e(singleBib), branch }) });
         if (!crRes.ok) await parseGhError(crRes, 'Failed to create new file');
-        const oldPath = `${cat.dir}/${editingBibKey}.bib`;
         const shaRes = await fetch(`${GH}/contents/${oldPath}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
         if (!shaRes.ok) await parseGhError(shaRes, 'Failed to read old file SHA');
         const oldSha = (await shaRes.json()).sha;
@@ -1575,9 +1580,14 @@ async function openPR() {
         if (!delRes.ok) await parseGhError(delRes, 'Failed to delete old file');
       }
     } else {
-      // New entries — create one file per entry
+      // New entries — create one file per entry, using safe unique filenames
+      const existingNames = new Set(s.files.map(f => f.name.replace(/\.bib$/, '')));
+      const usedNames = new Set(existingNames);
       for (const entry of newEntries) {
-        const filePath = `${cat.dir}/${entry.key}.bib`;
+        let baseName = safeKey(entry.key), name = baseName, suffix = 2;
+        while (usedNames.has(name)) { name = `${baseName}_${suffix++}`; }
+        usedNames.add(name);
+        const filePath = `${cat.dir}/${name}.bib`;
         const singleBib = (extractRawBibEntry(newBib, entry.key) || newBib).trim() + '\n';
         const crRes = await fetch(`${GH}/contents/${filePath}`, { method: 'PUT', headers: ghH(),
           body: JSON.stringify({ message: `Add ${entry.key} to ${cat.dir}`, content: b64e(singleBib), branch }) });
@@ -1799,7 +1809,7 @@ async function deleteBibEntry(key, idx) {
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
     // Fetch fresh SHA of the file from the new branch
-    const filePath = fileObj ? fileObj.path : `${cat.dir}/${key}.bib`;
+    const filePath = fileObj ? fileObj.path : `${cat.dir}/${safeKey(key)}.bib`;
     const shaRes = await fetch(`${GH}/contents/${filePath}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
     if (!shaRes.ok) await parseGhError(shaRes, 'Failed to read file SHA from branch');
     const fileSha = (await shaRes.json()).sha;
@@ -1908,12 +1918,19 @@ function handleTab(e) {
   validateInput();
 }
 
+function safeKey(key) { return key.replace(/[^\w\-]/g, '_'); }
+
 function parseBib(raw) {
   const out = [];
   const re = /@(\w+)\s*\{\s*([^,\s]+)\s*,([^@]*)/gs;
   let m;
-  while ((m = re.exec(raw)) !== null)
+  while ((m = re.exec(raw)) !== null) {
+    // Validate brace balance: body should have exactly one more } than {
+    let depth = 0;
+    for (const c of m[3]) { if (c === '{') depth++; else if (c === '}') depth--; }
+    if (depth !== -1) continue; // unbalanced — missing closing brace, skip
     out.push({ type: m[1].toLowerCase(), key: m[2].trim(), fields: parseFields(m[3]) });
+  }
   return out;
 }
 function parseFields(body) {
