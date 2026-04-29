@@ -88,6 +88,28 @@
     "bibtex": "@inproceedings{11052809,\n  author = {Mascia, Cristian and Guerriero, Antonio and Giamattei, Luca and Pietrantuono, Roberto and Russo, Stefano},\n  booktitle = {2025 IEEE/ACM Second International Conference on AI Foundation Models and Software Engineering (Forge)},\n  doi = {10.1109/Forge66646.2025.00022},\n  keywords = {Measurement;Foundation models;Large language models;Retrieval augmented generation;Microservice architectures;Manuals;Cognition;Space exploration;Testing;Software engineering;Microservices;Performance testing;Large Language Models;Causal reasoning;Retrieval-augmented generation},\n  number = {},\n  pages = {136-140},\n  title = {Microservices Performance Testing with Causality-enhanced Large Language Models},\n  volume = {},\n  year = {2025}\n}"
   },
   {
+    "id": "cotroneo2025pyresbugs",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "PyResBugs: A Dataset of Residual Python Bugs for Natural Language-Driven Fault Injection",
+    "authors": "Cotroneo, Domenico and De Rosa, Giuseppe and Liguori, Pietro",
+    "year": "2025",
+    "search_text": "pyresbugs: a dataset of residual python bugs for natural language-driven fault injection cotroneo, domenico and de rosa, giuseppe and liguori, pietro 2025",
+    "bibtex": "@inproceedings{cotroneo2025pyresbugs,\n  author = {Cotroneo, Domenico and De Rosa, Giuseppe and Liguori, Pietro},\n  booktitle = {2025 IEEE/ACM Second International Conference on AI Foundation Models and Software Engineering (Forge)},\n  organization = {IEEE},\n  pages = {146--150},\n  title = {PyResBugs: A Dataset of Residual Python Bugs for Natural Language-Driven Fault Injection},\n  year = {2025}\n}"
+  },
+  {
+    "id": "altiero2025securing",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "Securing ai code generation through automated pattern-based patching",
+    "authors": "Altiero, Francesco and Cotroneo, Domenico and De Luca, Roberta and Liguori, Pietro",
+    "year": "2025",
+    "search_text": "securing ai code generation through automated pattern-based patching altiero, francesco and cotroneo, domenico and de luca, roberta and liguori, pietro 2025",
+    "bibtex": "@inproceedings{altiero2025securing,\n  author = {Altiero, Francesco and Cotroneo, Domenico and De Luca, Roberta and Liguori, Pietro},\n  booktitle = {2025 55th Annual IEEE/IFIP International Conference on Dependable Systems and Networks Workshops (DSN-W)},\n  doi = {10.1109/DSN-W65791.2025.00077},\n  organization = {IEEE},\n  pages = {282--289},\n  title = {Securing ai code generation through automated pattern-based patching},\n  year = {2025}\n}"
+  },
+  {
     "id": "10418104",
     "entry_type": "article",
     "category": "journal",
@@ -284,6 +306,17 @@
     "year": "2024",
     "search_text": "the omnivisor: a real-time static partitioning hypervisor extension for heterogeneous core virtualization over mpsocs ottaviano, daniele and ciraolo, francesco and mancuso, renato and cinque, marcello 2024",
     "bibtex": "@inproceedings{ottaviano2024omnivisor,\n  author = {Ottaviano, Daniele and Ciraolo, Francesco and Mancuso, Renato and Cinque, Marcello},\n  booktitle = {36th Euromicro Conference on Real-Time Systems (ECRTS 2024)},\n  doi = {10.4230/LIPIcs.ECRTS.2024.7},\n  organization = {Schloss Dagstuhl--Leibniz-Zentrum für Informatik},\n  title = {The Omnivisor: A Real-Time Static Partitioning Hypervisor Extension for Heterogeneous Core Virtualization over MPSoCs},\n  year = {2024}\n}"
+  },
+  {
+    "id": "liguoriwoot2024",
+    "entry_type": "inproceedings",
+    "category": "conference",
+    "css_class": "cpaper",
+    "title": "The Power of Words: Generating PowerShell Attacks from Natural Language",
+    "authors": "Pietro Liguori and Christian Marescalco and Roberto Natella and Vittorio Orbinato and Luciano Pianese",
+    "year": "2024",
+    "search_text": "the power of words: generating powershell attacks from natural language pietro liguori and christian marescalco and roberto natella and vittorio orbinato and luciano pianese 2024",
+    "bibtex": "@inproceedings{liguoriwoot2024,\n  address = {Philadelphia, PA},\n  author = {Pietro Liguori and Christian Marescalco and Roberto Natella and Vittorio Orbinato and Luciano Pianese},\n  booktitle = {18th USENIX WOOT Conference on Offensive Technologies (WOOT 24)},\n  isbn = {978-1-939133-43-4},\n  month = {August},\n  pages = {27--43},\n  publisher = {USENIX Association},\n  title = {The Power of Words: Generating PowerShell Attacks from Natural Language},\n  url = {https://www.usenix.org/conference/woot24/presentation/liguori},\n  year = {2024}\n}"
   },
   {
     "id": "cotroneo2024vulnerabilities",

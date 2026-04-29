@@ -106,46 +106,41 @@ repos:
     owner:       'dessertlab'
     name:        'DeepEST'
     description: ''
-    language:    'Java'
-    languages:   ['Java', 'Shell']
-    stars:       4
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/DeepEST'
   - slug:        'dessertlab/Fault-Injection-Dataset'
     owner:       'dessertlab'
     name:        'Fault-Injection-Dataset'
-    description: 'Failure dataset accompanying the paper  "How Bad Can a Bug Get? An Empirical Analysis of Software Failures in the OpenStack Cloud Computing Platform"'
+    description: ''
     language:    ''
-    stars:       10
+    stars:       0
     url:         'https://github.com/dessertlab/Fault-Injection-Dataset'
   - slug:        'dessertlab/BayesianReliabilityAssessment'
     owner:       'dessertlab'
     name:        'BayesianReliabilityAssessment'
     description: ''
-    language:    'Java'
-    languages:   ['Java', 'MATLAB']
-    stars:       4
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/BayesianReliabilityAssessment'
   - slug:        'dessertlab/EMART'
     owner:       'dessertlab'
     name:        'EMART'
     description: ''
-    language:    'Java'
-    languages:   ['Java']
+    language:    ''
     stars:       0
     url:         'https://github.com/dessertlab/EMART'
   - slug:        'dessertlab/fantastic_beasts'
     owner:       'dessertlab'
     name:        'fantastic_beasts'
-    description: 'The Fantastic Beasts Framework is a collection of tools for fuzzing the Android OS.'
-    language:    'C'
-    languages:   ['C', 'Java', 'C++', 'Python', 'CMake', 'Shell']
-    stars:       72
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/fantastic_beasts'
   - slug:        'dessertlab/MetroFunnel'
     owner:       'dessertlab'
     name:        'MetroFunnel'
-    description: 'Real-time monitoring of microservices based software systems'
-    language:    'Shell'
-    languages:   ['Shell', 'Dockerfile']
-    stars:       1
+    description: ''
+    language:    ''
+    stars:       0
     url:         'https://github.com/dessertlab/MetroFunnel'

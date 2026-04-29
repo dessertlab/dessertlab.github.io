@@ -17,7 +17,7 @@ PUBLICATIONS_JSON = assets/publications.json
 
 publications-assets: $(PUBS_INCLUDES) $(PUBLICATIONS_JSON)
 
-$(PUBS_INCLUDES) $(PUBLICATIONS_JSON): $(wildcard bib/pubs_*.bib) tools/build_publications_html.py
+$(PUBS_INCLUDES) $(PUBLICATIONS_JSON): $(wildcard bib/*/*.bib) tools/build_publications_html.py
 	mkdir -p _includes assets
 	$(PYTHON) tools/build_publications_html.py
 

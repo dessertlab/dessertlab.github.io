@@ -24,17 +24,19 @@ from bibtexparser.customization import convert_to_unicode
 # ---------------------------------------------------------------------------
 
 def load_entries(bib_path: Path) -> list[dict]:
-    """Load BibTeX entries sorted by year descending."""
-    parser = BibTexParser(common_strings=True)
-    parser.ignore_nonstandard_types = False
-    parser.homogenize_fields = False
-    parser.interpolate_strings = True
-    parser.customization = convert_to_unicode
-
-    with bib_path.open("r", encoding="utf-8") as fh:
-        db = bibtexparser.load(fh, parser)
-
-    entries = list(db.entries)
+    """Load BibTeX entries from a directory of individual .bib files, sorted by year descending."""
+    if not bib_path.exists():
+        return []
+    entries: list[dict] = []
+    for f in sorted(bib_path.glob("*.bib")):
+        parser = BibTexParser(common_strings=True)
+        parser.ignore_nonstandard_types = False
+        parser.homogenize_fields = False
+        parser.interpolate_strings = True
+        parser.customization = convert_to_unicode
+        with f.open("r", encoding="utf-8") as fh:
+            db = bibtexparser.load(fh, parser)
+        entries.extend(db.entries)
     entries.sort(
         key=lambda e: -(int(e["year"]) if e.get("year", "").strip().isdigit() else 0)
     )
@@ -265,10 +267,10 @@ def render_book(entries: list[dict]) -> str:
 # ---------------------------------------------------------------------------
 
 SOURCES: list[tuple[str, str, str, str, object]] = [
-    ("bib/pubs_journal.bib",    "_includes/pubs_journal.html",    "journal",   "jpaper", render_journal),
-    ("bib/pubs_conference.bib", "_includes/pubs_conference.html", "conference","cpaper", render_conference),
-    ("bib/pubs_editorial.bib",  "_includes/pubs_editorial.html",  "editorial", "vpaper", render_editorial),
-    ("bib/pubs_book.bib",       "_includes/pubs_book.html",       "book",      "bpaper", render_book),
+    ("bib/journal",    "_includes/pubs_journal.html",    "journal",   "jpaper", render_journal),
+    ("bib/conference", "_includes/pubs_conference.html", "conference","cpaper", render_conference),
+    ("bib/editorial",  "_includes/pubs_editorial.html",  "editorial", "vpaper", render_editorial),
+    ("bib/book",       "_includes/pubs_book.html",       "book",      "bpaper", render_book),
 ]
 
 JSON_OUT = "assets/publications.json"
@@ -321,16 +323,16 @@ def main() -> int:
     all_json: list[dict] = []
 
     for bib_rel, out_rel, category, css_class, renderer in SOURCES:
-        bib_path = root / bib_rel
+        bib_path = root / bib_rel   # now a directory
         out_path = root / out_rel
         if not bib_path.exists():
-            print(f"ERROR: missing BibTeX file: {bib_path}")
+            print(f"ERROR: missing BibTeX directory: {bib_path}")
             return 1
         entries = load_entries(bib_path)
         content = renderer(entries)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(content + "\n", encoding="utf-8")
-        print(f"Wrote {len(entries)} entries → {out_path.name}")
+        print(f"Wrote {len(entries)} entries -> {out_path.name}")
         all_json.extend(build_json_record(e, category, css_class) for e in entries)
 
     all_json.sort(key=lambda e: (
@@ -341,7 +343,7 @@ def main() -> int:
     json_path = root / JSON_OUT
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(all_json, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {len(all_json)} records → {json_path.name}")
+    print(f"Wrote {len(all_json)} records -> {json_path.name}")
     return 0
 
 

@@ -440,7 +440,7 @@
       <div class="card-head">
         <div class="card-title" id="pub-card-title">Paste BibTeX entry</div>
         <div class="card-hint">
-          Paste one or more <code>@article{…}</code> entries. They will be prepended to
+          Paste one or more <code>@article{…}</code> entries. A new file will be created in
           <code id="file-hint">—</code> and a pull request will be opened for review.
         </div>
       </div>
@@ -1065,14 +1065,15 @@ const CONFIG = {
 };
 
 const BIB_FILES = [
-  { id: 'journal',    label: 'Journals',    path: 'bib/pubs_journal.bib'    },
-  { id: 'conference', label: 'Conferences', path: 'bib/pubs_conference.bib' },
-  { id: 'book',       label: 'Books',       path: 'bib/pubs_book.bib'       },
-  { id: 'editorial',  label: 'Editorials',  path: 'bib/pubs_editorial.bib'  },
+  { id: 'journal',    label: 'Journals',    dir: 'bib/journal'    },
+  { id: 'conference', label: 'Conferences', dir: 'bib/conference' },
+  { id: 'book',       label: 'Books',       dir: 'bib/book'       },
+  { id: 'editorial',  label: 'Editorials',  dir: 'bib/editorial'  },
 ];
 
 const state = {};
-BIB_FILES.forEach(f => { state[f.id] = { raw: '', sha: '', entries: [], loaded: false, draft: '' }; });
+// Each tab stores: files = [{name, path, sha, raw, entry}], loaded, draft
+BIB_FILES.forEach(f => { state[f.id] = { files: [], loaded: false, draft: '' }; });
 let activeTab = BIB_FILES[0].id;
 let exOpen = false;
 let editingBibKey = null;
@@ -1449,7 +1450,7 @@ function switchTab(id) {
 
   // update file hint
   const file = BIB_FILES.find(f => f.id === id);
-  document.getElementById('file-hint').textContent = file.path;
+  document.getElementById('file-hint').textContent = file.dir + '/';
   // restore draft or clear textarea
   document.getElementById('bib-input').value = state[id].draft;
   hideStatus();
@@ -1463,20 +1464,36 @@ function switchTab(id) {
 
 // ════════════════════════════════ GITHUB
 async function loadBib(id) {
-  const file = BIB_FILES.find(f => f.id === id);
+  const cat = BIB_FILES.find(f => f.id === id);
   progressStart();
   try {
-    const res = await fetch(`${GH}/contents/${file.path}`, { headers: ghH() });
+    const res = await fetch(`${GH}/contents/${cat.dir}`, { headers: ghH() });
+    if (res.status === 404) {
+      state[id].files = []; state[id].loaded = true;
+      progressEnd(); renderExisting(); return;
+    }
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    const data = await res.json();
-    state[id].sha = data.sha;
-    state[id].raw = b64d(data.content.replace(/\n/g, ''));
-    state[id].entries = parseBib(state[id].raw);
+    const listing = (await res.json()).filter(f => f.type === 'file' && f.name.endsWith('.bib'));
+    // Fetch all file contents in parallel via download_url (raw.githubusercontent.com, no API rate limit)
+    const BATCH = 20;
+    const contents = [];
+    for (let i = 0; i < listing.length; i += BATCH) {
+      const batch = listing.slice(i, i + BATCH);
+      contents.push(...await Promise.all(batch.map(f => fetch(f.download_url).then(r => r.text()))));
+    }
+    state[id].files = listing.map((f, i) => ({
+      name: f.name, path: f.path, sha: f.sha,
+      raw: contents[i],
+      entry: parseBib(contents[i])[0] || null,
+    }));
+    state[id].files.sort((a, b) => {
+      const ya = parseInt(a.entry?.fields?.year) || 0;
+      const yb = parseInt(b.entry?.fields?.year) || 0;
+      return yb - ya;
+    });
     state[id].loaded = true;
-    hideStatus();
-    progressEnd();
-    renderExisting();
-  } catch(e) { progressEnd(); setStatus('error', `Failed to load ${file.path}: ${e.message}`); }
+    hideStatus(); progressEnd(); renderExisting();
+  } catch(e) { progressEnd(); setStatus('error', `Failed to load ${cat.dir}: ${e.message}`); }
 }
 
 async function openPR() {
@@ -1484,14 +1501,14 @@ async function openPR() {
   if (!newBib) return;
 
   const s = state[activeTab];
-  const file = BIB_FILES.find(f => f.id === activeTab);
+  const cat = BIB_FILES.find(f => f.id === activeTab);
   const newEntries = parseBib(newBib);
 
   // Check for duplicate keys
-  const existingKeys = new Set(s.entries.map(e => e.key));
+  const existingKeys = new Set(s.files.map(f => f.entry?.key).filter(Boolean));
   const dupes = newEntries.filter(e => existingKeys.has(e.key) && e.key !== editingBibKey).map(e => e.key);
   if (dupes.length) {
-    setStatus('error', `Duplicate key(s) already in file: ${dupes.join(', ')}`);
+    setStatus('error', `Duplicate key(s) already in ${cat.dir}: ${dupes.join(', ')}`);
     return;
   }
 
@@ -1516,11 +1533,6 @@ async function openPR() {
       throw new Error(`${label}: ${details}`);
     };
 
-    // Prepend new entry (or replace existing if editing) + existing raw content
-    const updatedRaw = editingBibKey
-      ? newBib.trim() + '\n\n' + removeBibEntry(s.raw, editingBibKey).trimEnd() + '\n'
-      : newBib.trim() + '\n\n' + s.raw.trim() + '\n';
-
     // 1. get base SHA
     const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
     if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
@@ -1534,28 +1546,54 @@ async function openPR() {
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
 
-    // 3. commit updated file
-    const commitMsg = editingBibKey
-      ? `Edit ${editingBibKey} in ${file.path}`
-      : `Add ${newEntries.map(e => e.key).join(', ')} to ${file.path}`;
-    const commitRes = await fetch(`${GH}/contents/${file.path}`, { method: 'PUT', headers: ghH(),
-      body: JSON.stringify({
-        message: commitMsg,
-        content: b64e(updatedRaw),
-        sha: s.sha,
-        branch,
-      })
-    });
-    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file update');
+    // 3. create / update individual .bib file(s)
+    if (editingBibKey) {
+      // Editing: update the single file for this entry
+      const newKey = newEntries[0]?.key || editingBibKey;
+      const singleBib = newBib.trim() + '\n';
+      if (newKey === editingBibKey) {
+        // Same key — update in place; fetch fresh SHA from branch
+        const oldPath = `${cat.dir}/${editingBibKey}.bib`;
+        const shaRes = await fetch(`${GH}/contents/${oldPath}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
+        if (!shaRes.ok) await parseGhError(shaRes, 'Failed to read file SHA from branch');
+        const oldSha = (await shaRes.json()).sha;
+        const upRes = await fetch(`${GH}/contents/${oldPath}`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Edit ${editingBibKey} in ${cat.dir}`, content: b64e(singleBib), sha: oldSha, branch }) });
+        if (!upRes.ok) await parseGhError(upRes, 'Failed to update file');
+      } else {
+        // Key changed — create new file, delete old file
+        const newPath = `${cat.dir}/${newKey}.bib`;
+        const crRes = await fetch(`${GH}/contents/${newPath}`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Rename ${editingBibKey} → ${newKey} in ${cat.dir}`, content: b64e(singleBib), branch }) });
+        if (!crRes.ok) await parseGhError(crRes, 'Failed to create new file');
+        const oldPath = `${cat.dir}/${editingBibKey}.bib`;
+        const shaRes = await fetch(`${GH}/contents/${oldPath}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
+        if (!shaRes.ok) await parseGhError(shaRes, 'Failed to read old file SHA');
+        const oldSha = (await shaRes.json()).sha;
+        const delRes = await fetch(`${GH}/contents/${oldPath}`, { method: 'DELETE', headers: ghH(),
+          body: JSON.stringify({ message: `Delete old key ${editingBibKey} (renamed to ${newKey})`, sha: oldSha, branch }) });
+        if (!delRes.ok) await parseGhError(delRes, 'Failed to delete old file');
+      }
+    } else {
+      // New entries — create one file per entry
+      for (const entry of newEntries) {
+        const filePath = `${cat.dir}/${entry.key}.bib`;
+        const singleBib = (extractRawBibEntry(newBib, entry.key) || newBib).trim() + '\n';
+        const crRes = await fetch(`${GH}/contents/${filePath}`, { method: 'PUT', headers: ghH(),
+          body: JSON.stringify({ message: `Add ${entry.key} to ${cat.dir}`, content: b64e(singleBib), branch }) });
+        if (!crRes.ok) await parseGhError(crRes, `Failed to create ${filePath}`);
+      }
+    }
 
     // 4. open PR
     const keyList = newEntries.map(e => `\`${e.key}\``).join(', ');
+    const editedKey = editingBibKey ? (newEntries[0]?.key || editingBibKey) : null;
     const prTitle = editingBibKey
-      ? `Edit ${editingBibKey} in ${file.label || file.id}`
-      : `Add ${newEntries.length === 1 ? newEntries[0].key : newEntries.length + ' entries'} to ${file.label || file.id}`;
+      ? `Edit ${editingBibKey} in ${cat.label}`
+      : `Add ${newEntries.length === 1 ? newEntries[0].key : newEntries.length + ' entries'} to ${cat.label}`;
     const prBody = editingBibKey
-      ? `Publication edited via admin panel.\n\n**File:** \`${file.path}\`\n**Key:** \`${editingBibKey}\`\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``
-      : `New publication(s) added via admin panel.\n\n**File:** \`${file.path}\`\n**Entries:** ${keyList}\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``;
+      ? `Publication edited via admin panel.\n\n**Directory:** \`${cat.dir}/\`\n**Key:** \`${editedKey}\`\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``
+      : `New publication(s) added via admin panel.\n\n**Directory:** \`${cat.dir}/\`\n**Entries:** ${keyList}\n\n\`\`\`bibtex\n${newBib.trim()}\n\`\`\``;
     const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({
         title: prTitle,
@@ -1632,7 +1670,7 @@ function validateInput() {
     hint.className = 'val-hint ok';
     btn.disabled = false;
   }
-  note.textContent = `will be prepended to ${BIB_FILES.find(f => f.id === activeTab).path}`;
+  note.textContent = `will create new file(s) in ${BIB_FILES.find(f => f.id === activeTab).dir}/`;
 }
 
 // ════════════════════════════════ EXISTING ENTRIES (browse)
@@ -1659,31 +1697,39 @@ function renderExisting() {
     return;
   }
 
-  label.textContent = `Browse existing entries (${s.entries.length})`;
+  label.textContent = `Browse existing entries (${s.files.length})`;
 
   const filtered = q
-    ? s.entries.filter(e => (e.key + ' ' + (e.fields.title||'') + ' ' + (e.fields.author||'') + ' ' + (e.fields.year||'')).toLowerCase().includes(q))
-    : s.entries;
+    ? s.files.filter(f => {
+        const e = f.entry;
+        return (f.name + ' ' + (e?.key||'') + ' ' + (e?.fields?.title||'') + ' ' + (e?.fields?.author||'') + ' ' + (e?.fields?.year||'')).toLowerCase().includes(q);
+      })
+    : s.files;
 
   if (!filtered.length) {
     container.innerHTML = `<div class="ex-empty">No matches.</div>`; return;
   }
 
-  container.innerHTML = filtered.map((e, i) => `
+  container.innerHTML = filtered.map((f, i) => {
+    const e = f.entry;
+    const key = e?.key || f.name.replace(/\.bib$/, '');
+    const typ = e?.type || '?';
+    return `
     <div class="ex-item" id="bib-row-${i}">
-      <span class="ex-key">@${e.type} ${esc(e.key)}</span>
-      <span class="ex-title">${esc(e.fields.title || '—')}</span>
-      <span class="ex-year">${esc(e.fields.year || '')}</span>
+      <span class="ex-key">@${typ} ${esc(key)}</span>
+      <span class="ex-title">${esc(e?.fields?.title || '—')}</span>
+      <span class="ex-year">${esc(e?.fields?.year || '')}</span>
       <div id="bib-row-btns-${i}" style="display:flex;gap:6px;margin-left:auto;flex-shrink:0">
-        <button class="btn-ex btn-ex-edit" onclick="editBibEntry(${esc(JSON.stringify(e.key))},${i})">Edit</button>
+        <button class="btn-ex btn-ex-edit" onclick="editBibEntry(${esc(JSON.stringify(key))},${i})">Edit</button>
         <button class="btn-ex btn-ex-del" onclick="showBibDeleteConfirm(${i})">Delete</button>
       </div>
       <div class="proj-confirm" id="bib-row-confirm-${i}" style="width:100%;margin-top:4px;padding-left:0">
-        <span style="font-size:12px;color:var(--danger)">Delete <b>${esc(e.key)}</b>?</span>
-        <button class="btn-ex btn-ex-confirm-yes" onclick="deleteBibEntry(${esc(JSON.stringify(e.key))},${i})">Yes, delete</button>
+        <span style="font-size:12px;color:var(--danger)">Delete <b>${esc(key)}</b>?</span>
+        <button class="btn-ex btn-ex-confirm-yes" onclick="deleteBibEntry(${esc(JSON.stringify(key))},${i})">Yes, delete</button>
         <button class="btn-ex btn-ex-cancel" onclick="hideBibDeleteConfirm(${i})">Cancel</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function extractRawBibEntry(raw, key) {
@@ -1700,8 +1746,9 @@ function removeBibEntry(raw, key) {
 async function editBibEntry(key, idx) {
   const s = state[activeTab];
   if (!s.loaded) return;
-  const raw = extractRawBibEntry(s.raw, key);
-  if (!raw) { setStatus('error', `Could not extract entry for key "${esc(key)}"`); return; }
+  const fileObj = s.files.find(f => (f.entry?.key || f.name.replace(/\.bib$/, '')) === key);
+  const raw = fileObj ? fileObj.raw : null;
+  if (!raw) { setStatus('error', `Could not find file for key "${esc(key)}"`); return; }
   document.getElementById('bib-input').value = raw;
   editingBibKey = key;
   document.getElementById('pub-card-title').textContent = 'Edit BibTeX entry';
@@ -1731,8 +1778,9 @@ function hideBibDeleteConfirm(idx) {
   document.getElementById(`bib-row-confirm-${idx}`).style.display = 'none';
 }
 async function deleteBibEntry(key, idx) {
+  const cat = BIB_FILES.find(f => f.id === activeTab);
   const s = state[activeTab];
-  const file = BIB_FILES.find(f => f.id === activeTab);
+  const fileObj = s.files.find(f => (f.entry?.key || f.name.replace(/\.bib$/, '')) === key);
   const row = document.getElementById(`bib-row-${idx}`);
   if (row) row.classList.add('is-deleting');
   hideBibDeleteConfirm(idx);
@@ -1743,7 +1791,6 @@ async function deleteBibEntry(key, idx) {
       try { const b = await res.json(); if (b && b.message) details += ` — ${b.message}`; } catch(_) {}
       throw new Error(`${label}: ${details}`);
     };
-    const updatedRaw = removeBibEntry(s.raw, key);
     const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
     if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
     const baseSha = (await baseRes.json()).object.sha;
@@ -1751,21 +1798,19 @@ async function deleteBibEntry(key, idx) {
     const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
-    const commitRes = await fetch(`${GH}/contents/${file.path}`, { method: 'PUT', headers: ghH(),
-      body: JSON.stringify({
-        message: `Delete ${key} from ${file.path}`,
-        content: b64e(updatedRaw),
-        sha: s.sha,
-        branch,
-      })
-    });
-    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file update');
+    // Fetch fresh SHA of the file from the new branch
+    const filePath = fileObj ? fileObj.path : `${cat.dir}/${key}.bib`;
+    const shaRes = await fetch(`${GH}/contents/${filePath}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
+    if (!shaRes.ok) await parseGhError(shaRes, 'Failed to read file SHA from branch');
+    const fileSha = (await shaRes.json()).sha;
+    const delRes = await fetch(`${GH}/contents/${filePath}`, { method: 'DELETE', headers: ghH(),
+      body: JSON.stringify({ message: `Delete ${key} from ${cat.dir}`, sha: fileSha, branch }) });
+    if (!delRes.ok) await parseGhError(delRes, 'Failed to delete file');
     const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({
-        title: `Delete ${key} from ${file.label || file.id}`,
-        head: branch,
-        base: CONFIG.BASE_BRANCH,
-        body: `Publication deleted via admin panel.\n\n**File:** \`${file.path}\`\n**Key:** \`${key}\``,
+        title: `Delete ${key} from ${cat.label}`,
+        head: branch, base: CONFIG.BASE_BRANCH,
+        body: `Publication deleted via admin panel.\n\n**File:** \`${filePath}\`\n**Key:** \`${key}\``,
       })
     });
     if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
@@ -1803,37 +1848,40 @@ async function loadPubPending() {
       container.innerHTML = '<div class="ex-empty">No publications pending approval.</div>'; return;
     }
     lbl.textContent = `Browse publications pending approval (${pubPRs.length})`;
+    // Use PR files API: each PR touches individual .bib files — no need to parse a big combined file
     const results = await Promise.all(pubPRs.map(async pr => {
       const branch = pr.head.ref;
       const typeM = branch.match(/^(?:publications|edit-publication|delete-publication)-(\w+)-/);
       const bibType = typeM ? typeM[1] : '?';
-      const file = BIB_FILES.find(f => f.id === bibType);
+      const cat = BIB_FILES.find(f => f.id === bibType);
       try {
-        const raw = await fetch(`${GH}/contents/${file ? file.path : `bib/pubs_${bibType}.bib`}?ref=${encodeURIComponent(branch)}`, { headers: ghH() });
-        if (!raw.ok) return { pr, bibType, entries: null };
-        const txt = b64d((await raw.json()).content.replace(/\n/g, ''));
-        // Only show entries that are NOT yet in the base file (i.e. in the PR branch but not main)
-        // For simplicity: show all entries in the branch file
-        const entries = parseBib(txt).slice(0, 5); // cap at 5 to avoid huge lists
-        return { pr, bibType, entries };
-      } catch { return { pr, bibType, entries: null }; }
+        const filesRes = await fetch(`${GH}/pulls/${pr.number}/files?per_page=100`, { headers: ghH() });
+        if (!filesRes.ok) return { pr, bibType, cat, files: null };
+        const changedFiles = await filesRes.json();
+        const bibFiles = changedFiles.filter(f => f.filename.startsWith('bib/') && f.filename.endsWith('.bib'));
+        return { pr, bibType, cat, files: bibFiles };
+      } catch { return { pr, bibType, cat, files: null }; }
     }));
-    container.innerHTML = results.map(({ pr, bibType, entries }) => {
-      const file = BIB_FILES.find(f => f.id === bibType);
-      const typeLabel = file ? file.label : bibType;
+    container.innerHTML = results.map(({ pr, bibType, cat, files }) => {
+      const typeLabel = cat ? cat.label : bibType;
+      const statusIcon = { added: '＋', modified: '✎', removed: '✕' };
       const header = `<div class="ex-course" style="display:flex;justify-content:space-between;align-items:center">` +
         `<span><span style="font-size:10px;font-weight:700;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;border-radius:3px;margin-right:6px">${esc(typeLabel)}</span>` +
         `<a href="${esc(pr.html_url)}" target="_blank" style="color:var(--accent);text-decoration:none">#${pr.number} ${esc(pr.title)}</a></span>` +
         `<span style="font-size:10px;color:var(--muted);font-weight:400">${esc(pr.head.ref)}</span></div>`;
-      if (!entries) return header + '<div class="ex-proposal-none">Could not load entries from branch.</div>';
-      const rows = entries.map(e =>
-        `<div class="ex-item">` +
-        `<span class="ex-key">@${esc(e.type)} ${esc(e.key)}</span>` +
-        `<span class="ex-title">${esc(e.fields.title || '—')}</span>` +
-        `<span class="ex-year">${esc(e.fields.year || '')}</span>` +
-        `</div>`
-      );
-      return header + (rows.length ? rows.join('') : '<div class="ex-proposal-none">No entries found.</div>');
+      if (!files) return header + '<div class="ex-proposal-none">Could not load changed files.</div>';
+      if (!files.length) return header + '<div class="ex-proposal-none">No .bib files changed.</div>';
+      const rows = files.map(f => {
+        const key = f.filename.split('/').pop().replace(/\.bib$/, '');
+        const icon = statusIcon[f.status] || f.status;
+        const color = f.status === 'removed' ? 'var(--danger)' : f.status === 'added' ? 'var(--success)' : 'var(--warn)';
+        return `<div class="ex-item">` +
+          `<span style="font-size:12px;font-weight:700;color:${color};margin-right:4px">${icon}</span>` +
+          `<span class="ex-key">${esc(key)}</span>` +
+          `<span class="ex-title" style="font-family:var(--mono);font-size:11px;color:var(--muted)">${esc(f.filename)}</span>` +
+          `</div>`;
+      });
+      return header + rows.join('');
     }).join('<div style="border-top:2px solid var(--border,#e2e8f0);margin:4px 0"></div>');
   } catch(e) {
     container.innerHTML = `<div class="ex-empty" style="color:var(--danger)">Failed: ${esc(e.message)}</div>`;
