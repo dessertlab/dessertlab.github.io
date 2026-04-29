@@ -438,7 +438,7 @@
 
     <div class="card">
       <div class="card-head">
-        <div class="card-title" id="pub-card-title">Paste BibTeX entry</div>
+        <div class="card-title" id="pub-card-title">Paste BibTeX entries</div>
         <div class="card-hint">
           Paste one or more <code>@article{…}</code> entries. A new file will be created in
           <code id="file-hint">—</code> and a pull request will be opened for review.
@@ -1618,7 +1618,7 @@ async function openPR() {
     progressEnd();
     setStatus('success', `✓ Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
     editingBibKey = null;
-    document.getElementById('pub-card-title').textContent = 'Paste BibTeX entry';
+    document.getElementById('pub-card-title').textContent = 'Paste BibTeX entries';
     document.getElementById('pr-btn').textContent = 'Save';
     document.getElementById('pub-cancel-edit-btn').style.display = 'none';
     document.querySelectorAll('.ex-item.is-editing').forEach(el => el.classList.remove('is-editing'));
@@ -1774,7 +1774,7 @@ async function editBibEntry(key, idx) {
 function cancelEditBib() {
   editingBibKey = null;
   clearInput();
-  document.getElementById('pub-card-title').textContent = 'Paste BibTeX entry';
+  document.getElementById('pub-card-title').textContent = 'Paste BibTeX entries';
   document.getElementById('pr-btn').textContent = 'Save';
   document.getElementById('pub-cancel-edit-btn').style.display = 'none';
   document.querySelectorAll('.ex-item.is-editing').forEach(el => el.classList.remove('is-editing'));
