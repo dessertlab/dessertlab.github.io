@@ -1,8 +1,0 @@
-# Check degli errori nei file Bib
-python3 biblatex_check.py -b pubs_book.bib
-
-# Resort dei file bib
-bibtool -S -- 'sort.format={%d(year)}' pubs_book.bib -o pubs_book.bib
-
-# Linee guida
-Inserisci nuova bibtex in testa al file opportuno
