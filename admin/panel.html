@@ -5716,6 +5716,20 @@ function applyPhdKv(obj, s) {
   if (key === 'co_advisors') obj.co_advisors = [];
 }
 
+// ── Sort helper ──────────────────────────────────────────────────────────────
+const PHD_MONTH_ORDER = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+function phdDateKey(date) {
+  const [mon, yr] = (date || '').split(' ');
+  return (parseInt(yr) || 0) * 100 + (PHD_MONTH_ORDER[mon] || 0);
+}
+function sortPhdEntries(arr) {
+  return [...arr].sort((a, b) => {
+    const dk = phdDateKey(b.date) - phdDateKey(a.date);
+    if (dk !== 0) return dk;
+    return (a.author || '').localeCompare(b.author || '');
+  });
+}
+
 // ── Serialize entries back to YAML ────────────────────────────────────────────
 function serializePhdYaml(entries) {
   return entries.map(e => {
@@ -5840,7 +5854,7 @@ function renderPhdExisting() {
     container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>'; return;
   }
   const q = (document.getElementById('phd-search')?.value || '').toLowerCase();
-  const filtered = phdState.entries.filter((e, i) => {
+  const filtered = sortPhdEntries(phdState.entries).filter((e) => {
     if (!q) return true;
     return (e.author + ' ' + e.title + ' ' + e.date).toLowerCase().includes(q);
   });
@@ -5881,7 +5895,7 @@ function cancelDeletePhd(idx) {
 
 async function deletePhd(idx) {
   const entry = phdState.entries[idx];
-  const updated = phdState.entries.filter((_, i) => i !== idx);
+  const updated = sortPhdEntries(phdState.entries.filter((_, i) => i !== idx));
   await savePhdToGitHub(updated, `Remove PhD thesis: ${entry.author}`, { deletePdf: entry.pdf });
 }
 
@@ -5929,9 +5943,10 @@ async function openPhdThesisPR() {
   if (editingPhdIdx !== null) {
     updated = [...phdState.entries];
     updated[editingPhdIdx] = entry;
+    updated = sortPhdEntries(updated);
     commitMsg = `Update PhD thesis: ${author}`;
   } else {
-    updated = [entry, ...phdState.entries];
+    updated = sortPhdEntries([entry, ...phdState.entries]);
     commitMsg = `Add PhD thesis: ${author}`;
   }
   await savePhdToGitHub(updated, commitMsg);

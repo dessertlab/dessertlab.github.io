@@ -3,7 +3,7 @@ layout: default
 ---
 
 <div class="thesis-list">
-  <table class="table thesis-table">
+  <table class="table thesis-table" id="phd-table">
     <thead>
       <tr>
         <th scope="col">Date</th>
@@ -39,3 +39,21 @@ layout: default
     </tbody>
   </table>
 </div>
+<script>
+(function(){
+  const MON = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+  function dateKey(td) {
+    const [mon, yr] = td.split(' ');
+    return (parseInt(yr)||0)*100 + (MON[mon]||0);
+  }
+  const tbody = document.querySelector('#phd-table tbody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  rows.sort(function(a,b){
+    const dk = dateKey(b.cells[0].textContent.trim()) - dateKey(a.cells[0].textContent.trim());
+    if (dk !== 0) return dk;
+    return a.cells[1].textContent.trim().localeCompare(b.cells[1].textContent.trim());
+  });
+  rows.forEach(function(r){ tbody.appendChild(r); });
+})();
+</script>
