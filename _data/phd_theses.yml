@@ -1,3 +1,11 @@
+- date: Dec 2025
+  author: Patrizia Quaranta
+  title: "Causally-Driven Clinical Decision Support: Interventions, Counterfactuals, and What-If Scenarios from Real-World Data"
+  advisor: Prof. Roberto Pietrantuono
+  co_advisors:
+    - Dr. Giuseppe Cascone
+  pdf: phd_thesis_quaranta.pdf
+
 - date: Apr 2026
   author: Andrea Marchetta
   title: "Simulation and co-simulation environments for the Cooperative, Connected and Automated Mobility (CCAM)"
