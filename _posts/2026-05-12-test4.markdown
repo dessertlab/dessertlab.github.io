@@ -1,0 +1,11 @@
+---
+layout: post
+title: "test4"
+date: 2026-05-12 09:00:00 +0000
+shortnews: false
+categories: [news]
+icon: newspaper-o
+excerpt: "fdsfdsfsd fd sfds fs ag df gdfs fd gd"
+---
+
+fdsfdsfsd fd sfds fs ag df gdfs fd gd
