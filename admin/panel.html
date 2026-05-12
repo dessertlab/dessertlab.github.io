@@ -5882,7 +5882,7 @@ function cancelDeletePhd(idx) {
 async function deletePhd(idx) {
   const entry = phdState.entries[idx];
   const updated = phdState.entries.filter((_, i) => i !== idx);
-  await savePhdToGitHub(updated, `Remove PhD thesis: ${entry.author}`);
+  await savePhdToGitHub(updated, `Remove PhD thesis: ${entry.author}`, { deletePdf: entry.pdf });
 }
 
 // ── Toggle pending ────────────────────────────────────────────────────────────
@@ -5937,7 +5937,7 @@ async function openPhdThesisPR() {
   await savePhdToGitHub(updated, commitMsg);
 }
 
-async function savePhdToGitHub(entries, commitMsg) {
+async function savePhdToGitHub(entries, commitMsg, opts = {}) {
   if (!phdState.loaded) return;
   const content = serializePhdYaml(entries);
   progressStart();
@@ -5957,6 +5957,20 @@ async function savePhdToGitHub(entries, commitMsg) {
     const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
       body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
     if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+
+    // Delete PDF if requested (on delete thesis)
+    if (opts.deletePdf) {
+      const delPath = `phd_thesis/${opts.deletePdf}`;
+      try {
+        const chk = await fetch(`${GH}/contents/${delPath}`, { headers: ghH() });
+        if (chk.ok) {
+          const { sha: delSha } = await chk.json();
+          const delRes = await fetch(`${GH}/contents/${delPath}`, { method: 'DELETE', headers: ghH(),
+            body: JSON.stringify({ message: `Remove PDF: ${opts.deletePdf}`, sha: delSha, branch }) });
+          if (!delRes.ok) await parseGhError(delRes, 'Failed to delete PDF');
+        }
+      } catch(e) { /* PDF not found – ignore */ }
+    }
 
     // Upload PDF if a new file was selected
     if (phdPdfFile) {
