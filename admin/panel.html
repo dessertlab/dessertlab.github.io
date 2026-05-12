@@ -1072,7 +1072,18 @@
             </div>
             <div class="form-group" style="flex:1;margin-bottom:0">
               <label class="field-label">Date</label>
-              <input type="text" id="phd-date" class="text-input" placeholder="e.g. Feb 2025" oninput="phdFormChanged()" />
+              <div style="display:flex;gap:6px">
+                <select id="phd-date-month" class="text-input" onchange="phdFormChanged()" style="flex:1">
+                  <option value="">Month…</option>
+                  <option>Jan</option><option>Feb</option><option>Mar</option>
+                  <option>Apr</option><option>May</option><option>Jun</option>
+                  <option>Jul</option><option>Aug</option><option>Sep</option>
+                  <option>Oct</option><option>Nov</option><option>Dec</option>
+                </select>
+                <select id="phd-date-year" class="text-input" onchange="phdFormChanged()" style="flex:1">
+                  <option value="">Year…</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="form-group" style="margin-top:14px">
@@ -5642,7 +5653,18 @@ function setPhdStatus(type, msg) {
 }
 
 // ── Load _data/phd_theses.yml from GitHub ─────────────────────────────────────
+function initPhdYearSelect() {
+  const sel = document.getElementById('phd-date-year');
+  if (!sel || sel.options.length > 1) return; // already populated
+  const cur = new Date().getFullYear();
+  for (let y = cur + 2; y >= 2000; y--) {
+    const o = document.createElement('option');
+    o.value = o.textContent = y;
+    sel.appendChild(o);
+  }
+}
 async function loadPhdTheses() {
+  initPhdYearSelect();
   if (phdState.loaded) { renderPhdExisting(); return; }
   progressStart();
   try {
@@ -5731,14 +5753,17 @@ function phdFormChanged() {
   const title   = document.getElementById('phd-title')?.value.trim();
   const advisor = document.getElementById('phd-advisor')?.value.trim();
   const pdf     = document.getElementById('phd-pdf')?.value.trim();
+  const month   = document.getElementById('phd-date-month')?.value;
+  const year    = document.getElementById('phd-date-year')?.value;
   const dirty   = !!(author || title);
   markDirty('phd-theses', dirty || editingPhdIdx !== null);
-  document.getElementById('phd-pr-btn').disabled = !(author && title && advisor && pdf);
+  document.getElementById('phd-pr-btn').disabled = !(author && title && advisor && pdf && month && year);
 }
 
 function resetPhdForm() {
   document.getElementById('phd-author').value = '';
-  document.getElementById('phd-date').value   = '';
+  document.getElementById('phd-date-month').value = '';
+  document.getElementById('phd-date-year').value  = '';
   document.getElementById('phd-title').value  = '';
   document.getElementById('phd-advisor').value = '';
   document.getElementById('phd-pdf').value    = '';
@@ -5760,7 +5785,10 @@ function editPhd(idx) {
   editingPhdIdx = idx;
   phdPdfFile = null; // clear any pending upload when starting an edit
   document.getElementById('phd-author').value  = e.author;
-  document.getElementById('phd-date').value    = e.date;
+  // Parse date e.g. "Apr 2026"
+  const dateParts = (e.date || '').split(' ');
+  document.getElementById('phd-date-month').value = dateParts[0] || '';
+  document.getElementById('phd-date-year').value  = dateParts[1] || '';
   document.getElementById('phd-title').value   = e.title;
   document.getElementById('phd-advisor').value = e.advisor;
   document.getElementById('phd-pdf').value     = e.pdf || '';
@@ -5886,12 +5914,14 @@ async function loadPhdPending() {
 // ── Save (add / edit) via PR ──────────────────────────────────────────────────
 async function openPhdThesisPR() {
   const author  = document.getElementById('phd-author').value.trim();
-  const date    = document.getElementById('phd-date').value.trim();
+  const month   = document.getElementById('phd-date-month').value;
+  const year    = document.getElementById('phd-date-year').value;
+  const date    = (month && year) ? `${month} ${year}` : '';
   const title   = document.getElementById('phd-title').value.trim();
   const advisor = document.getElementById('phd-advisor').value.trim();
   const pdf     = document.getElementById('phd-pdf').value.trim();
   const coAdvisors = getCoAdvisors();
-  if (!author || !title || !advisor) return;
+  if (!author || !title || !advisor || !date || !pdf) return;
 
   const entry = { date, author, title, advisor, co_advisors: coAdvisors, pdf };
   let updated;
