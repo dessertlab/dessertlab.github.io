@@ -10,6 +10,12 @@ courses:
     - name: "AI Code Generation: Foundations, Evaluation, and Security"
       professor: Pietro Liguori
       degree: ITEE
+    - name: Virtualization Technologies and their Applications
+      professor: Luigi De Simone
+      degree: ITEE
+    - name: IoT Data Analysis
+      professor: Raffaele Della Corte
+      degree: ITEE
 
   msc:
     - name: Impianti di Elaborazione
