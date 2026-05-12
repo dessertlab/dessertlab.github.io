@@ -1052,6 +1052,78 @@
         <div id="ppl-pending-items"></div>
       </div>
     </div><!-- /people-section -->
+
+    <!-- ── PhD THESES SECTION ── -->
+    <div id="phd-theses-section" style="display:none">
+      <div class="status" id="phd-status"></div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" id="phd-card-title">Add PhD Thesis</div>
+          <div class="card-hint">
+            Fill in the thesis details. A pull request will be opened to update
+            <code>_data/phd_theses.yml</code>.
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Author</label>
+              <input type="text" id="phd-author" class="text-input" placeholder="Full name…" oninput="phdFormChanged()" />
+            </div>
+            <div class="form-group" style="flex:1;margin-bottom:0">
+              <label class="field-label">Date</label>
+              <input type="text" id="phd-date" class="text-input" placeholder="e.g. Feb 2025" oninput="phdFormChanged()" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Title</label>
+            <input type="text" id="phd-title" class="text-input" placeholder="Thesis title…" oninput="phdFormChanged()" />
+          </div>
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">Advisor</label>
+            <input type="text" id="phd-advisor" class="text-input" placeholder="Prof. First Last" oninput="phdFormChanged()" />
+          </div>
+          <div style="margin-top:14px">
+            <label class="field-label">Co-Advisors <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <div id="phd-coadvisors-rows"></div>
+            <button class="btn-add-proposal" onclick="addPhdCoAdvisorRow('')">+ Add co-advisor</button>
+          </div>
+          <div class="form-group" style="margin-top:14px">
+            <label class="field-label">PDF <span style="font-weight:400;color:var(--muted)">(required)</span></label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="text" id="phd-pdf" class="text-input" placeholder="phd_thesis_surname.pdf" oninput="onPhdPdfPathInput()" style="flex:1;min-width:0" />
+              <label class="btn-clear" style="cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:12px" for="phd-pdf-file">&#128196; Browse…</label>
+              <input type="file" id="phd-pdf-file" accept="application/pdf" style="display:none" onchange="onPhdPdfSelect(this)" />
+            </div>
+            <div id="phd-pdf-status" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+          </div>
+          <div class="actions" style="margin-top:18px">
+            <button class="btn-pr" id="phd-pr-btn" onclick="openPhdThesisPR()" disabled>Save</button>
+            <button class="btn-clear" onclick="resetPhdForm();hidePhdStatus()">Reset</button>
+            <button class="btn-clear" id="phd-cancel-edit-btn" style="display:none;color:var(--muted)" onclick="cancelEditPhd()">Cancel Edit</button>
+            <span class="pr-note" id="phd-pr-note">will update <code>_data/phd_theses.yml</code></span>
+            <kbd style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:2px 6px;background:var(--surface);white-space:nowrap">Ctrl+&crarr;</kbd>
+          </div>
+        </div>
+      </div>
+
+      <div class="existing-toggle" id="phd-ex-toggle" onclick="togglePhdExisting()">
+        <span class="arrow"></span>
+        <span id="phd-ex-label">Browse existing theses</span>
+      </div>
+      <div class="existing-list" id="phd-existing-list">
+        <div class="ex-filter-bar"><input class="ex-search" id="phd-search" placeholder="Filter by author or title…" oninput="renderPhdExisting()" /></div>
+        <div id="phd-ex-items"></div>
+      </div>
+
+      <div class="existing-toggle" id="phd-pending-toggle" onclick="togglePhdPending()" style="margin-top:8px">
+        <span class="arrow"></span>
+        <span id="phd-pending-label">Browse PhD theses pending approval</span>
+      </div>
+      <div class="existing-list" id="phd-pending-list">
+        <div id="phd-pending-items"></div>
+      </div>
+    </div><!-- /phd-theses-section -->
   </main>
 </div>
 
@@ -1301,7 +1373,7 @@ function updateWordCount() {
 }
 
 // ════════════════════════════════ DIRTY TAB INDICATOR
-const dirtyState = { publications: false, thesis: false, posts: false, projects: false, research: false, people: false };
+const dirtyState = { publications: false, thesis: false, posts: false, projects: false, research: false, people: false, 'phd-theses': false };
 
 function markDirty(section, dirty) {
   dirtyState[section] = dirty;
@@ -1310,7 +1382,7 @@ function markDirty(section, dirty) {
 }
 
 function refreshAllDirtyTabs() {
-  ['publications', 'thesis', 'posts', 'projects', 'research', 'people'].forEach(section => {
+  ['publications', 'thesis', 'posts', 'projects', 'research', 'people', 'phd-theses'].forEach(section => {
     const tab = document.getElementById(`tab-${section}`);
     if (tab) tab.classList.toggle('dirty', dirtyState[section]);
   });
@@ -1366,6 +1438,9 @@ document.addEventListener('keydown', function(e) {
     } else if (section === 'people') {
       const btn = document.getElementById('ppl-pr-btn');
       if (btn && !btn.disabled) btn.click();
+    } else if (section === 'phd-theses') {
+      const btn = document.getElementById('phd-pr-btn');
+      if (btn && !btn.disabled) btn.click();
     }
   }
 });
@@ -1395,7 +1470,7 @@ document.addEventListener('input', function(e) {
 function buildTabs() {
   // Primary bar: Publications | Thesis Proposals | Posts
   const bar = document.getElementById('tab-bar');
-  [['people','People'],['posts','Posts'],['projects','Projects'],['publications','Publications'],['research','Research'],['thesis','Thesis Proposals']].forEach(([id,label]) => {
+  [['people','People'],['phd-theses','PhD Theses'],['posts','Posts'],['projects','Projects'],['publications','Publications'],['research','Research'],['thesis','Thesis Proposals']].forEach(([id,label]) => {
     const t = document.createElement('div');
     t.id = `tab-${id}`; t.className = 'tab'; t.textContent = label;
     t.onclick = () => switchPrimary(id);
@@ -1414,18 +1489,19 @@ function buildTabs() {
 
 function switchPrimary(section) {
   sessionStorage.setItem('active_tab', section);
-  ['publications','thesis','posts','projects','research','people'].forEach(id => {
+  ['publications','thesis','posts','projects','research','people','phd-theses'].forEach(id => {
     document.getElementById(`tab-${id}`).classList.toggle('active', id === section);
   });
   refreshAllDirtyTabs();
-  document.getElementById('pub-section').style.display     = section === 'publications' ? 'block' : 'none';
-  document.getElementById('thesis-section').style.display  = section === 'thesis'       ? 'block' : 'none';
-  document.getElementById('post-section').style.display    = section === 'posts'        ? 'block' : 'none';
-  document.getElementById('project-section').style.display  = section === 'projects'  ? 'block' : 'none';
-  document.getElementById('research-section').style.display = section === 'research'  ? 'block' : 'none';
-  document.getElementById('people-section').style.display   = section === 'people'    ? 'block' : 'none';
+  document.getElementById('pub-section').style.display          = section === 'publications' ? 'block' : 'none';
+  document.getElementById('thesis-section').style.display        = section === 'thesis'       ? 'block' : 'none';
+  document.getElementById('post-section').style.display          = section === 'posts'        ? 'block' : 'none';
+  document.getElementById('project-section').style.display       = section === 'projects'     ? 'block' : 'none';
+  document.getElementById('research-section').style.display      = section === 'research'     ? 'block' : 'none';
+  document.getElementById('people-section').style.display        = section === 'people'       ? 'block' : 'none';
+  document.getElementById('phd-theses-section').style.display    = section === 'phd-theses'   ? 'block' : 'none';
   // Fade-in the active section
-  const sectionIdMap = { publications:'pub-section', thesis:'thesis-section', posts:'post-section', projects:'project-section', research:'research-section', people:'people-section' };
+  const sectionIdMap = { publications:'pub-section', thesis:'thesis-section', posts:'post-section', projects:'project-section', research:'research-section', people:'people-section', 'phd-theses':'phd-theses-section' };
   const activeSection = document.getElementById(sectionIdMap[section] || 'pub-section');
   activeSection.classList.remove('section-enter');
   void activeSection.offsetWidth; // force reflow
@@ -1436,6 +1512,7 @@ function switchPrimary(section) {
   else if (section === 'projects') { hideProjectStatus(); }
   else if (section === 'research') { hideResearchStatus(); }
   else if (section === 'people')   { hidePeopleStatus(); }
+  else if (section === 'phd-theses') { hidePhdStatus(); loadPhdTheses(); }
   else { switchTab(activeTab && BIB_FILES.find(f => f.id === activeTab) ? activeTab : BIB_FILES[0].id); }
 }
 function switchTab(id) {
@@ -5544,6 +5621,361 @@ function refIcon(r) {
   if (s.includes('dblp'))         return '&#x1F4C4;';
   if (s.includes('researchgate') || s.includes('semanticscholar')) return '&#x1F52C;';
   return '&#x1F310;';
+}
+
+// ════════════════════════════════ PhD THESES
+const PHD_THESES_FILE = '_data/phd_theses.yml';
+const phdState = { raw: '', sha: '', entries: [], loaded: false };
+let phdExOpen = false;
+let phdPendingOpen = false;
+let editingPhdIdx = null; // index in phdState.entries while editing
+let phdPdfFile = null;   // File object if user picked a new PDF to upload
+
+function hidePhdStatus() {
+  const el = document.getElementById('phd-status');
+  if (el) { el.style.display = 'none'; el.className = 'status'; el.innerHTML = ''; }
+}
+function setPhdStatus(type, msg) {
+  const el = document.getElementById('phd-status');
+  if (!el) return;
+  el.className = `status ${type}`; el.innerHTML = msg; el.style.display = 'block';
+}
+
+// ── Load _data/phd_theses.yml from GitHub ─────────────────────────────────────
+async function loadPhdTheses() {
+  if (phdState.loaded) { renderPhdExisting(); return; }
+  progressStart();
+  try {
+    const res = await fetch(`${GH}/contents/${PHD_THESES_FILE}`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    phdState.sha    = data.sha;
+    phdState.raw    = b64d(data.content.replace(/\n/g, ''));
+    phdState.entries = parsePhdYaml(phdState.raw);
+    phdState.loaded  = true;
+    progressEnd();
+    renderPhdExisting();
+  } catch(e) { progressEnd(); setPhdStatus('error', `Failed to load PhD theses: ${e.message}`); }
+}
+
+// ── Minimal YAML list parser for _data/phd_theses.yml ────────────────────────
+function parsePhdYaml(raw) {
+  const entries = [];
+  let current = null;
+  for (const line of raw.split('\n')) {
+    if (/^- /.test(line)) {
+      if (current) entries.push(current);
+      current = { date: '', author: '', title: '', advisor: '', co_advisors: [], pdf: '' };
+      const rest = line.slice(2).trim();
+      applyPhdKv(current, rest);
+    } else if (current) {
+      const trimmed = line.trim();
+      if (/^- /.test(trimmed) && 'co_advisors' in current) {
+        // array item under co_advisors
+        current.co_advisors.push(trimmed.slice(2).replace(/^["']|["']$/g, '').trim());
+      } else {
+        applyPhdKv(current, trimmed);
+      }
+    }
+  }
+  if (current) entries.push(current);
+  return entries;
+}
+function applyPhdKv(obj, s) {
+  const m = s.match(/^(\w+):\s*(.*)/);
+  if (!m) return;
+  const [, key, val] = m;
+  const v = val.replace(/^["']|["']$/g, '').trim();
+  if (key === 'date')   obj.date   = v;
+  if (key === 'author') obj.author = v;
+  if (key === 'title')  obj.title  = v;
+  if (key === 'advisor') obj.advisor = v;
+  if (key === 'pdf')    obj.pdf    = v;
+  if (key === 'co_advisors') obj.co_advisors = [];
+}
+
+// ── Serialize entries back to YAML ────────────────────────────────────────────
+function serializePhdYaml(entries) {
+  return entries.map(e => {
+    let out = `- date: ${yScalar(e.date)}\n`;
+    out    += `  author: ${yScalar(e.author)}\n`;
+    out    += `  title: ${yScalar(e.title)}\n`;
+    out    += `  advisor: ${yScalar(e.advisor)}\n`;
+    if (e.co_advisors && e.co_advisors.length) {
+      out  += `  co_advisors:\n`;
+      for (const co of e.co_advisors) out += `    - ${yScalar(co)}\n`;
+    }
+    if (e.pdf) out += `  pdf: ${yScalar(e.pdf)}\n`;
+    return out;
+  }).join('\n');
+}
+
+// ── Form helpers ──────────────────────────────────────────────────────────────
+function addPhdCoAdvisorRow(val) {
+  const container = document.getElementById('phd-coadvisors-rows');
+  const row = document.createElement('div');
+  row.className = 'proposal-row';
+  row.innerHTML =
+    `<input class="proposal-input text-input" type="text" placeholder="Prof. First Last" value="${esc(val)}" oninput="phdFormChanged()" />` +
+    `<button class="btn-remove-row" onclick="this.parentElement.remove();phdFormChanged()" title="Remove">&times;</button>`;
+  container.appendChild(row);
+}
+
+function getCoAdvisors() {
+  return [...document.querySelectorAll('#phd-coadvisors-rows .proposal-input')]
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+function phdFormChanged() {
+  const author  = document.getElementById('phd-author')?.value.trim();
+  const title   = document.getElementById('phd-title')?.value.trim();
+  const advisor = document.getElementById('phd-advisor')?.value.trim();
+  const pdf     = document.getElementById('phd-pdf')?.value.trim();
+  const dirty   = !!(author || title);
+  markDirty('phd-theses', dirty || editingPhdIdx !== null);
+  document.getElementById('phd-pr-btn').disabled = !(author && title && advisor && pdf);
+}
+
+function resetPhdForm() {
+  document.getElementById('phd-author').value = '';
+  document.getElementById('phd-date').value   = '';
+  document.getElementById('phd-title').value  = '';
+  document.getElementById('phd-advisor').value = '';
+  document.getElementById('phd-pdf').value    = '';
+  document.getElementById('phd-pdf-file').value = '';
+  document.getElementById('phd-pdf-status').textContent = '';
+  document.getElementById('phd-coadvisors-rows').innerHTML = '';
+  document.getElementById('phd-card-title').textContent = 'Add PhD Thesis';
+  document.getElementById('phd-cancel-edit-btn').style.display = 'none';
+  document.getElementById('phd-pr-btn').disabled = true;
+  phdPdfFile = null;
+  editingPhdIdx = null;
+  markDirty('phd-theses', false);
+}
+
+function cancelEditPhd() { resetPhdForm(); hidePhdStatus(); }
+
+function editPhd(idx) {
+  const e = phdState.entries[idx];
+  editingPhdIdx = idx;
+  phdPdfFile = null; // clear any pending upload when starting an edit
+  document.getElementById('phd-author').value  = e.author;
+  document.getElementById('phd-date').value    = e.date;
+  document.getElementById('phd-title').value   = e.title;
+  document.getElementById('phd-advisor').value = e.advisor;
+  document.getElementById('phd-pdf').value     = e.pdf || '';
+  document.getElementById('phd-pdf-file').value = '';
+  document.getElementById('phd-pdf-status').textContent = '';
+  document.getElementById('phd-coadvisors-rows').innerHTML = '';
+  (e.co_advisors || []).forEach(co => addPhdCoAdvisorRow(co));
+  document.getElementById('phd-card-title').textContent = 'Edit PhD Thesis';
+  document.getElementById('phd-cancel-edit-btn').style.display = '';
+  document.getElementById('phd-pr-btn').disabled = false;
+  markDirty('phd-theses', true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function onPhdPdfSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  phdPdfFile = file;
+  const pathEl = document.getElementById('phd-pdf');
+  if (!pathEl.value.trim()) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase();
+    pathEl.value = safeName;
+  }
+  document.getElementById('phd-pdf-status').textContent = `✔ Selected: ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+  phdFormChanged();
+}
+
+function onPhdPdfPathInput() {
+  const val = document.getElementById('phd-pdf').value.trim();
+  if (!val) {
+    phdPdfFile = null;
+    document.getElementById('phd-pdf-file').value = '';
+    document.getElementById('phd-pdf-status').textContent = '';
+  }
+  phdFormChanged();
+}
+
+// ── Browse existing ───────────────────────────────────────────────────────────
+function togglePhdExisting() {
+  phdExOpen = !phdExOpen;
+  document.getElementById('phd-ex-toggle').classList.toggle('open', phdExOpen);
+  document.getElementById('phd-existing-list').classList.toggle('open', phdExOpen);
+  if (phdExOpen && !phdState.loaded) loadPhdTheses(); else renderPhdExisting();
+}
+
+function renderPhdExisting() {
+  const container = document.getElementById('phd-ex-items');
+  if (!phdState.loaded) {
+    container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>'; return;
+  }
+  const q = (document.getElementById('phd-search')?.value || '').toLowerCase();
+  const filtered = phdState.entries.filter((e, i) => {
+    if (!q) return true;
+    return (e.author + ' ' + e.title + ' ' + e.date).toLowerCase().includes(q);
+  });
+  document.getElementById('phd-ex-label').textContent =
+    `Browse existing theses (${phdState.entries.length} total)`;
+  if (!filtered.length) {
+    container.innerHTML = `<div class="ex-empty">No results.</div>`; return;
+  }
+  container.innerHTML = filtered.map((e, fi) => {
+    // find real index
+    const realIdx = phdState.entries.indexOf(e);
+    return `<div class="ex-item" id="phd-row-${realIdx}">
+      <span class="ex-year">${esc(e.date)}</span>
+      <span class="ex-title" style="flex:1"><strong>${esc(e.author)}</strong> — ${esc(e.title)}</span>
+      <span style="display:flex;gap:5px;flex-shrink:0" id="phd-row-btns-${realIdx}">
+        <button class="btn-ex btn-ex-edit" onclick="editPhd(${realIdx})">Edit</button>
+        <button class="btn-ex btn-ex-del"  onclick="confirmDeletePhd(${realIdx})">Delete</button>
+      </span>
+      <span style="display:none;align-items:center;gap:8px;flex-shrink:0" id="phd-row-confirm-${realIdx}">
+        <span style="font-size:11px;color:var(--warn)">Delete this entry?</span>
+        <button class="btn-ex btn-ex-confirm-yes" onclick="deletePhd(${realIdx})">Yes, delete</button>
+        <button class="btn-ex btn-ex-cancel" onclick="cancelDeletePhd(${realIdx})">Cancel</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function confirmDeletePhd(idx) {
+  document.getElementById(`phd-row-btns-${idx}`).style.display = 'none';
+  document.getElementById(`phd-row-confirm-${idx}`).style.display = 'flex';
+  document.getElementById(`phd-row-${idx}`).classList.add('pending-delete');
+}
+function cancelDeletePhd(idx) {
+  document.getElementById(`phd-row-btns-${idx}`).style.display = 'flex';
+  document.getElementById(`phd-row-confirm-${idx}`).style.display = 'none';
+  document.getElementById(`phd-row-${idx}`).classList.remove('pending-delete');
+}
+
+async function deletePhd(idx) {
+  const entry = phdState.entries[idx];
+  const updated = phdState.entries.filter((_, i) => i !== idx);
+  await savePhdToGitHub(updated, `Remove PhD thesis: ${entry.author}`);
+}
+
+// ── Toggle pending ────────────────────────────────────────────────────────────
+function togglePhdPending() {
+  phdPendingOpen = !phdPendingOpen;
+  document.getElementById('phd-pending-toggle').classList.toggle('open', phdPendingOpen);
+  document.getElementById('phd-pending-list').classList.toggle('open', phdPendingOpen);
+  if (phdPendingOpen) loadPhdPending();
+}
+
+async function loadPhdPending() {
+  const container = document.getElementById('phd-pending-items');
+  container.innerHTML = '<div class="ex-empty"><span class="spin"></span> Loading\u2026</div>';
+  try {
+    const res = await fetch(`${GH}/pulls?state=open&per_page=50`, { headers: ghH() });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const prs = await res.json();
+    const phd = prs.filter(p => p.title && p.title.toLowerCase().includes('phd thesis'));
+    if (!phd.length) { container.innerHTML = '<div class="ex-empty">No pending pull requests.</div>'; return; }
+    container.innerHTML = phd.map(p =>
+      `<div class="post-ex-item">
+        <span class="post-ex-date">#${p.number}</span>
+        <span class="post-ex-name"><a href="${p.html_url}" target="_blank">${esc(p.title)}</a></span>
+      </div>`
+    ).join('');
+  } catch(e) { container.innerHTML = `<div class="ex-empty">Failed: ${esc(e.message)}</div>`; }
+}
+
+// ── Save (add / edit) via PR ──────────────────────────────────────────────────
+async function openPhdThesisPR() {
+  const author  = document.getElementById('phd-author').value.trim();
+  const date    = document.getElementById('phd-date').value.trim();
+  const title   = document.getElementById('phd-title').value.trim();
+  const advisor = document.getElementById('phd-advisor').value.trim();
+  const pdf     = document.getElementById('phd-pdf').value.trim();
+  const coAdvisors = getCoAdvisors();
+  if (!author || !title || !advisor) return;
+
+  const entry = { date, author, title, advisor, co_advisors: coAdvisors, pdf };
+  let updated;
+  let commitMsg;
+  if (editingPhdIdx !== null) {
+    updated = [...phdState.entries];
+    updated[editingPhdIdx] = entry;
+    commitMsg = `Update PhD thesis: ${author}`;
+  } else {
+    updated = [entry, ...phdState.entries];
+    commitMsg = `Add PhD thesis: ${author}`;
+  }
+  await savePhdToGitHub(updated, commitMsg);
+}
+
+async function savePhdToGitHub(entries, commitMsg) {
+  if (!phdState.loaded) return;
+  const content = serializePhdYaml(entries);
+  progressStart();
+  document.getElementById('phd-pr-btn').disabled = true;
+  try {
+    const parseGhError = async (res, label) => {
+      let details = `${res.status} ${res.statusText}`;
+      try { const body = await res.json(); if (body && body.message) details += ` \u2014 ${body.message}`; } catch(_) {}
+      throw new Error(`${label}: ${details}`);
+    };
+
+    const baseRes = await fetch(`${GH}/git/ref/heads/${CONFIG.BASE_BRANCH}`, { headers: ghH() });
+    if (!baseRes.ok) await parseGhError(baseRes, 'Failed to read base branch');
+    const baseSha = (await baseRes.json()).object.sha;
+
+    const branch = `phd-theses-${Date.now()}`;
+    const branchRes = await fetch(`${GH}/git/refs`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }) });
+    if (!branchRes.ok) await parseGhError(branchRes, 'Failed to create branch');
+
+    // Upload PDF if a new file was selected
+    if (phdPdfFile) {
+      const pdfFilename = document.getElementById('phd-pdf').value.trim().replace(/^.*[\/\\]/, '');
+      const pdfPath = `phd_thesis/${pdfFilename}`;
+      const pdfB64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = e => res(e.target.result.split(',')[1]);
+        r.onerror = rej;
+        r.readAsDataURL(phdPdfFile);
+      });
+      // Check if file already exists to get its SHA
+      let pdfSha;
+      try { const chk = await fetch(`${GH}/contents/${pdfPath}`, { headers: ghH() }); if (chk.ok) pdfSha = (await chk.json()).sha; } catch {}
+      const pdfBody = { message: `Upload PDF: ${pdfFilename}`, content: pdfB64, branch };
+      if (pdfSha) pdfBody.sha = pdfSha;
+      const pdfRes = await fetch(`${GH}/contents/${pdfPath}`, { method: 'PUT', headers: ghH(), body: JSON.stringify(pdfBody) });
+      if (!pdfRes.ok) await parseGhError(pdfRes, 'Failed to upload PDF');
+    }
+
+    const commitRes = await fetch(`${GH}/contents/${PHD_THESES_FILE}`, { method: 'PUT', headers: ghH(),
+      body: JSON.stringify({ message: commitMsg, content: b64e(content), sha: phdState.sha, branch }) });
+    if (!commitRes.ok) await parseGhError(commitRes, 'Failed to commit file');
+
+    const prRes = await fetch(`${GH}/pulls`, { method: 'POST', headers: ghH(),
+      body: JSON.stringify({
+        title: commitMsg,
+        head: branch,
+        base: CONFIG.BASE_BRANCH,
+        body: `PhD theses list updated via admin panel.\n\n**Change:** ${commitMsg}`,
+      })
+    });
+    if (!prRes.ok) await parseGhError(prRes, 'Failed to open pull request');
+    const pr = await prRes.json();
+    if (!pr || !pr.html_url) throw new Error('GitHub did not return a pull request URL.');
+
+    progressEnd();
+    setPhdStatus('success', `\u2713 Pull request opened: <a href="${pr.html_url}" target="_blank">${pr.html_url}</a>`);
+    // Optimistically update local state
+    phdState.entries = entries;
+    phdState.loaded  = false; // will re-fetch sha on next load
+    resetPhdForm();
+    if (phdExOpen) renderPhdExisting();
+    document.getElementById('phd-pr-btn').disabled = false;
+  } catch(e) {
+    progressEnd();
+    setPhdStatus('error', `Failed: ${e.message}`);
+    document.getElementById('phd-pr-btn').disabled = false;
+  }
 }
 </script>
 </body>

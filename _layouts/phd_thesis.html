@@ -1,0 +1,41 @@
+---
+layout: default
+---
+
+<div class="thesis-list">
+  <table class="table thesis-table">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Author</th>
+        <th scope="col">Title</th>
+        <th scope="col">Advisors</th>
+        <th scope="col">Manuscript</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for thesis in site.data.phd_theses %}
+      <tr>
+        <td>{{ thesis.date }}</td>
+        <td>{{ thesis.author }}</td>
+        <td><b>{{ thesis.title }}</b></td>
+        <td>
+          Advisor: {{ thesis.advisor }}
+          {% if thesis.co_advisors %}
+            {% for co in thesis.co_advisors %}
+              <br>Co-Advisor: {{ co }}
+            {% endfor %}
+          {% endif %}
+        </td>
+        <td>
+          {% if thesis.pdf %}
+            <a href="{{ "/phd_thesis/" | append: thesis.pdf | relative_url }}">Download</a>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
