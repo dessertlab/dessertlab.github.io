@@ -1,11 +1,3 @@
-- date: May 2026
-  author: Pippo Franco
-  title: Good Thesis
-  advisor: Prof Pinco Pallino
-  co_advisors:
-    - Dr. Doctor
-  pdf: new_text_document.pdf
-
 - date: Apr 2026
   author: Andrea Marchetta
   title: "Simulation and co-simulation environments for the Cooperative, Connected and Automated Mobility (CCAM)"
